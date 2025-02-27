@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Styling for the product details */
+        .product-details-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .product-properties {
+            list-style: none;
+            padding: 0;
+        }
+
+        .product-property {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .product-property label {
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .product-specifications {
+            font-size: 16px;
+            color: #606060;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f3f3f3;
+        }
+
+        .seller-offers {
+            margin-top: 30px;
+        }
+
+        .seller-offers h3 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Product Details Fragment -->
+    <div class="product-details-container">
+        <!-- Title -->
+        <h1 class="product-title">{{product.name}}</h1>
+
+        <!-- Properties -->
+        <ul class="product-properties">
+            <li class="product-property">
+                <label>Taxable:</label>
+                <span>{{#product.taxable}}Yes{{/product.taxable}}{{^product.taxable}}No{{/product.taxable}}</span>
+            </li>
+            <li class="product-property">
+                <label>Categories:</label>
+                <ul>
+                    {{#product.categories}}
+                    <li>{{name}}</li>
+                    {{/product.categories}}
+                </ul>
+            </li>
+            <li class="product-property">
+                <label>Tags:</label>
+                <ul>
+                    {{#product.tags}}
+                    <li>{{name}}</li>
+                    {{/product.tags}}
+                </ul>
+            </li>
+        </ul>
+
+        <!-- Specifications -->
+        <div class="product-specifications">
+            <h3>Specifications:</h3>
+            <ul>
+                {{#product.specifications}}
+                <li>
+                    <span>{{key}}</span>: 
+                    <span>{{value}}</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Seller Offers Placeholder -->
+        <div class="seller-offers">
+            <h3>Seller Offers:</h3>
+            <!-- Reserved space for another fragment -->
+            {{> fragments/seller-offers}}
+        </div>
+    </div>
+</body>
+</html>

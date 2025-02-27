@@ -1,0 +1,765 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.login-form {
+    width: 350px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+.login-form button {
+    width: 100%;
+    background-color: #007BFF;
+    border: none;
+    padding: 10px;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-form button:hover {
+    background-color: #0056b3;
+}
+
+.forgot-password {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.forgot-password a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+.content-container {
+    display: flex;
+}
+
+.main-content {
+    margin-left: 250px; /* Space for the sidebar */
+    padding: 20px;
+    flex: 1;
+}
+
+.hidden {
+    display: none;
+}
+/* Container for the product offer list */
+.product-offers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Individual product offer card */
+.product-offer-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background image for the product */
+.product-offer-image {
+    flex: 0 0 100px;
+    width: 100px;
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+/* Product details container */
+.product-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Product title */
+.product-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Product tags (at bottom-right corner) */
+.product-tags {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 12px;
+    color: #555;
+}
+
+/* Highlighted stock or tags */
+.tag {
+    margin: 3px 0;
+    padding: 3px 5px;
+    background-color: #eaf8ff;
+    color: #007bff;
+    border-radius: 3px;
+}
+
+/* Edit button */
+.product-edit-button {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.product-edit-button:hover {
+    background-color: #0056b3;
+}
+
+/* Add Product button at the bottom */
+.add-product-button {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.add-product-button a {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #28a745;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+.add-product-button a:hover {
+    background-color: #218838;
+}
+.shipments-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Individual shipment box */
+.shipment-box {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 15px;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+/* Product image styling */
+.product-image img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Product label */
+.product-name h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+/* Details section */
+.shipment-details {
+    font-size: 0.9rem;
+    margin: 10px 0;
+}
+
+/* Action buttons section */
+.shipment-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+/* Buttons */
+.btn-confirm {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Button hover states */
+.btn-confirm:hover {
+    background-color: #45a049;
+}
+
+.btn-cancel:hover {
+    background-color: #d32f2f;
+}
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo and company label */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.navbar-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Categories dropdown */
+.navbar-categories {
+    position: relative;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.navbar-categories > a {
+    text-decoration: none;
+    color: #333;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.navbar-categories > a:hover {
+    color: #007BFF;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 10;
+    min-width: 200px;
+}
+
+.dropdown-menu-item {
+    position: relative;
+}
+
+.dropdown-menu-item a {
+    text-decoration: none;
+    color: #333;
+    padding: 8px 10px;
+    display: block;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.dropdown-menu-item a:hover {
+    background-color: #f9f9f9;
+}
+
+/* Subcategories submenu */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 11;
+    min-width: 150px;
+}
+
+.dropdown-menu-item:hover .submenu {
+    display: block;
+}
+
+/* Show dropdown on hover */
+.navbar-categories:hover .dropdown-menu {
+    display: block;
+}
+
+/* Notifications inclusion */
+.navbar-notifications {
+    margin-right: 20px;
+}
+
+/* Profile picture */
+.navbar-profile {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.navbar-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-profile img:hover {
+    transform: scale(1.1);
+}
+.notification-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.notification-icon {
+    font-size: 24px;
+    color: #333;
+    position: relative;
+}
+
+/* Notification count indicator */
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #FF0000;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 4px 7px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Hidden notification container */
+.notification-popup {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    z-index: 10;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* When the icon is hovered, show the notification list */
+.notification-icon-wrapper:hover .notification-popup {
+    display: block;
+}
+
+/* Adjusting notification items for popup */
+.notification-popup .notification-item {
+    margin: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.notification-popup .notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+/* Notification header for the popup */
+.notification-popup .notification-header {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px;
+    text-align: center;
+}
+/* General styling for the notification container */
+.notification-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header with total notifications count */
+.notification-header {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Notification item style */
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0;
+    padding: 10px;
+    border-bottom: 1px solid #e4e4e4;
+    position: relative;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.notification-item:hover {
+    background-color: #f1f1f1;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Image styling */
+.notification-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+/* Content styling */
+.notification-content {
+    flex-grow: 1;
+}
+
+.notification-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.notification-message {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.notification-link {
+    text-decoration: none;
+    color: #007BFF;
+    font-size: 14px;
+    font-weight: bold;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: color 0.2s ease-in-out;
+}
+
+.notification-link:hover {
+    color: #0056b3;
+}
+
+/* Pagination style */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.pagination-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.pagination-button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+.pagination-button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #666;
+}
+.user-details-form-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.checkbox-group {
+    margin: 10px 0;
+}
+
+.form-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.form-controls button {
+    font-size: 16px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-save {
+    background-color: #28a745;
+    color: white;
+}
+.btn-delete {
+    font-size: 16px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+.security-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50; /* Darker blue-gray for the title */
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="url"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn-update {
+    font-size: 16px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-update:hover {
+    background-color: #0056b3;
+}
+
+.btn-deactivate {
+    font-size: 16px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-deactivate:hover {
+    background-color: #c82333;
+}
+.sidebar-container {
+    width: 250px;
+    height: 100%; /* Full-height */
+    background-color: #f8f9fa; /* Light gray background */
+    color: #333; /* Dark text color */
+    border-right: 1px solid #ddd;
+    padding: 15px;
+    position: fixed; /* Sticky positioning for sidebar */
+    top: 0; /* Stick to the top of the viewport */
+    left: 0;
+    overflow-y: auto; /* Enable scrolling for long menus */
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50; /* Darker blue-gray for the title */
+    margin-bottom: 15px;
+}
+
+.sidebar-links {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar-links li {
+    margin: 10px 0; /* Spacing between links */
+}
+
+.sidebar-links a {
+    text-decoration: none; /* Remove underline */
+    font-size: 16px;
+    color: #007bff; /* Bootstrap primary color */
+    transition: color 0.3s ease; /* Smooth transition on hover */
+}
+
+.sidebar-links a:hover {
+    color: #0056b3; /* Darker blue on hover */
+}

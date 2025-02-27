@@ -1,0 +1,13 @@
+<div class="cart-container">
+  <h2>Shopping Cart</h2>
+  {{#cartItems}}
+  <div class="cart-item">
+    <h3>{{productName}}</h3>
+    <p>Quantity: {{quantity}}</p>
+    <p>Price: ${{price}}</p>
+  </div>
+  {{/cartItems}}
+  {{^cartItems}}
+  <p>Your cart is empty</p>
+  {{/cartItems}}
+</div>

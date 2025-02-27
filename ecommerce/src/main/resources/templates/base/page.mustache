@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{contentTitle}} - {{layoutTitle}}</title>
+    <!-- Common CSS/JS -->
+</head>
+<body>
+<!-- Navbar -->
+{{> fragments/sides/navbar}}
+<!-- Content -->
+{{$content}}
+    <!-- Default content (can be overridden by child templates) -->
+{{/content}}
+<!-- Footer -->
+<footer>
+    <p>Footer Content</p>
+</footer>
+</body>
+</html>

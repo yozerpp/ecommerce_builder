@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package protobuf;
+option java_multiple_files = true;
+option java_package = "me.yusuf.ecommerce.protobuf";
+option java_outer_classname = "Ecommerce";
+import "google/protobuf/timestamp.proto";
+
+// Table: users
+message User {
+  int32 id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  bool active = 5;
+  google.protobuf.Timestamp inserted_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// Table: roles
+message Role {
+  int32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: user_roles (Join Table)
+message UserRole {
+  int32 user_id = 1;
+  int32 role_id = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: categories
+message Category {
+  int32 id = 1;
+  string name = 2;
+  int32 parent_id = 3;
+  google.protobuf.Timestamp inserted_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+// Table: products
+message Product {
+  int32 id = 1;
+  string sku = 2;
+  string name = 3;
+  string description = 4;
+  int32 product_status_id = 5;
+  double regular_price = 6;
+  double discount_price = 7;
+  int32 quantity = 8;
+  bool taxable = 9;
+  google.protobuf.Timestamp inserted_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// Table: tags
+message Tag {
+  int32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: product_tags (Join Table)
+message ProductTag {
+  int32 product_id = 1;
+  int32 tag_id = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: sales_orders
+message SalesOrder {
+  int32 id = 1;
+  string order_date = 2; // Consider storing it as a `google.protobuf.Timestamp` if using ISO 8601.
+  double total = 3;
+  int32 coupon_id = 4;
+  string session_id = 5;
+  int32 user_id = 6;
+  google.protobuf.Timestamp inserted_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Table: coupons
+message Coupon {
+  int32 id = 1;
+  string code = 2;
+  string description = 3;
+  bool active = 4;
+  double value = 5;
+  bool multiple = 6;
+  google.protobuf.Timestamp start_date = 7;
+  google.protobuf.Timestamp end_date = 8;
+  google.protobuf.Timestamp inserted_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+// Table: cc_transactions
+message CCTransaction {
+  int32 id = 1;
+  string code = 2;
+  int32 order_id = 3;
+  google.protobuf.Timestamp transdate = 4;
+  string processor = 5;
+  string processor_trans_id = 6;
+  double amount = 7;
+  string cc_num = 8;
+  string cc_type = 9;
+  string response = 10;
+  google.protobuf.Timestamp inserted_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// Table: sessions
+message Session {
+  string id = 1;
+  string data = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: product_statuses
+message ProductStatus {
+  int32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: product_categories (Join Table)
+message ProductCategory {
+  int32 category_id = 1;
+  int32 product_id = 2;
+  google.protobuf.Timestamp inserted_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+// Table: order_products
+message OrderProduct {
+  int32 id = 1;
+  int32 order_id = 2;
+  string sku = 3;
+  string name = 4;
+  string description = 5;
+  double price = 6;
+  int32 quantity = 7;
+  double subtotal = 8;
+  google.protobuf.Timestamp inserted_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
