@@ -10,8 +10,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @org.springframework.stereotype.Repository
+@RepositoryRestResource(exported = false)
 public interface ShipmentRepository extends Repository<Shipment,Integer> {
     @Nullable Shipment findByOrderIdAndProductIdAndSellerId(Integer userId, Integer productId, Integer sellerId);
     @PreAuthorize("isAuthenticated()")
@@ -27,7 +29,7 @@ public interface ShipmentRepository extends Repository<Shipment,Integer> {
     @PreAuthorize("isAuthenticated()")
     @Query("SELECT s from Shipment s join Order o on o=s.order join User u on u = o.user where u.username = ?#{principal?.username}")
     @NonNull Page<Shipment> getShipmentsOfCurrentBuyer(@Nullable Pageable pageable);
-    @PreAuthorize("T(me.yusuf.ecommerce.domain.user.User).cast(principal).id == #shipment.getSeller().userId or hasRole('ROLE_ADMIN')" )
+    @PreAuthorize("T(me.yusuf.ecommerce.domain.user.User).cast(principal).id == #shipment.getSeller().userId or hasRole('ROLE_ADMIN')")
     <S extends Shipment> S save(@NonNull @Param("shipment") S _shipment);
     @PreAuthorize("T(me.yusuf.ecommerce.domain.user.User).cast(principal).id == shipment.getSeller().userId or hasRole('ROLE_ADMIN')")
     <S extends Shipment> void delete(S shipment);

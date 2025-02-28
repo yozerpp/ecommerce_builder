@@ -8,7 +8,9 @@ import org.springframework.data.repository.Repository;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+@RepositoryRestResource(exported = false)
 public interface ProductOfferRepository extends Repository<ProductOffer, ProductOffer.ProductOfferId> {
     @Nullable
     ProductOffer findById(ProductOffer.ProductOfferId id);

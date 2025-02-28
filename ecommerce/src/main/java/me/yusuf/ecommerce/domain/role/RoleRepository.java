@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.repository.Repository;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+@RepositoryRestResource(exported = false)
 public interface RoleRepository extends Repository<Role, String> {
     @Nullable Role findByAuthority(@NotNull String authority);
     @PreAuthorize("hasRole('ROLE_ADMIN')")

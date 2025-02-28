@@ -8,9 +8,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @Repository
+@RepositoryRestResource(exported = false)
 public interface UserRepository extends org.springframework.data.repository.Repository<User,Integer> {
     @PreAuthorize("isAuthenticated()")
     @Query("SELECT u from User u where u.username = ?#{principal?.username}")

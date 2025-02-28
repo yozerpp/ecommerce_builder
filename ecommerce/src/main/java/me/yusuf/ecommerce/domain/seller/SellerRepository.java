@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.List;
-
+@RepositoryRestResource(exported = false)
 public interface SellerRepository extends JpaRepository<Seller, Integer> {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
     @Query("SELECT s from Seller s join User u on u.id = s.userId where u.username = ?#{principal.username}")
@@ -21,5 +21,5 @@ public interface SellerRepository extends JpaRepository<Seller, Integer> {
     @EntityGraph(attributePaths = {"productOffers", "productOffers.product"})
     @Nullable Seller findWithProductOffersProductByUserId(Integer id);
 
-    List<Object> findByUserId(int userId);
+    java.util.List<Object> findByUserId(int userId);
 }

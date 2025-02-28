@@ -10,9 +10,11 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
 
+@RepositoryRestResource(exported = false)
 public interface OrderRepository extends Repository<Order, Integer> {
     @PreAuthorize("isAuthenticated()")
     @Query("SELECT o FROM Order o where o.user.username = ?#{principal.username}")
