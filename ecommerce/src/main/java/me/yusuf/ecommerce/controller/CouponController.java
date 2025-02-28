@@ -1,15 +1,14 @@
 package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.coupon.Coupon;
-import me.yusuf.ecommerce.domain.coupon.CouponRepository;
 import me.yusuf.ecommerce.domain.coupon.CouponService;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
 @RequestMapping("/coupon")
 public class CouponController extends ControllerBase {
     private final CouponService service;
@@ -19,27 +18,27 @@ public class CouponController extends ControllerBase {
     }
 
     @GetMapping("/{code}")
-    public String one(@PathVariable String code, Model model) {
-        var c = this.service.getCoupon(code);
-        model.addAttribute("coupon", c);
-        return "fragments/coupon";
+    public Coupon one(@PathVariable String code) {
+        return this.service.getCoupon(code);
     }
 
     @PostMapping
-    public String createCoupon(@RequestBody Coupon coupon, Model model) {
+    public Map<String, Object> createCoupon(@RequestBody Coupon coupon) {
+        Map<String, Object> response = new HashMap<>();
         var code = this.service.createCoupon(coupon);
-        model.addAttribute("message", createdMessage(code, "/coupon"));
-        return "fragments/seller/coupon";
+        response.put("message", createdMessage(code, "/coupon"));
+        return response;
     }
 
     @DeleteMapping("/{code}")
-    public String deleteCoupon(@PathVariable String code, Model model) {
+    public Map<String, Object> deleteCoupon(@PathVariable String code) {
+        Map<String, Object> response = new HashMap<>();
         try {
             this.service.invalidateCoupon(code);
-            model.addAttribute("message", "Coupon successfully deleted");
+            response.put("message", "Coupon successfully deleted");
         } catch (AccessDeniedException e) {
-            model.addAttribute("message", "You do not have permission to delete this coupon");
+            response.put("message", "You do not have permission to delete this coupon");
         }
-        return null;
+        return response;
     }
 }

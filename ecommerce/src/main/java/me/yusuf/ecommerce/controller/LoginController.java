@@ -2,41 +2,47 @@ package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.user.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.LoginException;
+import java.util.HashMap;
+import java.util.Map;
 
-@Controller("loginController")
-@RequestMapping
-public class LoginController extends ControllerBase{
+@RestController
+public class LoginController extends ControllerBase {
 
     private final UserService userService;
 
     public LoginController(UserService userService) {
         this.userService = userService;
     }
+
     @GetMapping("/login")
-    public String loginPage(){
-        return "login";
+    public Map<String, Object> loginPage(){
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Please use POST /login with username and password to login.");
+        return response;
     }
+
     @PostMapping("/login")
-    public String login(Model model, @RequestParam String username, @RequestParam String password, @RequestParam(name = "continue", defaultValue = "/user") String cont){
+    public Map<String, Object> login(@RequestParam String username,
+                                     @RequestParam String password,
+                                     @RequestParam(name = "continue", defaultValue = "/user") String cont){
+        Map<String, Object> response = new HashMap<>();
         try {
-            userService.login(username,password);
-            return "redirect:" + cont;
+            userService.login(username, password);
+            response.put("redirect", cont);
         } catch (LoginException e) {
-            model.addAttribute("error", e.getMessage());
-            return null;
+            response.put("error", e.getMessage());
         }
+        return response;
     }
+
     @PostMapping("/logout")
-    public String logout(){
+    public Map<String, Object> logout(){
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
-        return "redirect:/home";
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Logged out successfully");
+        return response;
     }
 }

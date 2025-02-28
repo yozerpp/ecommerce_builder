@@ -4,15 +4,15 @@ import me.yusuf.ecommerce.domain.user.User;
 import me.yusuf.ecommerce.domain.user.UserRepository;
 import me.yusuf.ecommerce.domain.user.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.Map;
 
-@Controller("uiController")
+@RestController
+@RequestMapping("/user")
 @PreAuthorize("!isAnonymous()")
-@org.springframework.web.bind.annotation.RequestMapping({"/user"})
-public class UserController extends ControllerBase{
+public class UserController extends ControllerBase {
 
     private final UserService userService;
     private final UserRepository userRepository;
@@ -21,34 +21,41 @@ public class UserController extends ControllerBase{
         this.userService = userService;
         this.userRepository = userRepository;
     }
+
     @GetMapping
-    public String userPage(Model model){
+    public Map<String, Object> userPage(){
         var user = userService.getCurrentUser();
-        model.addAttribute("user", user);
-        model.addAttribute("orders", user.getOrders());
-        if(user.getSeller()!=null){
-            model.addAttribute("products", user.getSeller().getProductOffers());
-            model.addAttribute("shipments", user.getSeller().getShipments());
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", user);
+        response.put("orders", user.getOrders());
+        if(user.getSeller() != null){
+            response.put("products", user.getSeller().getProductOffers());
+            response.put("shipments", user.getSeller().getShipments());
         }
-        return "user";
-    }
-    @PutMapping
-    public void putUSer(@RequestBody User user, Model model){
-        try {
-            userService.updateUser(user);
-            model.addAttribute("message",Map.of("text", "User updated successfully", "success", true));
-        } catch (Exception e){
-            model.addAttribute("message",Map.of("text", "User update failed: " + e.getLocalizedMessage(), "success", false));
-        }
-    }
-    @DeleteMapping
-    public void deleteUser(Model model){
-        try {
-            userRepository.deleteCurrentUser();
-            model.addAttribute("message",Map.of("text", "User deleted successfully", "success", true));
-        } catch (Exception e){
-            model.addAttribute("message",Map.of("text", "User delete failed: " + e.getLocalizedMessage(), "success", false));
-        }
+        return response;
     }
 
+    @PutMapping
+    public Map<String, Object> putUser(@RequestBody User user){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userService.updateUser(user);
+            response.put("message", "User updated successfully");
+        } catch (Exception e){
+            response.put("message", "User update failed: " + e.getLocalizedMessage());
+        }
+        return response;
+    }
+
+    @DeleteMapping
+    public Map<String, Object> deleteUser(){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            userRepository.deleteCurrentUser();
+            response.put("message", "User deleted successfully");
+        } catch (Exception e){
+            response.put("message", "User delete failed: " + e.getLocalizedMessage());
+        }
+        return response;
+    }
 }

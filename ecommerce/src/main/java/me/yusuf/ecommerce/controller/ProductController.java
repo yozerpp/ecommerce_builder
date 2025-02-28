@@ -6,65 +6,94 @@ import me.yusuf.ecommerce.domain.product.ProductService;
 import me.yusuf.ecommerce.utils.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller("productController")
-public class ProductController extends ControllerBase{
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ProductController extends ControllerBase {
     private final ProductService productService;
+
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     @GetMapping("/")
-    public String mainPage(Model model){
+    public ResponseEntity<Page<Product>> mainPage(){
         Page<Product> products = productService.all();
-        model.addAttribute("products", products);
-        return "index";
+        return ResponseEntity.ok(products);
     }
+
     @GetMapping("product/{id}")
-    public String detail(@PathVariable Integer id, Model model){
+    public ResponseEntity<?> detail(@PathVariable Integer id){
         var pr = productService.product(id);
-        if(pr==null) return "redirect:/404";
-        model.addAttribute("product", pr);
-        return "product";
+        if(pr == null) 
+            return ResponseEntity.status(404).body(Map.of("message", "Product not found"));
+        return ResponseEntity.ok(pr);
     }
+
     @GetMapping("/search")
-    public String search(@RequestParam String query, Model model){
+    public ResponseEntity<?> search(@RequestParam String query){
         String[] parameters = query.split("&");
         var products = productService.search(parameters);
-        model.addAttribute("products", products);
-        return "index";
+        return ResponseEntity.ok(Map.of("products", products));
     }
+
     @PostMapping("/product")
-    public void create(@RequestBody ProductForm productForm, Model model){
+    public Map<String, Object> create(@RequestBody ProductForm productForm){
+        Map<String, Object> response = new HashMap<>();
         Boolean cat = false;
         var id = productService.createProduct(productForm, cat);
-        model.addAttribute("message",createdMessage(id,"/product") +(cat?'\n' +"Product has been assigned to no category because no category label with: " + productForm.getCategoryName() + " was found" :""));
+        String message = createdMessage(id, "/product") + (cat
+                ? "\nProduct has been assigned to no category because no category label with: " + productForm.getCategoryName() + " was found"
+                : "");
+        response.put("message", message);
+        return response;
     }
+
     @PostMapping("/product/{id}")
-    public void createOffer(@RequestBody ProductForm form, @PathVariable Integer id, @RequestParam Integer sellerId, Model model){
+    public Map<String, Object> createOffer(@RequestBody ProductForm form,
+                                             @PathVariable Integer id,
+                                             @RequestParam Integer sellerId){
+        Map<String, Object> response = new HashMap<>();
         try {
             var i = this.productService.createOffer(form, id, sellerId);
-            model.addAttribute("message", createdMessage(i, "/offer"));
+            response.put("message", createdMessage(i, "/offer"));
         } catch (BadRequestException | NotFoundException e) {
-            model.addAttribute("message", e.getMessage());
+            response.put("message", e.getMessage());
         }
+        return response;
     }
+
     @PutMapping("/offer/{productId}/{sellerId}")
-    public void updateOffer(Model model,@PathVariable int productId, @PathVariable int sellerId, @RequestParam(required = false, defaultValue = "null") Integer stock, @RequestParam(required = false, defaultValue = "null") Double price, @RequestParam(required = false, defaultValue = "null") Float discount,@RequestParam(required = false,defaultValue = "null") String description){
+    public Map<String, Object> updateOffer(@PathVariable int productId,
+                                             @PathVariable int sellerId,
+                                             @RequestParam(required = false) Integer stock,
+                                             @RequestParam(required = false) Double price,
+                                             @RequestParam(required = false) Float discount,
+                                             @RequestParam(required = false) String description){
+        Map<String, Object> response = new HashMap<>();
         try {
             this.productService.updateOffer(productId, sellerId, stock, price, discount, description);
+            response.put("message", "Offer updated successfully");
         } catch (NotFoundException e){
-            model.addAttribute("message", e.getMessage());
+            response.put("message", e.getMessage());
         }
+        return response;
     }
+
     @DeleteMapping("/offer/{productId}/{sellerId}")
-    public void deleteOffer(Model model, @PathVariable int productId, @PathVariable int sellerId) {
+    public Map<String, Object> deleteOffer(@PathVariable int productId,
+                                             @PathVariable int sellerId) {
+        Map<String, Object> response = new HashMap<>();
         try {
             this.productService.deleteOffer(productId, sellerId);
+            response.put("message", "Offer deleted successfully");
         } catch (NotFoundException e) {
-            model.addAttribute("message", e.getMessage());
+            response.put("message", e.getMessage());
         }
+        return response;
     }
 }

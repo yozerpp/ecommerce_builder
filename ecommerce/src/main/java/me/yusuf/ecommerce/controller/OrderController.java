@@ -3,54 +3,60 @@ package me.yusuf.ecommerce.controller;
 import me.yusuf.ecommerce.domain.order.Order;
 import me.yusuf.ecommerce.domain.order.OrderService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
-@Controller("orderController")
+@RestController
 @RequestMapping("/order")
-public class OrderController extends ControllerBase{
+public class OrderController extends ControllerBase {
+
     private final OrderService orderService;
+
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
+
     @GetMapping
-    public String getOrders(@RequestParam Pageable pageable, Model model){
-        var orders= orderService.getOrders(pageable);
-        model.addAttribute("orders", orders);
-        return "fragments/user/orders";
+    public ResponseEntity<?> getOrders(Pageable pageable){
+        var orders = orderService.getOrders(pageable);
+        return ResponseEntity.ok(Map.of("orders", orders));
     }
+
     @GetMapping("/{id}")
-    public @Nullable String getOrder(int id, Model model){
+    public ResponseEntity<?> getOrder(@PathVariable int id){
         var order = orderService.getOrder(id);
         if(order == null){
-            model.addAttribute("message", "Order not found");
-            return null;
+            return ResponseEntity.status(404).body(Map.of("message", "Order not found"));
         }
-        model.addAttribute("orders", List.of(order));
-        return "fragments/user/orders";
+        return ResponseEntity.ok(Map.of("orders", List.of(order)));
     }
+
     @PutMapping("/{id}")
-    public void updateOrder(@RequestParam int id, @RequestParam Order newOrder, Model model){
-        this.orderService.updateOrder(id, newOrder);
-        model.addAttribute("message", "Order updated");
+    public Map<String, Object> updateOrder(@RequestParam int id, @RequestParam Order newOrder){
+        orderService.updateOrder(id, newOrder);
+        return Map.of("message", "Order updated");
     }
+
     @PostMapping
-    public void createOrder(Model model){
-       var id= this.orderService.createOrder();
-       model.addAttribute("message", createdMessage(id,"/order"));
+    public Map<String, Object> createOrder(){
+       var id = orderService.createOrder();
+       return Map.of("message", createdMessage(id, "/order"));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable int id, Model model){
+    public Map<String, Object> deleteOrder(@PathVariable int id){
+        Map<String, Object> response = new java.util.HashMap<>();
         try {
-            this.orderService.cancelOrder(id);
-            model.addAttribute("message", "Order cancelled");
+            orderService.cancelOrder(id);
+            response.put("message", "Order cancelled");
         } catch (AccessDeniedException e) {
-            model.addAttribute("message", e.getMessage());
+            response.put("message", e.getMessage());
         }
+        return response;
     }
 }
