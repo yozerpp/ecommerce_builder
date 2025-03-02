@@ -13,7 +13,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     public PluginDef visitPluginDef(TurkishPseudoCodeParser.PluginDefContext ctx) {
         var ret = new PluginDef();
         ret.hookedMethod = ctx.IDENTIFIER().getText();
-        ret.hookedException = ctx.hataExpr()!=null?ctx.hataExpr().IDENTIFIER().getText() : null;
+        ret.hookedException = ctx.hataExpr() != null ? ctx.hataExpr().IDENTIFIER().getText() : null;
         ret.block = visitBlock(ctx.block());
         return ret;
     }
@@ -29,8 +29,19 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
 
     @Override
     public Statement visitStatement(TurkishPseudoCodeParser.StatementContext ctx) {
-//        return getClass().getMethod("visit" + StringUtils.firstLetterToUpperCase(ctx.))
-        
+        if (ctx.loopStatement() != null) {
+            return (Statement) visit(ctx.loopStatement());
+        } else if (ctx.ifStatement() != null) {
+            return (Statement) visit(ctx.ifStatement());
+        } else if (ctx.foreachStatement() != null) {
+            return (Statement) visit(ctx.foreachStatement());
+        } else if (ctx.varDeclaration() != null) {
+            return (Statement) visit(ctx.varDeclaration());
+        } else if (ctx.exprStatement() != null) {
+            return (Statement) visit(ctx.exprStatement());
+        } else if (ctx.block() != null) {
+            return (Statement) visit(ctx.block());
+        }
+        throw new IllegalArgumentException("Unknown statement type: " + ctx.getText());
     }
-
 }
