@@ -1,10 +1,8 @@
-grammar TürkçePsödoKod;
+grammar TurkishPseudoCode;
 
-prog: (statement | functionDef)*;
+pluginDef: IDENTIFIER (hataExpr | SONRA) block;
 
-functionDef: FONKSİYON '(' paramList? ')' IDENTIFIER block;
-
-paramList: IDENTIFIER (',' IDENTIFIER)*;
+hataExpr: IDENTIFIER HATA;
 
 statement: loopStatement
          | ifStatement
@@ -63,6 +61,8 @@ primary: SAYI
        ;
 
 // Lexer Rules
+HATA: 'hatasında';
+
 EĞER: 'eğer';
 İSE: 'ise';
 DEĞİLSE: 'değilse';
@@ -77,7 +77,7 @@ DEĞİL: 'değil';
 ICINDEKI: 'içindeki';
 HER: 'her';
 ICIN: 'için';
-SONRA: 'sonra';
+SONRA: 'sonrasında';
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
 YAZI: '"' .*? '"';
