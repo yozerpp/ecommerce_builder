@@ -45,8 +45,8 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
         throw new IllegalArgumentException("Unknown statement type: " + ctx.getText());
     }
 
-    @Override
-    public  visitLoopStatement(TurkishPseudoCodeParser.LoopStatementContext ctx) {
-        ctx.
-    }
+//    @Override
+//    public  visitLoopStatement(TurkishPseudoCodeParser.LoopStatementContext ctx) {
+//        ctx.
+//    }
 }
