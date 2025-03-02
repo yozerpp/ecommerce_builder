@@ -3,7 +3,12 @@ package me.yusuf.ecommerce.domain.cart;
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.product.ProductOffer;
+import me.yusuf.ecommerce.domain.session.SessionRepository;
 import me.yusuf.ecommerce.domain.user.User;
+import me.yusuf.ecommerce.utils.exception.ContextedException;
+import me.yusuf.ecommerce.utils.exception.NotFoundException;
+import me.yusuf.ecommerce.utils.types.Tuple2;
+import me.yusuf.ecommerce.utils.types.Tuple3;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,10 +18,13 @@ import org.springframework.stereotype.Service;
 public class CartService extends ServiceBase {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    public CartService(EntityManager entityManager, CartRepository cartRepository, CartItemRepository cartItemRepository) {
+    private final SessionRepository sessionRepository;
+
+    public CartService(EntityManager entityManager, CartRepository cartRepository, CartItemRepository cartItemRepository, SessionRepository sessionRepository) {
         super(entityManager);
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.sessionRepository = sessionRepository;
     }
     public AddToCartResponse addToCart(Integer productId, Integer sellerId) {
         var session =  ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getActiveSessionRef();
@@ -28,13 +36,20 @@ public class CartService extends ServiceBase {
         newItem.setCart(cart);
         return new AddToCartResponse(true, null,cartItemRepository.save(newItem).getId());
     }
-    public void clearCart() {
+    public Tuple2<Cart, User> clearCart() {
         var cart=getCart();
         cartRepository.delete(cart);
         var user = getUser();
-        user.getActiveSessionRef().setCart(cartRepository.getCartOfCurrentSession(user.getActiveSession()));
+        if (user!=null)
+            user.getActiveSessionRef().setCart(cartRepository.getCartOfCurrentSession(user.getActiveSession()));
+        var newCart = cartRepository.save(new Cart()); //TODO this should be managed by triggers
+        var s = getSession();
+        s.setCartId(newCart.getId());
+        s.setCart(newCart);
+        sessionRepository.save(s);
+        return new Tuple2<>(cart, user);
     }
-    public void changeQuantity(int quantity, Boolean increment, int productId, int sellerId) throws ChangeSetPersister.NotFoundException, BadRequestException {
+    public Tuple3<User, Cart, CartItem> changeQuantity(int quantity, Boolean increment, int productId, int sellerId) throws ChangeSetPersister.NotFoundException, BadRequestException {
         var cart = getCart();
         CartItem cartItem;
         if(increment!=null){
@@ -52,12 +67,18 @@ public class CartService extends ServiceBase {
             cartItem.setQuantity(quantity);
         } else throw new BadRequestException();
         cartItemRepository.save(cartItem);
+        return new Tuple3<>(getUser(), cart, cartItem);
     }
-    public void removeItem(int productId, int sellerId) {
-        this.cartItemRepository.deleteById(new CartItem.CartItemId(new ProductOffer.ProductOfferId(productId,sellerId),getCart().getId()));
+    public Tuple3<User, Cart, CartItem> removeItem(int productId, int sellerId) throws NotFoundException {
+        var item = cartItemRepository.findById(new CartItem.CartItemId(new ProductOffer.ProductOfferId(productId,sellerId),getCart().getId()));
+        var context = new Tuple3<>(getUser(), getCart(),item);
+        if (item == null) throw new ContextedException(context, new NotFoundException(NotFoundException.Cause.CART_ITEM_NOT_FOUND,
+                "Cart item not found."));
+        cartItemRepository.delete(item);
+        return context;
     }
     public static Cart getCart(){
-        var session =  ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getActiveSessionRef();
+        var session = getSession();
         var cart= session.getCart();
         if(cart==null) throw new IllegalStateException("User has no cart");
         else if(cart.isOrdered()) throw new IllegalStateException("Cart is already ordered");

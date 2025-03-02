@@ -1,7 +1,7 @@
 package me.yusuf.ecommerce.controller;
 
 import jakarta.persistence.Embeddable;
-import me.yusuf.ecommerce.utils.ReflectionUtils;
+import me.yusuf.utils.ReflectionUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Arrays;

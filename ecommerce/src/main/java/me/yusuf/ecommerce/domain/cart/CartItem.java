@@ -1,5 +1,7 @@
 package me.yusuf.ecommerce.domain.cart;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import me.yusuf.ecommerce.domain.coupon.Coupon;
@@ -51,8 +53,10 @@ public class CartItem {
     public double getTotalPrice() {
         return getProductOffer().getDiscountedPrice() * getQuantity() * (getCoupon()!=null?getCoupon().getDiscount():1);
     }
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "cart_id", insertable = false, updatable = false)
+    @JsonBackReference("cartItems")
     private Cart cart;
     @ManyToOne
     @JoinColumns({@JoinColumn(name = "product_id",insertable = false, updatable = false),@JoinColumn(name = "seller_id",insertable = false, updatable = false)})

@@ -1,12 +1,13 @@
 package me.yusuf.ecommerce;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import me.yusuf.ecommerce.controller.PageInterceptor;
 import me.yusuf.ecommerce.security.UserAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,11 +17,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.MappedInterceptor;
+@OpenAPIDefinition(info = @Info(title = "ecommerce", version = "1.0"))
 @EnableWebMvc
 @EnableMethodSecurity
 @EnableJpaRepositories(basePackages = "me.yusuf.ecommerce.domain")
-@SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce", "me.yusuf.ecommerce.controller"})
+@SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce", "me.yusuf.ecommerce.controller", "me.yusuf.ecommerce.engine"})
 public class EcommerceApplication implements WebMvcConfigurer{
     public static void main(String[] args) {
         SpringApplication.run(EcommerceApplication.class, args);
@@ -42,9 +43,10 @@ public class EcommerceApplication implements WebMvcConfigurer{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/public/**", "/sign-up","/static/**", "/static/css/styles.css", "/css/**","/image/**").permitAll() // Allow public access to login
-                        .anyRequest().authenticated() // Protect other endpoints
+//                        .requestMatchers("/login", "/public/**", "/sign-up","/static/**", "/static/css/styles.css", "/css/**","/image/**").permitAll() // Allow public access to login
+                        .anyRequest().permitAll() // Protect other endpoints
                 ).userDetailsService(userAuthService)
                 .formLogin(form -> form
                         .loginPage("/login") // Point to your custom login page

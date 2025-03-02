@@ -50,6 +50,7 @@ public class UserService {
     }
     @PreAuthorize("isAnonymous()")
     public void signUp(User user){
+
         userRepository.save(user);
     }
 

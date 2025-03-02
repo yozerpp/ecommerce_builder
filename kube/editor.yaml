@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: editor
+  labels:
+    app: editor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: editor
+  template:
+    metadata:
+      name: editor
+      labels:
+        app: editor
+    spec:
+      containers:
+        - name: editor
+          image: yusufozer1/editor:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: editor-service
+spec:
+    selector:
+        app: editor
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 8080
+    type: NodePort

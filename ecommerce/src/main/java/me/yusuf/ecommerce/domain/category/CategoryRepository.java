@@ -6,12 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
+@RepositoryRestResource(exported = false)
 @org.springframework.stereotype.Repository( "categoryRepository")
 public interface CategoryRepository extends Repository<Category, Integer> {
 

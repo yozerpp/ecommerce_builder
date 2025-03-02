@@ -1,20 +1,33 @@
 package me.yusuf.ecommerce.controller;
 
+import me.yusuf.ecommerce.domain.ServiceBase;
+import me.yusuf.ecommerce.domain.cart.Cart;
+import me.yusuf.ecommerce.domain.cart.CartItemRepository;
 import me.yusuf.ecommerce.domain.cart.CartService;
 import org.apache.coyote.BadRequestException;
+import org.hibernate.Hibernate;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
 public class CartController {
     private final CartService cartService;
+    private final CartItemRepository cartItemRepository;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, CartItemRepository cartItemRepository) {
         this.cartService = cartService;
+        this.cartItemRepository = cartItemRepository;
     }
 
+    @GetMapping
+    public Cart getCart() {
+        var c =ServiceBase.getSession().getCart();
+        c.setCartItems(cartItemRepository.findByCart(c));
+        return c;
+    }
     @PostMapping("/{productId}/{sellerId}")
     public ResponseEntity<CartService.AddToCartResponse> addToCart(@PathVariable Integer productId, @PathVariable Integer sellerId) {
         return ResponseEntity.ok(cartService.addToCart(productId, sellerId));
@@ -23,7 +36,7 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<Void> clearCart() {
         cartService.clearCart();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{productId}/{sellerId}")

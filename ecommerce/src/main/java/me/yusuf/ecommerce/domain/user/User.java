@@ -11,7 +11,6 @@ import me.yusuf.ecommerce.domain.session.Session;
 import me.yusuf.ecommerce.domain.z_embeddable.Versioned;
 import me.yusuf.ecommerce.domain.z_embeddable.Address;
 import me.yusuf.ecommerce.domain.z_embeddable.PhoneNumber;
-import me.yusuf.ecommerce.misc.Element;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GeneratedColumn;
 import org.springframework.security.access.AccessDeniedException;
@@ -38,27 +37,27 @@ public class User extends Versioned implements RegistrationForm,UserDetails, Cre
     @Column(name = "id", nullable = false, updatable = false)
     private Integer id;
 
-    @Element
+    
     @NotNull
     @Column(name = "first_name", nullable = false, length = 255)
     private String firstName;
-    @Element
+    
     @NotNull
     @Column(name = "last_name", nullable = false, length = 255)
     private String lastName;
-    @Element
+    
     @GeneratedColumn("first_name || ' ' || last_name")
     @Column(name = "full_name",nullable = false, updatable = false,insertable = false, length = 255)
     private String fullName;
-    @Element
+    
     @Email
     @Column(name = "username", nullable = false, unique = true, length = 255)
     @Getter(AccessLevel.NONE)
     private String username;
-    @Element
+    
     @Getter(AccessLevel.NONE)
     private PhoneNumber phoneNumber;
-    @Element
+    
     @OneToOne(optional = true,fetch = FetchType.EAGER, mappedBy = "user")
     @JoinColumn(name = "id", referencedColumnName = "user_id")
     private Seller seller;
@@ -92,18 +91,18 @@ public class User extends Versioned implements RegistrationForm,UserDetails, Cre
         }
         return this.address;
     }
-    @Element
+    
     @Getter(AccessLevel.NONE)
     private Address address;
-    @Element
+    
     @ColumnDefault("false")
     @Column(name = "phone_number_public", nullable = false, insertable = false)
     private boolean phoneNumberAccessAllowed;
-    @Element
+    
     @ColumnDefault("false")
     @Column(name = "username_public", nullable = false,insertable = false)
     private boolean usernameAccessAllowed;
-    @Element
+    
     @ColumnDefault("false")
     @Column(name = "address_public", nullable = false,insertable = false)
     private boolean addressAccessAllowed;

@@ -40,13 +40,14 @@ public class EcommerceDatabaseInitializer {
     }
     void initializeDatabase() {
         doRole();
-        var sessions = doSession();
+        var sessionsAndCarts = doSessionAndCart();
+        var carts = sessionsAndCarts.stream().map(Map.Entry::getValue).toList();
+        var sessions = sessionsAndCarts.stream().map(Map.Entry::getKey).toList();
         System.out.println("Sessions: " + sessions.size());
         var categories = doCategory();
         System.out.println("Categories: " + categories.size());
         var tags = doTags();
         System.out.println("Tags: " + tags.size());
-        var carts = doCart(sessions);
         System.out.println("Carts: " + carts.size());
         var users = doUser(sessions);
         System.out.println("Users: " + users.size());
@@ -66,25 +67,16 @@ public class EcommerceDatabaseInitializer {
     void save(Object o){
         entityManager.persist(o);
     }
-    List<Session> doSession(){
+    List<Map.Entry<Session, Cart>> doSessionAndCart(){
        return IntStream.range(0, NUM_SESSION).parallel().mapToObj(i -> {
+            Cart cart = new Cart();
+            save(cart);
             Session session = new Session();
             session.setId(java.util.UUID.randomUUID().toString());
-            save(session);
-           return session;
-        }).toList();
-    }
-    List<Cart> doCart(final List<Session> sessions) {
-        return IntStream.range(0, sessions.size()).parallel().mapToObj(i ->{
-            var cart = new Cart();
-            Session session;
-            session = sessions.get(i);
-            cart.setSession(session);
-            cart.setSessionId(session.getId());
-            save(cart);
             session.setCartId(cart.getId());
             session.setCart(cart);
-            return cart;
+            save(session);
+           return Map.entry(session, cart);
         }).toList();
     }
     void doRole(){

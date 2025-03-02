@@ -7,11 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 
+@RepositoryRestResource(exported = false)
 public interface CouponRepository extends Repository<Coupon, String> {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER') and T(me.yusuf.ecommerce.domain.user.User).cast(principal).userId = #_coupon.seller.userId")
     <C extends Coupon> C save(@NonNull @P("_coupon") C coupon);

@@ -1,13 +1,14 @@
 package me.yusuf.ecommerce.domain.session;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import me.yusuf.ecommerce.domain.cart.Cart;
 import me.yusuf.ecommerce.domain.z_embeddable.Versioned;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Map;
 import java.util.Objects;
@@ -25,11 +26,17 @@ public class Session extends Versioned {
     @Column(name = "data", columnDefinition = "jsonb")
     @JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     private Map<String,Object> data;
-    @Column(name = "cart_id")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @Column(name = "cart_id", nullable = true)
     private Integer cartId;
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "cart_id", referencedColumnName = "id", updatable = false,insertable = false)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    @JoinColumn(name = "cart_id", referencedColumnName = "id", insertable = false, updatable = false
+    ,foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE SET NULL\n" +
+            "On UPDATE CASCADE"))
     private Cart cart;
+
     // Relationships can be added if needed when referenced in other entities
 
     @Override

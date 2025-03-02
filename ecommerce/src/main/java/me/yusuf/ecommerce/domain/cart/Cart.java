@@ -1,11 +1,10 @@
 package me.yusuf.ecommerce.domain.cart;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import me.yusuf.ecommerce.domain.session.Session;
 import me.yusuf.ecommerce.domain.z_embeddable.Versioned;
 import org.hibernate.annotations.ColumnDefault;
@@ -29,19 +28,16 @@ public class Cart extends Versioned {
     @ColumnDefault("0.0")
     @Column(name = "total", nullable = false)
     private double total;
+    @ColumnDefault("0")
+    @Column(name = "item_count",nullable = false)
+    private int item_count;
     @NotNull
     @ColumnDefault("false")
     @Column(name = "ordered", nullable = false, columnDefinition = "boolean")
     private boolean ordered;
-    @Column(name = "session_id", nullable = false)
-    private String sessionId;
-    @NotNull
-    @OneToOne(fetch = FetchType.EAGER, mappedBy = "cart")
-    @JoinColumn(name = "session_id", insertable = false,updatable = false, referencedColumnName = "id", nullable = false)
-    private Session session;
     @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade= CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("cartItems")
     private Set<CartItem> cartItems = new HashSet<>();
-
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Cart cart)) return false;

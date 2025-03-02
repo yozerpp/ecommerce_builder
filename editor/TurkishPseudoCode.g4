@@ -61,8 +61,10 @@ primary: SAYI
        ;
 
 // Lexer Rules
+VE: 've';
+VEYA: 'veya';
+DEĞİL: 'değil';
 HATA: 'hatasında';
-
 EĞER: 'eğer';
 İSE: 'ise';
 DEĞİLSE: 'değilse';
@@ -71,9 +73,7 @@ FONKSİYON: 'fonksiyon';
 DÖNDÜR: 'döndür';
 YAZDIR: 'yazdır';
 DEĞİŞKEN: 'değişken';
-VE: 've';
-VEYA: 'veya';
-DEĞİL: 'değil';
+
 ICINDEKI: 'içindeki';
 HER: 'her';
 ICIN: 'için';

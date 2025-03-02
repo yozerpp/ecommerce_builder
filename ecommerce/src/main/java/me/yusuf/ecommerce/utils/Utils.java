@@ -2,6 +2,8 @@ package me.yusuf.ecommerce.utils;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import me.yusuf.ecommerce.domain.product.Product;
 import me.yusuf.ecommerce.domain.product.ProductRepository;
 import org.springframework.lang.Nullable;
@@ -25,6 +27,10 @@ public abstract class Utils {
     }
     public static Map<String, Map.Entry<String,Boolean>> propertyMap(Class<?> clazz){
         return Arrays.stream(clazz.getDeclaredMethods()).filter(m->m.getName().startsWith("is") || m.getName().startsWith("get")).collect(Collectors.toMap(m->m.getName().replaceAll("^(is|get)",""), (m->Map.entry(m.getReturnType().getSimpleName(),!m.isAnnotationPresent(Nullable.class)))));
+    }
+    public static String getCookieValue(String name, HttpServletRequest request){
+        var cc = Arrays.stream(request.getCookies()).filter(c->c.getName().equals(name)).findFirst();
+        return cc.map(Cookie::getValue).orElse(null);
     }
     public static String getTypeName(Class<?> tp){
         var ret = tp.getSimpleName();
