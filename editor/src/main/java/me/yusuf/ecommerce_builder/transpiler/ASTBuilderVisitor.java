@@ -30,18 +30,23 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     @Override
     public Statement visitStatement(TurkishPseudoCodeParser.StatementContext ctx) {
         if (ctx.loopStatement() != null) {
-            return (Statement) visit(ctx.loopStatement());
+            return visitLoopStatement(ctx.loopStatement());
         } else if (ctx.ifStatement() != null) {
-            return (Statement) visit(ctx.ifStatement());
+            return visitIfStatement(ctx.ifStatement());
         } else if (ctx.foreachStatement() != null) {
-            return (Statement) visit(ctx.foreachStatement());
+            return visitForeachStatement(ctx.foreachStatement());
         } else if (ctx.varDeclaration() != null) {
-            return (Statement) visit(ctx.varDeclaration());
+            return visitVarDeclaration(ctx.varDeclaration());
         } else if (ctx.exprStatement() != null) {
-            return (Statement) visit(ctx.exprStatement());
+            return visitExprStatement(ctx.exprStatement());
         } else if (ctx.block() != null) {
-            return (Statement) visit(ctx.block());
+            return visitBlock(ctx.block());
         }
         throw new IllegalArgumentException("Unknown statement type: " + ctx.getText());
+    }
+
+    @Override
+    public  visitLoopStatement(TurkishPseudoCodeParser.LoopStatementContext ctx) {
+        ctx.
     }
 }
