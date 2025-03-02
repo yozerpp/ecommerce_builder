@@ -10,21 +10,19 @@ statement: loopStatement
          | varDeclaration ';'
          | exprStatement ( (';' | SONRA statement) )
          | block;
-
+functionCall: IDENTIFIER '(' expr (',' expr)* ')';
 exprStatement: functionCall
-             | assignment
-             | yazdir
-             | returnStatement;
+             | assignment;
 
 foreachStatement: IDENTIFIER ICINDEKI HER IDENTIFIER ICIN block;
 
-loopStatement: condition OLDUĞU_SÜRECE block;
+loopStatement: expr OLDUĞU_SÜRECE block;
 
-ifStatement: EĞER condition İSE block (DEĞİLSE block)?;
+ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
 
 block: '{' statement* '}';
 
-varDeclaration: DEĞİŞKEN IDENTIFIER '=' expr;
+varDeclaration: DEĞİŞKEN assignment;
 
 assignment: IDENTIFIER '=' expr;
 
@@ -32,13 +30,8 @@ yazdir: YAZDIR expr;
 
 returnStatement: DÖNDÜR expr;
 
-functionCall: expr (',' expr)* IDENTIFIER;
 
-condition: expr;
-
-expr: logicalOrExpr;
-
-logicalOrExpr: logicalAndExpr ( VEYA logicalAndExpr )*;
+expr: logicalAndExpr ( VEYA logicalAndExpr )*;
 
 logicalAndExpr: equalityExpr ( VE equalityExpr )*;
 
@@ -58,6 +51,7 @@ primary: SAYI
        | YAZI
        | IDENTIFIER
        | '(' expr ')'
+       | exprStatement
        ;
 
 // Lexer Rules

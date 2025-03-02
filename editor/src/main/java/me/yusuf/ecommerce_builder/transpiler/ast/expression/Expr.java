@@ -1,12 +1,12 @@
-package me.yusuf.ecommerce_builder.transpiler.ast;
+package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 import java.util.List;
 
-public class LogicalOrExpr implements Expression {
+public class Expr implements Expression {
     private final LogicalAndExpr first;
     private final List<LogicalAndExpr> rest; // each joined with the operator "veya"
 
-    public LogicalOrExpr(LogicalAndExpr first, List<LogicalAndExpr> rest) {
+    public Expr(LogicalAndExpr first, List<LogicalAndExpr> rest) {
         this.first = first;
         this.rest = rest;
     }

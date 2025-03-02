@@ -1,0 +1,6 @@
+package me.yusuf.ecommerce_builder.transpiler.ast;
+
+import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
+
+public interface ExpressionStatement extends Statement, Expression {
+}

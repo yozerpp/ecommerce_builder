@@ -1,4 +1,4 @@
-package me.yusuf.ecommerce_builder.transpiler.ast;
+package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 public class UnaryExpr implements Expression {
     // If operator is non-null, this node comes from the ('-' | DEĞİL) unaryExpr alternative.

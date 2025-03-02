@@ -97,7 +97,7 @@ returnStatement
 functionCall
 condition
 expr
-logicalOrExpr
+expr
 logicalAndExpr
 equalityExpr
 comparisonExpr

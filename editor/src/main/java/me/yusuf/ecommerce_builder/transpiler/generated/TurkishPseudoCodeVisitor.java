@@ -29,6 +29,12 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(TurkishPseudoCodeParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#functionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionCall(TurkishPseudoCodeParser.FunctionCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#exprStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -83,29 +89,11 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitReturnStatement(TurkishPseudoCodeParser.ReturnStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#functionCall}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunctionCall(TurkishPseudoCodeParser.FunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#condition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCondition(TurkishPseudoCodeParser.ConditionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpr(TurkishPseudoCodeParser.ExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#logicalOrExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLogicalOrExpr(TurkishPseudoCodeParser.LogicalOrExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#logicalAndExpr}.
 	 * @param ctx the parse tree

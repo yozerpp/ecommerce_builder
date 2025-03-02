@@ -2,7 +2,8 @@ package me.yusuf.ecommerce_builder.transpiler.ast;
 
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expr;
 
-public class LoopStatement implements Statement {
+public class IfStatement implements Statement {
     public Expr condition;
-    public Block block;
+    public Block happyPath;
+    public Block sadPath;
 }

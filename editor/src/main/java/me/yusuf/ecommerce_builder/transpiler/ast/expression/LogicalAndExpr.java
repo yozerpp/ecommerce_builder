@@ -1,4 +1,4 @@
-package me.yusuf.ecommerce_builder.transpiler.ast;
+package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 import java.util.List;
 

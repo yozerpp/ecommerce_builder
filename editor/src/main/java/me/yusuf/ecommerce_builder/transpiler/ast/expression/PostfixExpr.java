@@ -1,4 +1,4 @@
-package me.yusuf.ecommerce_builder.transpiler.ast;
+package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 public class PostfixExpr implements Expression {
     private final Expression primary;

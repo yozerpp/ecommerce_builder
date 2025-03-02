@@ -1,15 +1,15 @@
-package me.yusuf.ecommerce_builder.transpiler.ast;
+package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 import java.util.List;
 
-public class EqualityExpr implements Expression {
-    private final ComparisonExpr first;
+public class AdditiveExpr implements Expression {
+    private final MultiplicativeExpr first;
 
     public static class Op {
-        public final String operator; // either "==" or "!="
-        public final ComparisonExpr expr;
+        public final String operator; // "+" or "-"
+        public final MultiplicativeExpr expr;
 
-        public Op(String operator, ComparisonExpr expr) {
+        public Op(String operator, MultiplicativeExpr expr) {
             this.operator = operator;
             this.expr = expr;
         }
@@ -22,7 +22,7 @@ public class EqualityExpr implements Expression {
 
     private final List<Op> ops;
 
-    public EqualityExpr(ComparisonExpr first, List<Op> ops) {
+    public AdditiveExpr(MultiplicativeExpr first, List<Op> ops) {
         this.first = first;
         this.ops = ops;
     }
