@@ -17,7 +17,7 @@ public class InMemoryClassLoader extends ClassLoader {
 
     protected Class<?> addClass(InMemoryClassFileObject compiledClass) throws ClassNotFoundException {
         var bytes = compiledClass.getClassBytes();
-        var cls = defineClass(compiledClass.getName(),bytes,0,bytes.length);
+        var cls = defineClass(compiledClass.getClassName(), bytes, 0, bytes.length);
         loadedClasses.add(cls);
         return cls;
     }
@@ -37,4 +37,3 @@ public class InMemoryClassLoader extends ClassLoader {
         return super.findClass(name);
     }
 }
-

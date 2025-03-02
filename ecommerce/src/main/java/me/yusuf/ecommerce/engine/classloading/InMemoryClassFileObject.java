@@ -6,9 +6,11 @@ import java.net.URI;
 
 public class InMemoryClassFileObject extends SimpleJavaFileObject {
     private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private final String className; // Store the actual class name
 
     public InMemoryClassFileObject(String className, Kind kind) {
         super(URI.create("string:///" + className.replace('.', '/') + kind.extension), kind);
+        this.className = className; // Store the class name
     }
 
     @Override
@@ -18,6 +20,10 @@ public class InMemoryClassFileObject extends SimpleJavaFileObject {
 
     public byte[] getClassBytes() {
         return outputStream.toByteArray();
+    }
+    
+    public String getClassName() {
+        return className; // Return the actual class name
     }
 
     @Override
@@ -32,4 +38,3 @@ public class InMemoryClassFileObject extends SimpleJavaFileObject {
         return getName().hashCode();
     }
 }
-
