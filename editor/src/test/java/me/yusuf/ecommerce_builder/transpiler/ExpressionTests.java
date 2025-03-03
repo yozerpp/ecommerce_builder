@@ -106,14 +106,13 @@ public class ExpressionTests extends TestBase {
         var ctx = parser.multiplicativeExpr();
         MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
         // Check that the first unary expression (left operand) corresponds to "10"
-        Primary.Number left = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(0));
+        Primary.Number left = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(0)).operand;
         Assertions.assertEquals("10", left.toString());
         // Since there is one operator, our helper should detect one op.
-        Assertions.assertEquals(1, multOpsSize(mult));
-        MultiplicativeExpr.Op op = getMultiplicativeOp(mult, 0);
-        Assertions.assertEquals("*", op.operator);
+        Assertions.assertEquals(1, mult.ops.size());
+        Assertions.assertEquals("*", mult.ops.get(0).toString());
         // Check right operand corresponds to "2"
-        Primary.Number right = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(1));
+        Primary.Number right = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(1)).operand;
         Assertions.assertEquals("2", right.toString());
     }
 
@@ -122,11 +121,11 @@ public class ExpressionTests extends TestBase {
         var in = "20 / 4";
         var parser = getParser(in);
         var ctx = parser.multiplicativeExpr();
-        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
+        MultiplicativeExpr mult = visitor.visitMultiplicativeExpr(ctx);
         // Check that there is one operation with operator "/"
-        Assertions.assertEquals(1, multOpsSize(mult));
-        MultiplicativeExpr.Op op = getMultiplicativeOp(mult, 0);
-        Assertions.assertEquals("/", op.operator);
+        Assertions.assertEquals(1, mult.ops.size());
+
+        Assertions.assertEquals("/", mult.ops.get(0).toString());
     }
 
     @Test
@@ -134,11 +133,11 @@ public class ExpressionTests extends TestBase {
         var in = "10 * 2 / 5";
         var parser = getParser(in);
         var ctx = parser.multiplicativeExpr();
-        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
+        MultiplicativeExpr mult = visitor.visitMultiplicativeExpr(ctx);
         // Expect two operations: first "*" then "/"
-        Assertions.assertEquals(2, multOpsSize(mult));
-        MultiplicativeExpr.Op op1 = getMultiplicativeOp(mult, 0);
-        MultiplicativeExpr.Op op2 = getMultiplicativeOp(mult, 1);
+        Assertions.assertEquals(2, mult.ops.size());
+        MultiplicativeExpr.Op op1 = mult.ops.get(0);
+        MultiplicativeExpr.Op op2 = mult.ops.get(1);
         Assertions.assertEquals("*", op1.operator);
         Assertions.assertEquals("/", op2.operator);
     }
