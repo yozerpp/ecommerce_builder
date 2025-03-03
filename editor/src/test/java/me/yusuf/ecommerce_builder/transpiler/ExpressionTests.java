@@ -22,12 +22,15 @@ public class ExpressionTests extends TestBase {
         var in = "5 değil";
         var parser = getParser(in);
         var postfix = parser.postfixExpr();
-        // Assert that the DEĞİL token is present in postfix
+        // Assert that the DEĞİL token is present in postfix context
         Assertions.assertNotNull(postfix.DEĞİL());
         // Use the visitor to create a Primary node from the primary rule
         Primary num = (Primary) visitor.visitPrimary(postfix.primary());
-        // Check that the primary node represents the number 5.
-        Assertions.assertEquals("5", num.toString());
+        // Check that the primary node represents the number 5 using direct field access.
+        // In our Primary.Number class, the field 'number' should equal 5.
+        Primary.Number numberNode = (Primary.Number) num;
+        // Compare as numbers. We assume that if the literal is "5", it is parsed as Integer 5.
+        Assertions.assertEquals(5, numberNode.number);
     }
 
     // Primary Expression tests
@@ -37,7 +40,7 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.primary();
         Primary.Number num = (Primary.Number) visitor.visitPrimary(ctx);
-        // Assert that the number is an Integer with value 10
+        // Assert that the number is an Integer with value 10 using direct field access.
         Assertions.assertEquals(10, num.number);
     }
 
@@ -47,7 +50,7 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.primary();
         Primary.Number num = (Primary.Number) visitor.visitPrimary(ctx);
-        // Assert that the number is a Float with value 10.5
+        // Assert that the number is a Float with value 10.5 using direct field access.
         Assertions.assertEquals(10.5f, num.number);
     }
 
@@ -68,9 +71,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.unaryExpr();
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
-        // Assert that the operator is "-" and the operand is a Primary.Number with value 10.
-        Assertions.assertEquals("-", getOperator(unary));
-        Primary.Number num = (Primary.Number) getOperand(unary);
+        // Assert that the operator is "-" using direct field access.
+        Assertions.assertEquals("-", unary.operator);
+        Primary.Number num = (Primary.Number) unary.operand;
         Assertions.assertEquals(10, num.number);
     }
 
@@ -80,9 +83,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.unaryExpr();
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
-        // Assert that the operator is "değil" and the operand is a Primary.Number with value 5.
-        Assertions.assertEquals("değil", getOperator(unary));
-        Primary.Number num = (Primary.Number) getOperand(unary);
+        // Assert that the operator is "değil" using direct field access.
+        Assertions.assertEquals("değil", unary.operator);
+        Primary.Number num = (Primary.Number) unary.operand;
         Assertions.assertEquals(5, num.number);
     }
 
@@ -92,9 +95,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.unaryExpr();
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
-        // In the case of no unary operator, operator should be null and operand should represent 42.
-        Assertions.assertNull(getOperator(unary));
-        Primary.Number num = (Primary.Number) getOperand(unary);
+        // When there is no unary operator, operator should be null and operand should represent 42.
+        Assertions.assertNull(unary.operator);
+        Primary.Number num = (Primary.Number) unary.operand;
         Assertions.assertEquals(42, num.number);
     }
 
@@ -105,15 +108,17 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.multiplicativeExpr();
         MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
-        // Check that the first unary expression (left operand) corresponds to "10"
-        Primary.Number left = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(0)).operand;
-        Assertions.assertEquals("10", left.toString());
-        // Since there is one operator, our helper should detect one op.
+        // Use direct field access to check the left operand from the first UnaryExpr.
+        UnaryExpr leftUnary = mult.first;
+        Primary.Number left = (Primary.Number) leftUnary.operand;
+        Assertions.assertEquals(10, left.number);
+        // Check that there is one operator with value "*" using direct field access.
         Assertions.assertEquals(1, mult.ops.size());
-        Assertions.assertEquals("*", mult.ops.get(0).toString());
-        // Check right operand corresponds to "2"
-        Primary.Number right = (Primary.Number) visitor.visitUnaryExpr(ctx.unaryExpr(1)).operand;
-        Assertions.assertEquals("2", right.toString());
+        Assertions.assertEquals("*", mult.ops.get(0).operator);
+        // Use direct field access to check the right operand of the operator.
+        UnaryExpr rightUnary = (UnaryExpr) visitor.visitUnaryExpr(ctx.unaryExpr(1));
+        Primary.Number right = (Primary.Number) rightUnary.operand;
+        Assertions.assertEquals(2, right.number);
     }
 
     @Test
@@ -121,11 +126,10 @@ public class ExpressionTests extends TestBase {
         var in = "20 / 4";
         var parser = getParser(in);
         var ctx = parser.multiplicativeExpr();
-        MultiplicativeExpr mult = visitor.visitMultiplicativeExpr(ctx);
-        // Check that there is one operation with operator "/"
+        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
+        // Check that there is one operation with operator "/" using direct field access.
         Assertions.assertEquals(1, mult.ops.size());
-
-        Assertions.assertEquals("/", mult.ops.get(0).toString());
+        Assertions.assertEquals("/", mult.ops.get(0).operator);
     }
 
     @Test
@@ -133,13 +137,11 @@ public class ExpressionTests extends TestBase {
         var in = "10 * 2 / 5";
         var parser = getParser(in);
         var ctx = parser.multiplicativeExpr();
-        MultiplicativeExpr mult = visitor.visitMultiplicativeExpr(ctx);
-        // Expect two operations: first "*" then "/"
+        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
+        // Expect two operations: first "*" then "/" using direct field access.
         Assertions.assertEquals(2, mult.ops.size());
-        MultiplicativeExpr.Op op1 = mult.ops.get(0);
-        MultiplicativeExpr.Op op2 = mult.ops.get(1);
-        Assertions.assertEquals("*", op1.operator);
-        Assertions.assertEquals("/", op2.operator);
+        Assertions.assertEquals("*", mult.ops.get(0).operator);
+        Assertions.assertEquals("/", mult.ops.get(1).operator);
     }
 
     // Additive Expression tests
@@ -149,10 +151,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.additiveExpr();
         AdditiveExpr additive = (AdditiveExpr) visitor.visitAdditiveExpr(ctx);
-        // Expect one operation with operator "+"
-        Assertions.assertEquals(1, additiveOpsSize(additive));
-        AdditiveExpr.Op op = getAdditiveOp(additive, 0);
-        Assertions.assertEquals("+", op.operator);
+        // Expect one operation with operator "+" using direct field access.
+        Assertions.assertEquals(1, additive.ops.size());
+        Assertions.assertEquals("+", additive.ops.get(0).operator);
     }
 
     @Test
@@ -161,10 +162,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.additiveExpr();
         AdditiveExpr additive = (AdditiveExpr) visitor.visitAdditiveExpr(ctx);
-        // Expect one operation with operator "-"
-        Assertions.assertEquals(1, additiveOpsSize(additive));
-        AdditiveExpr.Op op = getAdditiveOp(additive, 0);
-        Assertions.assertEquals("-", op.operator);
+        // Expect one operation with operator "-" using direct field access.
+        Assertions.assertEquals(1, additive.ops.size());
+        Assertions.assertEquals("-", additive.ops.get(0).operator);
     }
 
     @Test
@@ -173,12 +173,10 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.additiveExpr();
         AdditiveExpr additive = (AdditiveExpr) visitor.visitAdditiveExpr(ctx);
-        // Expect two operations: first "+" then "-"
-        Assertions.assertEquals(2, additiveOpsSize(additive));
-        AdditiveExpr.Op op1 = getAdditiveOp(additive, 0);
-        AdditiveExpr.Op op2 = getAdditiveOp(additive, 1);
-        Assertions.assertEquals("+", op1.operator);
-        Assertions.assertEquals("-", op2.operator);
+        // Expect two operations: first "+" then "-" using direct field access.
+        Assertions.assertEquals(2, additive.ops.size());
+        Assertions.assertEquals("+", additive.ops.get(0).operator);
+        Assertions.assertEquals("-", additive.ops.get(1).operator);
     }
 
     // Comparison Expression tests
@@ -188,10 +186,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.comparisonExpr();
         ComparisonExpr comp = (ComparisonExpr) visitor.visitComparisonExpr(ctx);
-        // Expect one operation with operator "<"
-        Assertions.assertEquals(1, compOpsSize(comp));
-        ComparisonExpr.Op op = getComparisonOp(comp, 0);
-        Assertions.assertEquals("<", op.operator);
+        // Expect one operation with operator "<" using direct field access.
+        Assertions.assertEquals(1, comp.ops.size());
+        Assertions.assertEquals("<", comp.ops.get(0).operator);
     }
 
     @Test
@@ -200,10 +197,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.comparisonExpr();
         ComparisonExpr comp = (ComparisonExpr) visitor.visitComparisonExpr(ctx);
-        // Expect one operation with operator ">="
-        Assertions.assertEquals(1, compOpsSize(comp));
-        ComparisonExpr.Op op = getComparisonOp(comp, 0);
-        Assertions.assertEquals(">=", op.operator);
+        // Expect one operation with operator ">=" using direct field access.
+        Assertions.assertEquals(1, comp.ops.size());
+        Assertions.assertEquals(">=", comp.ops.get(0).operator);
     }
 
     @Test
@@ -212,12 +208,10 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.comparisonExpr();
         ComparisonExpr comp = (ComparisonExpr) visitor.visitComparisonExpr(ctx);
-        // Expect two operations: first "<" then "<="
-        Assertions.assertEquals(2, compOpsSize(comp));
-        ComparisonExpr.Op op1 = getComparisonOp(comp, 0);
-        ComparisonExpr.Op op2 = getComparisonOp(comp, 1);
-        Assertions.assertEquals("<", op1.operator);
-        Assertions.assertEquals("<=", op2.operator);
+        // Expect two operations: first "<" then "<=" using direct field access.
+        Assertions.assertEquals(2, comp.ops.size());
+        Assertions.assertEquals("<", comp.ops.get(0).operator);
+        Assertions.assertEquals("<=", comp.ops.get(1).operator);
     }
 
     // Equality Expression tests
@@ -227,8 +221,8 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.equalityExpr();
         EqualityExpr eq = (EqualityExpr) visitor.visitEqualityExpr(ctx);
-        // If there is only one equality, there are no operators.
-        Assertions.assertEquals(0, eqOpsSize(eq));
+        // For a single equality expression, there are no operators.
+        Assertions.assertEquals(0, eq.ops.size());
     }
 
     @Test
@@ -237,10 +231,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.equalityExpr();
         EqualityExpr eq = (EqualityExpr) visitor.visitEqualityExpr(ctx);
-        // Expect one operator "!="
-        Assertions.assertEquals(1, eqOpsSize(eq));
-        EqualityExpr.Op op = getEqualityOp(eq, 0);
-        Assertions.assertEquals("!=", op.operator);
+        // Expect one operator "!=" using direct field access.
+        Assertions.assertEquals(1, eq.ops.size());
+        Assertions.assertEquals("!=", eq.ops.get(0).operator);
     }
 
     @Test
@@ -249,10 +242,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.equalityExpr();
         EqualityExpr eq = (EqualityExpr) visitor.visitEqualityExpr(ctx);
-        // Expect one operator in the chain "!=" (the chain is built left-associatively)
-        Assertions.assertEquals(1, eqOpsSize(eq));
-        EqualityExpr.Op op = getEqualityOp(eq, 0);
-        Assertions.assertEquals("!=", op.operator);
+        // Expect one operator in the chain "!=" using direct field access.
+        Assertions.assertEquals(1, eq.ops.size());
+        Assertions.assertEquals("!=", eq.ops.get(0).operator);
     }
 
     // LogicalAnd Expression tests
@@ -262,8 +254,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.logicalAndExpr();
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
-        // For a single equality expression, the rest list is empty.
-        Assertions.assertTrue(land.toString().contains("10"));
+        // For a single equality expression, check that first exists and the rest list is empty.
+        Assertions.assertNotNull(land.first);
+        Assertions.assertEquals(0, land.rest.size());
     }
 
     @Test
@@ -272,8 +265,8 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.logicalAndExpr();
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
-        // The "ve" connector should be present indicating a second equality expression.
-        Assertions.assertTrue(land.toString().contains(" ve "));
+        // There should be one additional equality expression in the rest list.
+        Assertions.assertEquals(1, land.rest.size());
     }
 
     @Test
@@ -282,9 +275,8 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.logicalAndExpr();
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
-        // Count occurrences of " ve " to ensure three equality expressions are joined.
-        String[] parts = land.toString().split(" ve ");
-        Assertions.assertTrue(parts.length >= 3);
+        // Expect two additional equality expressions in the rest list.
+        Assertions.assertEquals(2, land.rest.size());
     }
 
     // Expr tests
@@ -294,8 +286,9 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.expr();
         Expr expr = (Expr) visitor.visitExpr(ctx);
-        // The overall expression should contain one LogicalAndExpr.
-        Assertions.assertTrue(expr.toString().contains("10"));
+        // The overall expression should have a non-null first logicalAnd expression and no additional expressions.
+        Assertions.assertNotNull(expr.first);
+        Assertions.assertEquals(0, expr.rest.size());
     }
 
     @Test
@@ -304,8 +297,8 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.expr();
         Expr expr = (Expr) visitor.visitExpr(ctx);
-        // The "veya" connector should be present between the logical expressions.
-        Assertions.assertTrue(expr.toString().contains(" veya "));
+        // There should be one additional logicalAnd expression (from the "veya" connector).
+        Assertions.assertEquals(1, expr.rest.size());
     }
 
     @Test
@@ -314,108 +307,7 @@ public class ExpressionTests extends TestBase {
         var parser = getParser(in);
         var ctx = parser.expr();
         Expr expr = (Expr) visitor.visitExpr(ctx);
-        // Check that the resulting expression's structure combines multiple logicalAnd expressions.
-        Assertions.assertTrue(expr.toString().contains(" veya "));
-    }
-
-    // Helper methods to approximate internal structure since fields are private.
-    // For MultiplicativeExpr, we count occurrences of "*" or "/" in the toString.
-    private int multOpsSize(MultiplicativeExpr expr) {
-        String str = expr.toString();
-        int count = 0;
-        if(str.contains(" * ")) count++;
-        if(str.contains(" / ")) count++;
-        return count;
-    }
-
-    // For testing purposes, these helper methods provide a way to check the operator order
-    // based on the toString output.
-    private MultiplicativeExpr.Op getMultiplicativeOp(MultiplicativeExpr expr, int index) {
-        String str = expr.toString();
-        if(index == 0) {
-            if(str.contains(" * ")) return new MultiplicativeExpr.Op("*", null);
-            else return new MultiplicativeExpr.Op("/", null);
-        } else {
-            if(str.indexOf(" * ") < str.indexOf(" / ")) return new MultiplicativeExpr.Op("/", null);
-            else return new MultiplicativeExpr.Op("*", null);
-        }
-    }
-
-    private int additiveOpsSize(AdditiveExpr expr) {
-        String str = expr.toString();
-        int count = 0;
-        if(str.contains(" + ")) count++;
-        if(str.contains(" - ")) count++;
-        return count;
-    }
-
-    private AdditiveExpr.Op getAdditiveOp(AdditiveExpr expr, int index) {
-        String str = expr.toString();
-        if(index == 0) {
-            if(str.contains(" + ")) return new AdditiveExpr.Op("+", null);
-            else return new AdditiveExpr.Op("-", null);
-        } else {
-            if(str.indexOf(" + ") < str.indexOf(" - ")) return new AdditiveExpr.Op("-", null);
-            else return new AdditiveExpr.Op("+", null);
-        }
-    }
-
-    private int compOpsSize(ComparisonExpr expr) {
-        String str = expr.toString();
-        int count = 0;
-        if(str.contains(" > ")) count++;
-        if(str.contains(" < ")) count++;
-        if(str.contains(" >= ")) count++;
-        if(str.contains(" <= ")) count++;
-        return count;
-    }
-
-    private ComparisonExpr.Op getComparisonOp(ComparisonExpr expr, int index) {
-        String str = expr.toString();
-        if(index == 0) {
-            if(str.contains(" < ")) return new ComparisonExpr.Op("<", null);
-            if(str.contains(" > ")) return new ComparisonExpr.Op(">", null);
-            if(str.contains(" >=")) return new ComparisonExpr.Op(">=", null);
-            if(str.contains(" <=")) return new ComparisonExpr.Op("<=", null);
-        } 
-        return new ComparisonExpr.Op("<=", null);
-    }
-
-    private int eqOpsSize(EqualityExpr expr) {
-        String str = expr.toString();
-        int count = 0;
-        if(str.contains(" == ")) count++;
-        if(str.contains(" != ")) count++;
-        return count;
-    }
-
-    private EqualityExpr.Op getEqualityOp(EqualityExpr expr, int index) {
-        String str = expr.toString();
-        if(index == 0) {
-            if(str.contains(" == ")) return new EqualityExpr.Op("==", null);
-            else return new EqualityExpr.Op("!=", null);
-        }
-        return new EqualityExpr.Op("==", null);
-    }
-
-    // Helper methods for UnaryExpr to access private fields using reflection.
-    private String getOperator(UnaryExpr expr) {
-        try {
-            java.lang.reflect.Field field = UnaryExpr.class.getDeclaredField("operator");
-            field.setAccessible(true);
-            return (String) field.get(expr);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Expression getOperand(UnaryExpr expr) {
-        try {
-            java.lang.reflect.Field field = UnaryExpr.class.getDeclaredField("operand");
-            field.setAccessible(true);
-            return (Expression) field.get(expr);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // Check that there are two additional logicalAnd expressions.
+        Assertions.assertEquals(2, expr.rest.size());
     }
 }
