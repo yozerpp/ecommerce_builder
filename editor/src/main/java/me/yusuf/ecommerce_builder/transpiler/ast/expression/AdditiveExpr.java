@@ -1,5 +1,7 @@
 package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AdditiveExpr implements Expression {
@@ -20,11 +22,11 @@ public class AdditiveExpr implements Expression {
         }
     }
 
-    private final List<Op> ops;
+    public final List<Op> ops = new ArrayList<>();
 
     public AdditiveExpr(MultiplicativeExpr first, List<Op> ops) {
         this.first = first;
-        this.ops = ops;
+        this.ops.addAll(ops);
     }
 
     @Override
