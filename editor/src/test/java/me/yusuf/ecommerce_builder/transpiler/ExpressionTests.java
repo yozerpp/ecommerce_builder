@@ -222,7 +222,10 @@ public class ExpressionTests extends TestBase {
         var ctx = parser.equalityExpr();
         EqualityExpr eq = (EqualityExpr) visitor.visitEqualityExpr(ctx);
         // For a single equality expression, there are no operators.
-        Assertions.assertEquals(0, eq.ops.size());
+        Assertions.assertEquals(1, eq.ops.size());
+        Assertions.assertEquals("==", eq.ops.get(0).operator);
+        Assertions.assertEquals("10", eq.first.toString());
+        Assertions.assertEquals("10", eq.ops.get(0).expr.first.toString());
     }
 
     @Test
@@ -234,6 +237,8 @@ public class ExpressionTests extends TestBase {
         // Expect one operator "!=" using direct field access.
         Assertions.assertEquals(1, eq.ops.size());
         Assertions.assertEquals("!=", eq.ops.get(0).operator);
+        Assertions.assertEquals("10", eq.first.toString());
+        Assertions.assertEquals("5", eq.ops.get(0).expr.first.toString());
     }
 
     @Test
@@ -243,8 +248,12 @@ public class ExpressionTests extends TestBase {
         var ctx = parser.equalityExpr();
         EqualityExpr eq = (EqualityExpr) visitor.visitEqualityExpr(ctx);
         // Expect one operator in the chain "!=" using direct field access.
-        Assertions.assertEquals(1, eq.ops.size());
-        Assertions.assertEquals("!=", eq.ops.get(0).operator);
+        Assertions.assertEquals(2, eq.ops.size());
+        Assertions.assertEquals("==", eq.ops.get(0).operator);
+        Assertions.assertEquals("10", eq.first.toString());
+        Assertions.assertEquals("10", eq.ops.get(0).expr.first.toString());
+        Assertions.assertEquals("!=", eq.ops.get(1).operator);
+        Assertions.assertEquals("5", eq.ops.get(1).expr.first.toString());
     }
 
     // LogicalAnd Expression tests
