@@ -14,8 +14,8 @@ public class UnaryExpr implements Expression {
     @Override
     public String toString() {
         if (operator == null) {
-            return operand.toString();
+            return operand != null ? operand.toString() : "null";
         }
-        return "(" + operator + " " + operand.toString() + ")";
+        return "(" + operator + " " + (operand != null ? operand.toString() : "null") + ")";
     }
 }
