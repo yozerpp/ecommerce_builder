@@ -3,8 +3,8 @@ package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 import java.util.List;
 
 public class Expr implements Expression {
-    private final LogicalAndExpr first;
-    private final List<LogicalAndExpr> rest; // each joined with the operator "veya"
+    public final LogicalAndExpr first;
+    public final List<LogicalAndExpr> rest; // each joined with the operator "veya"
 
     public Expr(LogicalAndExpr first, List<LogicalAndExpr> rest) {
         this.first = first;

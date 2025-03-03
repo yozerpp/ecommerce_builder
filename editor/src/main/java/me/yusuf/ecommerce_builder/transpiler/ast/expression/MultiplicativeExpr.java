@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiplicativeExpr implements Expression {
-    private final UnaryExpr first;
+    public final UnaryExpr first;
 
     public static class Op {
         public final String operator; // "*" or "/"

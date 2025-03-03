@@ -3,7 +3,7 @@ package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 import java.util.List;
 
 public class ComparisonExpr implements Expression {
-    private final AdditiveExpr first;
+    public final AdditiveExpr first;
 
     public static class Op {
         public final String operator; // one of ">", "<", ">=", "<="
@@ -20,7 +20,7 @@ public class ComparisonExpr implements Expression {
         }
     }
 
-    private final List<Op> ops;
+    public final List<Op> ops;
 
     public ComparisonExpr(AdditiveExpr first, List<Op> ops) {
         this.first = first;

@@ -1,11 +1,10 @@
 package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class AdditiveExpr implements Expression {
-    private final MultiplicativeExpr first;
+    public final MultiplicativeExpr first;
 
     public static class Op {
         public final String operator; // "+" or "-"
