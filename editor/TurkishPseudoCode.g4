@@ -20,7 +20,6 @@ ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
 block: '{' statement* '}';
 
 varDeclaration: DEĞİŞKEN assignment ';';
-
 assignment: IDENTIFIER '=' expr;
 
 
@@ -71,7 +70,6 @@ DEĞİLSE: 'değilse';
 OLDUĞU_SÜRECE: 'olduğu sürece';
 FONKSİYON: 'fonksiyon';
 DÖNDÜR: 'döndür';
-YAZDIR: 'yazdır';
 DEĞİŞKEN: 'değişken';
 
 ICINDEKI: 'içindeki';
