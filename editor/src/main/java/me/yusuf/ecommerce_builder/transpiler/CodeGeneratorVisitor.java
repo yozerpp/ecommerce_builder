@@ -23,7 +23,7 @@ public class CodeGeneratorVisitor {
     public Plugin generate(PluginDef pluginDef) {
         String code = visit(pluginDef);
         return new Plugin(new PluginRegistry.PluginMetadata(null, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod)),
-                code);
+                code); //TODO: Parse arge types.
     }
 
     public String visit(PluginDef pd) {
