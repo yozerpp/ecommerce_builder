@@ -4,16 +4,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import me.yusuf.ecommerce_builder.shared.PluginRegistry;
-import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.transpiler.ast.ASTNode;
-import me.yusuf.ecommerce_builder.transpiler.ast.Block;
-import me.yusuf.ecommerce_builder.transpiler.ast.Statement;
-import me.yusuf.ecommerce_builder.transpiler.ast.VarDeclarationStatement;
-import me.yusuf.ecommerce_builder.transpiler.ast.AssignmentExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.FunctionCallExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.IfStatement;
-import me.yusuf.ecommerce_builder.transpiler.ast.LoopStatement;
-import me.yusuf.ecommerce_builder.transpiler.ast.ForeachStatement;
+import me.yusuf.ecommerce_builder.transpiler.ast.*;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.PostfixExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
@@ -27,7 +18,7 @@ public class CodeGeneratorVisitor {
     public Plugin generate(PluginDef pluginDef) {
         String code = visitPluginDef(pluginDef);
         Type[] argTypes = getMethodArguementTypes(code);
-        return new Plugin(new PluginRegistry.PluginMetadata(argTypes, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod)),
+        return new Plugin(new PluginRegistry.PluginMetadata(argTypes, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod,null)),
                 code);
     }
     public String visitPluginDef(PluginDef pd) {
@@ -67,7 +58,7 @@ public class CodeGeneratorVisitor {
     }
 
     public String visitAssignmentExpr(AssignmentExpr asn) {
-        return asn.left + " = " + visitExpression(asn.right) + ";";
+        return asn.left + " = " + visitExpression(asn.right);
     }
 
     public String visitFunctionCallExpr(FunctionCallExpr fce) {
@@ -79,7 +70,7 @@ public class CodeGeneratorVisitor {
             }
             args = String.join(", ", argStr);
         }
-        return fce.functionName + "(" + args + ");";
+        return fce.functionName + "(" + args + ")";
     }
 
     public String visitIfStatement(IfStatement ifs) {
@@ -125,14 +116,19 @@ public class CodeGeneratorVisitor {
         return switch (expr) {
             case UnaryExpr unaryExpr -> visitUnaryExpr(unaryExpr);
             case PostfixExpr postfixExpr -> visitPostfixExpr(postfixExpr);
-            case AssignmentExpr assignmentExpr -> visitAssignmentExpr(assignmentExpr);
-            case FunctionCallExpr functionCallExpr -> visitFunctionCallExpr(functionCallExpr);
+            case ExpressionStatement es-> visitExpressionStatement(es);
             case null-> throw new RuntimeException("expression is null.");
             default ->
                     throw new RuntimeException("Unknown expression type: " + expr.getClass().getSimpleName());
         };
     }
-
+    public String visitExpressionStatement(ExpressionStatement a){
+        return switch (a){
+            case FunctionCallExpr fe -> visitFunctionCallExpr(fe);
+            case AssignmentExpr as-> visitAssignmentExpr(as);
+            default -> throw new IllegalStateException("Unexpected value: " + a);
+        } + ";";
+    }
     public String visitASTNode(ASTNode node) {
         if (node instanceof PluginDef pd) {
             return visitPluginDef(pd);
@@ -145,7 +141,7 @@ public class CodeGeneratorVisitor {
 
     private String indent(String code) {
         String indent = "        ";
-        return indent + code.replace("\n", "\n" + indent);
+        return indent + code.replaceAll("\n(?!$)", "\n" + indent);
     }
     
     public Type[] getMethodArguementTypes(String source) {
