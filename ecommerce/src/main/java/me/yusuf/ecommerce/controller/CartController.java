@@ -4,6 +4,7 @@ import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.cart.Cart;
 import me.yusuf.ecommerce.domain.cart.CartItemRepository;
 import me.yusuf.ecommerce.domain.cart.CartService;
+import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.hibernate.Hibernate;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -52,7 +53,11 @@ public class CartController {
 
     @DeleteMapping("/{productId}/{sellerId}")
     public ResponseEntity<Void> removeItem(@PathVariable int productId, @PathVariable int sellerId) {
-        cartService.removeItem(productId, sellerId);
-        return ResponseEntity.noContent().build();
+        try {
+            cartService.removeItem(productId, sellerId);
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
     }
 }

@@ -168,7 +168,8 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
         var first = visitUnaryExpr(ctx.unaryExpr(0));
         var ops = new ArrayList<MultiplicativeExpr.Op>();
         for (int i=1; i < ctx.unaryExpr().size(); i++) {
-            ops.add(new MultiplicativeExpr.Op(ctx.multiplicativeOp(i-1).getText(),visitUnaryExpr(ctx.unaryExpr(i ))));
+            ops.add(new MultiplicativeExpr.Op(ctx.multiplicativeOp(i-1).getText() //TODO does this never return null?
+                    ,visitUnaryExpr(ctx.unaryExpr(i ))));
         }
         return new MultiplicativeExpr(first, ops);
     }

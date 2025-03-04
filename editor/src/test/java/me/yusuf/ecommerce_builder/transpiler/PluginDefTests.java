@@ -32,7 +32,7 @@ public class PluginDefTests extends TestBase {
         // We will use the hataExpr variant.
         // Our sample input will include a function call inside the block.
         // Input:
-        //   MyPlugin MyException hatasında { myFunction(42); }
+        //   MyPlugin MyException hatasında { myFunction(Integer.valueOf(42)); }
         String input = "SATIN_ALMA MyException hatasında yap MyPlugin { myFunction(42); }";
         TurkishPseudoCodeParser parser = getParser(input);
         // Parse the pluginDef rule from the parser
@@ -51,12 +51,12 @@ public class PluginDefTests extends TestBase {
         Block block = plugin.block;
         // For our input, we expect one statement inside the block.
         Assertions.assertEquals(1, block.statements.size());
-        Assertions.assertEquals("myFunction(42)", block.statements.get(0).toString());
+        Assertions.assertEquals("myFunction(42)", block.statements.get(Integer.valueOf(0)).toString());
 
         // The single statement should be a function call expression.
         // Our visitor constructs ExpressionStatement from function calls.
         // We downcast it to FunctionCallExpr.
-        Object stmt = block.statements.get(0);
+        Object stmt = block.statements.get(Integer.valueOf(0));
         Assertions.assertInstanceOf(FunctionCallExpr.class, stmt, "The statement is not an instance of FunctionCallExpr");
         FunctionCallExpr funcCall = (FunctionCallExpr) stmt;
         // Assert that functionName is "myFunction"
@@ -67,7 +67,8 @@ public class PluginDefTests extends TestBase {
 
         // The argument should be an expression representing the number 42.
         Expression argExpr = funcCall.args[0];
-        Primary.Number expectedNumber = new Primary.Number(42);
+        Primary.Number expectedNumber = new Primary.Number();
+        expectedNumber.number = 42;
         Assertions.assertEquals(Primary.wrap(expectedNumber), argExpr);
     }
 
@@ -80,7 +81,9 @@ public class PluginDefTests extends TestBase {
         LoopStatement actual = visitor.visitLoopStatement(ctx);
 
         // Expected condition is the expression wrapping number 1.
-        Expr expectedCondition = Primary.wrap(new Primary.Number(1));
+        var n  =new Primary.Number();
+        n.number = 1;
+        Expr expectedCondition = Primary.wrap(n);
         // Expected block is empty.
         Block expectedBlock = new Block();
 
@@ -98,7 +101,9 @@ public class PluginDefTests extends TestBase {
         IfStatement actual = visitor.visitIfStatement(ctx);
 
         // Expected condition: number 1 wrapped.
-        Expr expectedCondition = Primary.wrap(new Primary.Number(1));
+        var n = new Primary.Number();
+        n.number =1;
+        Expr expectedCondition = Primary.wrap(n);
         Assertions.assertEquals(expectedCondition, actual.condition, "If condition does not match.");
 
         // Expected happyPath: a block with one var declaration statement.
@@ -106,13 +111,13 @@ public class PluginDefTests extends TestBase {
         VarDeclarationStatement expectedVar = new VarDeclarationStatement();
         AssignmentExpr expectedAssign = new AssignmentExpr();
         expectedAssign.left = "x";
-        expectedAssign.right = Primary.wrap(new Primary.Number(2));
+        expectedAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(2)));
         expectedVar.expr = expectedAssign;
         expectedHappy.statements.add(expectedVar);
 
         // Check if the happyPath block has one statement.
         Assertions.assertEquals(expectedHappy.statements.size(), actual.happyPath.statements.size(), "Happy path block statement count mismatch.");
-        VarDeclarationStatement actualVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
+        VarDeclarationStatement actualVar = (VarDeclarationStatement) actual.happyPath.statements.get(Integer.valueOf(0));
         Assertions.assertEquals(expectedVar.expr.left, actualVar.expr.left, "Variable name mismatch in if-statement.");
         Assertions.assertEquals(expectedVar.expr.right, actualVar.expr.right, "Variable assignment mismatch in if-statement.");
         // sadPath should be null.
@@ -129,33 +134,35 @@ public class PluginDefTests extends TestBase {
         IfStatement actual = visitor.visitIfStatement(ctx);
 
         // Expected condition: 1
-        Expr expectedCondition = Primary.wrap(new Primary.Number(1));
+        var n=  new Primary.Number();
+        n.number = 1;
+        Expr expectedCondition = Primary.wrap(n);
         Assertions.assertEquals(expectedCondition, actual.condition, "If condition does not match.");
 
         // Expected happyPath block with var declaration: x = 2
         VarDeclarationStatement expectedHappyVar = new VarDeclarationStatement();
         AssignmentExpr happyAssign = new AssignmentExpr();
         happyAssign.left = "x";
-        happyAssign.right = Primary.wrap(new Primary.Number(2));
+        happyAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(2)));
         expectedHappyVar.expr = happyAssign;
 
         // Expected sadPath block with var declaration: y = 3
         VarDeclarationStatement expectedSadVar = new VarDeclarationStatement();
         AssignmentExpr sadAssign = new AssignmentExpr();
         sadAssign.left = "y";
-        sadAssign.right = Primary.wrap(new Primary.Number(3));
+        sadAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(3)));
         expectedSadVar.expr = sadAssign;
 
         // Check happyPath block
         Assertions.assertFalse(actual.happyPath.statements.isEmpty(), "Happy path block should not be empty.");
-        VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
+        VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(Integer.valueOf(0));
         Assertions.assertEquals(expectedHappyVar.expr.left, actualHappyVar.expr.left, "Happy path variable name mismatch.");
         Assertions.assertEquals(expectedHappyVar.expr.right, actualHappyVar.expr.right, "Happy path assignment mismatch.");
 
         // Check sadPath block
         Assertions.assertNotNull(actual.sadPath, "Sad path block should not be null.");
         Assertions.assertFalse(actual.sadPath.statements.isEmpty(), "Sad path block should not be empty.");
-        VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(0);
+        VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(Integer.valueOf(0));
         Assertions.assertEquals(expectedSadVar.expr.left, actualSadVar.expr.left, "Sad path variable name mismatch.");
         Assertions.assertEquals(expectedSadVar.expr.right, actualSadVar.expr.right, "Sad path assignment mismatch.");
     }
@@ -181,7 +188,7 @@ public class PluginDefTests extends TestBase {
         VarDeclarationStatement actual = visitor.visitVarDeclaration(ctx);
 
         Assertions.assertEquals("x", actual.expr.left, "VarDeclaration variable name mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(42)), actual.expr.right, "VarDeclaration assignment mismatch.");
+        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(42))), actual.expr.right, "VarDeclaration assignment mismatch.");
     }
 
     @Test
@@ -196,8 +203,8 @@ public class PluginDefTests extends TestBase {
 
         Assertions.assertEquals("myFunction", actual.functionName, "Function call name mismatch.");
         Assertions.assertEquals(2, actual.args.length, "Function call argument count mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(1)), actual.args[0], "First argument mismatch in function call.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(2)), actual.args[1], "Second argument mismatch in function call.");
+        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(1))), actual.args[0], "First argument mismatch in function call.");
+        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(2))), actual.args[1], "Second argument mismatch in function call.");
     }
 
     @Test
@@ -211,6 +218,6 @@ public class PluginDefTests extends TestBase {
         AssignmentExpr actual = (AssignmentExpr) result;
 
         Assertions.assertEquals("x", actual.left, "Assignment variable name mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(42)), actual.right, "Assignment value mismatch.");
+        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(42))), actual.right, "Assignment value mismatch.");
     }
 }

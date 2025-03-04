@@ -28,7 +28,7 @@ public class EditorContextHolder extends HttpFilter {
        Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("editorId")).findFirst().ifPresent(cookie -> {
 //           holder.set(Integer.parseInt(cookie.getValue())); //TODO: uncomment
        });
-        holder.set(1);
+        holder.set(1); //TODO: remove
        chain.doFilter(request,response);
     }
 }

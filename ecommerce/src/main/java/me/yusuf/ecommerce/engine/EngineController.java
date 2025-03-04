@@ -1,11 +1,11 @@
 package me.yusuf.ecommerce.engine;
 
 import me.yusuf.ecommerce.engine.classloading.DynamicCompiler;
-import me.yusuf.ecommerce.utils.exception.NotFoundException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import me.yusuf.ecommerce_builder.shared.PluginRegistry;
+import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.Arrays;
 

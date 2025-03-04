@@ -1,6 +1,7 @@
 package me.yusuf.ecommerce_builder.transpiler.ast.expression;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ComparisonExpr implements Expression {
     public final AdditiveExpr first;
@@ -25,6 +26,21 @@ public class ComparisonExpr implements Expression {
     public ComparisonExpr(AdditiveExpr first, List<Op> ops) {
         this.first = first;
         this.ops = ops;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+
+        ComparisonExpr that = (ComparisonExpr) object;
+        return first.equals(that.first) && Objects.equals(ops, that.ops);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = first.hashCode();
+        result = 31 * result + Objects.hashCode(ops);
+        return result;
     }
 
     @Override

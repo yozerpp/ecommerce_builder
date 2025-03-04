@@ -10,8 +10,8 @@ import me.yusuf.ecommerce.domain.role.Role;
 import me.yusuf.ecommerce.domain.seller.Seller;
 import me.yusuf.ecommerce.domain.seller.SellerRepository;
 import me.yusuf.ecommerce.domain.tag.Tag;
-import me.yusuf.ecommerce.utils.exception.NotFoundException;
 import me.yusuf.ecommerce.utils.Utils;
+import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +70,7 @@ public class ProductService extends ServiceBase {
             throw new RuntimeException("invalid product specifications format", e);
         }
     }
-    public ProductOffer.ProductOfferId createOffer(@RequestBody ProductForm form, @RequestParam(required = false, defaultValue = "null") Integer id, @RequestParam(required = false, defaultValue = "null") Integer sellerId) throws BadRequestException,NotFoundException {
+    public ProductOffer.ProductOfferId createOffer(@RequestBody ProductForm form, @RequestParam(required = false, defaultValue = "null") Integer id, @RequestParam(required = false, defaultValue = "null") Integer sellerId) throws BadRequestException, NotFoundException {
             Seller seller;
             if(getUser().getAuthorities().contains(Role.ADMIN)) {
                 var o  = sellerRepository.findById(sellerId);

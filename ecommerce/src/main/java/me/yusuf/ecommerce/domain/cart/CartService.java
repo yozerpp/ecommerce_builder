@@ -6,9 +6,10 @@ import me.yusuf.ecommerce.domain.product.ProductOffer;
 import me.yusuf.ecommerce.domain.session.SessionRepository;
 import me.yusuf.ecommerce.domain.user.User;
 import me.yusuf.ecommerce.utils.exception.ContextedException;
-import me.yusuf.ecommerce.utils.exception.NotFoundException;
-import me.yusuf.ecommerce.utils.types.Tuple2;
-import me.yusuf.ecommerce.utils.types.Tuple3;
+import me.yusuf.ecommerce_builder.shared.types.Tuple2;
+import me.yusuf.ecommerce_builder.shared.types.Tuple3;
+import me.yusuf.ecommerce_builder.shared.types.exception.ExceptionCause;
+import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,7 +73,7 @@ public class CartService extends ServiceBase {
     public Tuple3<User, Cart, CartItem> removeItem(int productId, int sellerId) throws NotFoundException {
         var item = cartItemRepository.findById(new CartItem.CartItemId(new ProductOffer.ProductOfferId(productId,sellerId),getCart().getId()));
         var context = new Tuple3<>(getUser(), getCart(),item);
-        if (item == null) throw new ContextedException(context, new NotFoundException(NotFoundException.Cause.CART_ITEM_NOT_FOUND,
+        if (item == null) throw new ContextedException(context, new NotFoundException(ExceptionCause.NOT_FOUND_CART_ITEM,
                 "Cart item not found."));
         cartItemRepository.delete(item);
         return context;

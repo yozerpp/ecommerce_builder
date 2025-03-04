@@ -1,7 +1,8 @@
 package me.yusuf.ecommerce.engine;
 
 import me.yusuf.ecommerce.utils.exception.ContextedException;
-import me.yusuf.ecommerce.utils.types.Tuple1;
+import me.yusuf.ecommerce_builder.shared.PluginRegistry;
+import me.yusuf.ecommerce_builder.shared.types.Tuple1;
 import me.yusuf.utils.ReflectionUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;

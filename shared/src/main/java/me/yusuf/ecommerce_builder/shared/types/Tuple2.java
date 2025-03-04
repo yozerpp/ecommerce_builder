@@ -1,4 +1,6 @@
-package me.yusuf.ecommerce.utils.types;
+package me.yusuf.ecommerce_builder.shared.types;
+
+import me.yusuf.ecommerce_builder.shared.types.Tuple1;
 
 import java.util.Objects;
 

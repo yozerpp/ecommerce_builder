@@ -1,4 +1,4 @@
-package me.yusuf.ecommerce.utils.types;
+package me.yusuf.ecommerce_builder.shared.types;
 
 import java.util.Objects;
 
