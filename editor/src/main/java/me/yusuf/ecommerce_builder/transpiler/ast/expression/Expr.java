@@ -15,7 +15,7 @@ public class Expr implements Expression {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(first.toString());
-        for (LogicalAndExpr expr : rest) {
+        if (rest!=null)for (LogicalAndExpr expr : rest) {
             sb.append(" veya ").append(expr.toString());
         }
         return sb.toString();

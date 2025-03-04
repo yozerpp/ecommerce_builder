@@ -107,11 +107,23 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEqualityExpr(TurkishPseudoCodeParser.EqualityExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#equalityOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEqualityOp(TurkishPseudoCodeParser.EqualityOpContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#comparisonExpr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitComparisonExpr(TurkishPseudoCodeParser.ComparisonExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#comparisonOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComparisonOp(TurkishPseudoCodeParser.ComparisonOpContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#additiveExpr}.
 	 * @param ctx the parse tree
@@ -119,17 +131,35 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAdditiveExpr(TurkishPseudoCodeParser.AdditiveExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#additiveOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditiveOp(TurkishPseudoCodeParser.AdditiveOpContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#multiplicativeExpr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMultiplicativeExpr(TurkishPseudoCodeParser.MultiplicativeExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#multiplicativeOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicativeOp(TurkishPseudoCodeParser.MultiplicativeOpContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#unaryExpr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUnaryExpr(TurkishPseudoCodeParser.UnaryExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#unaryOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryOp(TurkishPseudoCodeParser.UnaryOpContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#postfixExpr}.
 	 * @param ctx the parse tree

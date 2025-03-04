@@ -1,6 +1,6 @@
 grammar TurkishPseudoCode;
 
-pluginDef: IDENTIFIER (hataExpr | SONRA) block;
+pluginDef: IDENTIFIER (hataExpr | SONRA) 'yap' IDENTIFIER block;
 
 hataExpr: IDENTIFIER HATA;
 
@@ -35,16 +35,16 @@ expr: logicalAndExpr ( VEYA logicalAndExpr )*;
 
 logicalAndExpr: equalityExpr ( VE equalityExpr )*;
 
-equalityExpr: comparisonExpr ( ('==' | '!=') comparisonExpr )*;
-
-comparisonExpr: additiveExpr ( ('>' | '<' | '>=' | '<=' ) additiveExpr )*;
-
-additiveExpr: multiplicativeExpr ( ( '+' | '-' ) multiplicativeExpr )*;
-
-multiplicativeExpr: unaryExpr ( ( '*' | '/' ) unaryExpr )*;
-
-unaryExpr: ( '-' | DEĞİL ) unaryExpr | postfixExpr;
-
+equalityExpr: comparisonExpr ( equalityOp comparisonExpr )*;
+equalityOp: EŞİTTİR | EŞİT_DEĞİLDİR;
+comparisonExpr: additiveExpr ( comparisonOp additiveExpr )*;
+comparisonOp: BÜYÜKTÜR | KÜÇÜKTÜR | BÜYÜK_EŞİTTİR | KÜÇÜK_EŞİTTİR;
+additiveExpr: multiplicativeExpr ( additiveOp multiplicativeExpr )*;
+additiveOp: ARTI|EKSİ;
+multiplicativeExpr: unaryExpr ( multiplicativeOp unaryExpr )*;
+multiplicativeOp: ÇARPIM | BÖLÜ;
+unaryExpr: unaryOp unaryExpr | postfixExpr;
+unaryOp: EKSİ | DEĞİL;
 postfixExpr: primary ( DEĞİL )?;
 
 primary: SAYI
@@ -58,6 +58,16 @@ primary: SAYI
 VE: 've';
 VEYA: 'veya';
 DEĞİL: 'değil';
+EŞİTTİR: '==';
+EŞİT_DEĞİLDİR: '!=';
+BÜYÜKTÜR:'>';
+KÜÇÜKTÜR:'<';
+BÜYÜK_EŞİTTİR:'>=';
+KÜÇÜK_EŞİTTİR:'<=';
+ARTI: '+';
+EKSİ: '-';
+ÇARPIM: '*';
+BÖLÜ: '/';
 HATA: 'hatasında';
 EĞER: 'eğer';
 İSE: 'ise';

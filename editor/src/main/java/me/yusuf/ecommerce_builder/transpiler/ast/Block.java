@@ -1,7 +1,8 @@
 package me.yusuf.ecommerce_builder.transpiler.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Block implements Statement{
-public List<Statement> statements;
+public final List<Statement> statements = new ArrayList<>();
 }

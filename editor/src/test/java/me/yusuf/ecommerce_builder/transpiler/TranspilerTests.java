@@ -11,14 +11,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class TranspilerTests {
+public class TranspilerTests extends TestBase {
     ASTBuilderVisitor astBuilder = new ASTBuilderVisitor();
     @Test
     public void testVarDecl(){
         var in = "değişken a = 4;";
-        var lexer = new TurkishPseudoCodeLexer(CharStreams.fromString(in));
-        var tokenStream =  new CommonTokenStream(lexer);
-        var parser = new TurkishPseudoCodeParser(tokenStream);
+        var parser = getParser(in);
         var varDecl = astBuilder.visitVarDeclaration(parser.varDeclaration());
         Assertions.assertEquals("a", varDecl.expr.left);
         Assertions.assertEquals("4", varDecl.expr.right.toString());

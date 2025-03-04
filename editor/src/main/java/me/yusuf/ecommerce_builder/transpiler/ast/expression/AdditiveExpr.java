@@ -21,18 +21,18 @@ public class AdditiveExpr implements Expression {
         }
     }
 
-    public final List<Op> ops = new ArrayList<>();
+    public final List<Op> ops;
 
     public AdditiveExpr(MultiplicativeExpr first, List<Op> ops) {
         this.first = first;
-        this.ops.addAll(ops);
+        this.ops = ops;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(first.toString());
-        for (Op op : ops) {
+        if (ops!=null)for (Op op : ops) {
             sb.append(op.toString());
         }
         return sb.toString();

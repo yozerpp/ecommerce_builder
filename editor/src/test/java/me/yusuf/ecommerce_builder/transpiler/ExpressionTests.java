@@ -73,8 +73,8 @@ public class ExpressionTests extends TestBase {
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
         // Assert that the operator is "-" using direct field access.
         Assertions.assertEquals("-", unary.operator);
-        Primary.Number num = (Primary.Number) unary.operand;
-        Assertions.assertEquals(10, num.number);
+        var num = unary.operand;
+        Assertions.assertEquals("10", num.toString());
     }
 
     @Test
@@ -85,8 +85,8 @@ public class ExpressionTests extends TestBase {
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
         // Assert that the operator is "değil" using direct field access.
         Assertions.assertEquals("değil", unary.operator);
-        Primary.Number num = (Primary.Number) unary.operand;
-        Assertions.assertEquals(5, num.number);
+        var num = unary.operand;
+        Assertions.assertEquals("5", num.toString());
     }
 
     @Test
@@ -97,8 +97,8 @@ public class ExpressionTests extends TestBase {
         UnaryExpr unary = (UnaryExpr) visitor.visitUnaryExpr(ctx);
         // When there is no unary operator, operator should be null and operand should represent 42.
         Assertions.assertNull(unary.operator);
-        Primary.Number num = (Primary.Number) unary.operand;
-        Assertions.assertEquals(42, num.number);
+        var num = unary.operand;
+        Assertions.assertEquals("42", num.toString());
     }
 
     // Multiplicative Expression tests
@@ -110,15 +110,14 @@ public class ExpressionTests extends TestBase {
         MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitMultiplicativeExpr(ctx);
         // Use direct field access to check the left operand from the first UnaryExpr.
         UnaryExpr leftUnary = mult.first;
-        Primary.Number left = (Primary.Number) leftUnary.operand;
-        Assertions.assertEquals(10, left.number);
+        PostfixExpr left = (PostfixExpr) leftUnary.operand;
+        Assertions.assertEquals("10", left.toString());
         // Check that there is one operator with value "*" using direct field access.
         Assertions.assertEquals(1, mult.ops.size());
         Assertions.assertEquals("*", mult.ops.get(0).operator);
         // Use direct field access to check the right operand of the operator.
         UnaryExpr rightUnary = (UnaryExpr) visitor.visitUnaryExpr(ctx.unaryExpr(1));
-        Primary.Number right = (Primary.Number) rightUnary.operand;
-        Assertions.assertEquals(2, right.number);
+        Assertions.assertEquals("2", rightUnary.toString());
     }
 
     @Test
@@ -265,6 +264,7 @@ public class ExpressionTests extends TestBase {
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
         // For a single equality expression, check that first exists and the rest list is empty.
         Assertions.assertNotNull(land.first);
+        Assertions.assertEquals("10 == 10", land.first.toString()); //better than nothing.
         Assertions.assertEquals(0, land.rest.size());
     }
 
@@ -275,7 +275,9 @@ public class ExpressionTests extends TestBase {
         var ctx = parser.logicalAndExpr();
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
         // There should be one additional equality expression in the rest list.
+        Assertions.assertEquals("10 == 10", land.first.toString());
         Assertions.assertEquals(1, land.rest.size());
+        Assertions.assertEquals("5 < 6", land.rest.getFirst().toString());
     }
 
     @Test
@@ -285,7 +287,10 @@ public class ExpressionTests extends TestBase {
         var ctx = parser.logicalAndExpr();
         LogicalAndExpr land = (LogicalAndExpr) visitor.visitLogicalAndExpr(ctx);
         // Expect two additional equality expressions in the rest list.
+        Assertions.assertEquals("10 == 10", land.first.toString());
         Assertions.assertEquals(2, land.rest.size());
+        Assertions.assertEquals("5 != 3", land.rest.getFirst().toString());
+        Assertions.assertEquals("1 < 2", land.rest.getLast().toString());
     }
 
     // Expr tests

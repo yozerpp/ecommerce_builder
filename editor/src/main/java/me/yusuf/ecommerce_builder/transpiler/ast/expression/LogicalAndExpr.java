@@ -15,7 +15,7 @@ public class LogicalAndExpr implements Expression {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(first.toString());
-        for (EqualityExpr expr : rest) {
+        if (rest!=null)for (EqualityExpr expr : rest) {
             sb.append(" ve ").append(expr.toString());
         }
         return sb.toString();

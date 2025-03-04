@@ -31,7 +31,7 @@ public class EqualityExpr implements Expression {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(first.toString());
-        for (Op op : ops) {
+        if (ops!=null)for (Op op : ops) {
             sb.append(op.toString());
         }
         return sb.toString();
