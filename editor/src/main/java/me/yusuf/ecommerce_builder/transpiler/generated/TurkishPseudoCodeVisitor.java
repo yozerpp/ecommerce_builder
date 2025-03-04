@@ -161,6 +161,12 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPostfixExpr(TurkishPseudoCodeParser.PostfixExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#id_with_dots}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitId_with_dots(TurkishPseudoCodeParser.Id_with_dotsContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

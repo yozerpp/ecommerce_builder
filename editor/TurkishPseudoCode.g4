@@ -1,18 +1,15 @@
 grammar TurkishPseudoCode;
-
-pluginDef: IDENTIFIER (hataExpr | SONRA) 'yap' IDENTIFIER block;
-
-hataExpr: IDENTIFIER HATA;
+pluginDef: id_with_dots (hataExpr | SONRA) 'yap' IDENTIFIER block;
+hataExpr: id_with_dots HATA;
 
 statement: loopStatement
          | ifStatement
          | foreachStatement
-         | varDeclaration ';'
-         | exprStatement ( (';' | SONRA statement) )
+         | varDeclaration
+         | exprStatement
          | block;
-functionCall: IDENTIFIER '(' expr (',' expr)* ')';
-exprStatement: functionCall
-             | assignment;
+functionCall: id_with_dots '(' (expr (',' expr)* )?')';
+exprStatement: (functionCall | assignment) ';';
 
 foreachStatement: IDENTIFIER ICINDEKI HER IDENTIFIER ICIN block;
 
@@ -22,7 +19,7 @@ ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
 
 block: '{' statement* '}';
 
-varDeclaration: DEĞİŞKEN assignment;
+varDeclaration: DEĞİŞKEN assignment ';';
 
 assignment: IDENTIFIER '=' expr;
 
@@ -45,7 +42,7 @@ multiplicativeOp: ÇARPIM | BÖLÜ;
 unaryExpr: unaryOp unaryExpr | postfixExpr;
 unaryOp: EKSİ | DEĞİL;
 postfixExpr: primary ( DEĞİL )?;
-
+id_with_dots: IDENTIFIER ('.' IDENTIFIER)*;
 primary: SAYI
        | YAZI
        | IDENTIFIER
@@ -84,8 +81,7 @@ SONRA: 'sonrasında';
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
 YAZI: '"' .*? '"';
-IDENTIFIER: [a-zA-ZğüşıöçĞÜŞİÖÇ_][a-zA-ZğüşıöçĞÜŞİÖÇ0-9_]*;
-
+IDENTIFIER: [a-zA-ZğüşıöçĞÜŞİÖÇ_]([a-zA-ZğüşıöçĞÜŞİÖÇ0-9_$])*;
 WS: [ \t\r\n]+ -> skip;
 COMMENT: '//' ~[\r\n]* -> skip;
 MULTILINE_COMMENT: '/*' .*? '*/' -> skip;

@@ -192,5 +192,12 @@ public class TurkishPseudoCodeBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitId_with_dots(TurkishPseudoCodeParser.Id_with_dotsContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitPrimary(TurkishPseudoCodeParser.PrimaryContext ctx) { return visitChildren(ctx); }
 }

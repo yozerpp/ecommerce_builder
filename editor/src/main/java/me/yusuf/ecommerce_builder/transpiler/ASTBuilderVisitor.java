@@ -13,10 +13,10 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     @Override
     public PluginDef visitPluginDef(TurkishPseudoCodeParser.PluginDefContext ctx) {
         var ret = new PluginDef();
-        ret.hookedMethod = ctx.IDENTIFIER().getFirst().getText();
-        ret.hookedException = ctx.hataExpr() != null ? ctx.hataExpr().IDENTIFIER().getText() : null;
+        ret.hookedMethod = ctx.id_with_dots().getText();
+        ret.hookedException = ctx.hataExpr() != null ? ctx.hataExpr().id_with_dots().getText() : null;
         ret.block = visitBlock(ctx.block());
-        ret.name = ctx.IDENTIFIER().getLast().getText();
+        ret.name = ctx.IDENTIFIER().getText();
         return ret;
     }
 
@@ -95,7 +95,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     public FunctionCallExpr visitFunctionCall(TurkishPseudoCodeParser.FunctionCallContext ctx) {
         var ret = new FunctionCallExpr();
         ret.args = ctx.expr().stream().map(this::visitExpr).toArray(Expression[]::new);
-        ret.functionName = ctx.IDENTIFIER().getText();
+        ret.functionName = ctx.id_with_dots().getText();
         return ret;
     }
 
@@ -219,7 +219,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
                 return ret;
             } else if(ctx.exprStatement().functionCall()!=null){
                 var ret = new FunctionCallExpr();
-                ret.functionName = ctx.exprStatement().functionCall().IDENTIFIER().getText();
+                ret.functionName = ctx.exprStatement().functionCall().id_with_dots().getText();
                 ret.args = ctx.exprStatement().functionCall().expr().stream().map(this::visitExpr).toArray(Expression[]::new);
                 return ret;
             } else throw new RuntimeException("No type matches.");

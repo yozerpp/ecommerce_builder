@@ -26,7 +26,7 @@ public class IntegrationTest {
     @Test
     public void testSimplePlugin() {
         String pseudoCode =
-            "run hataEx hatasında yap Simple {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Simple {" +
             "    değişken x = 5;" +
             "    yazdır(x);" +
             "}";
@@ -46,7 +46,7 @@ public class IntegrationTest {
     @Test
     public void testComplexPlugin() throws Exception {
         String pseudoCode =
-            "run hataEx hatasında yap Complex {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Complex {" +
             "    değişken a = 10;" +
             "    değişken b = 20;" +
             "    eğer a < b ise {" +
@@ -88,15 +88,15 @@ public class IntegrationTest {
     @Test
     public void testNestedIfs() throws Exception {
         String pseudoCode =
-            "run hataEx hatasında yap Nested {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Nested {" +
             "    değişken x = 7;" +
             "    eğer x < 10 ise {" +
-            "         yazdır \"less\";" +
+            "         yazdır(\"less\");" +
             "         eğer x == 7 ise {" +
-            "              yazdır \"equal to seven\";" +
+            "              yazdır(\"equal to seven\");" +
             "         }" +
             "    } değilse {" +
-            "         yazdır \"not less\";" +
+            "         yazdır(\"not less\");" +
             "    }" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
@@ -121,9 +121,9 @@ public class IntegrationTest {
     @Test
     public void testArithmeticExpressions() throws Exception {
         String pseudoCode =
-            "run sonra yap Arithmetic {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap Arithmetic {" +
             "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
-            "    yazdır sum;" +
+            "    yazdır(sum);;" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
         String expected =
@@ -131,7 +131,7 @@ public class IntegrationTest {
             "    @Override\n" +
             "    public void run() {\n" +
             "        var sum = 1 + 2 - 3 * 4 / 2;\n" +
-            "        yazdır(sum);\n" +
+            "        yazdır(sum);;\n" +
             "    }\n" +
             "}\n";
         assertEquals(expected, plugin.source());
@@ -140,8 +140,8 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallNoArgs() throws Exception {
         String pseudoCode =
-            "run sonra yap NoArgs {" +
-            "    yazdır testFunction();" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap NoArgs {" +
+            "    testFunction();" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
         String expected =
@@ -157,8 +157,8 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallMultipleArgs() throws Exception {
         String pseudoCode =
-            "run sonra yap MultiArgs {" +
-            "    yazdır testFunction(10, 20 + 5, \"hello\");" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap MultiArgs {" +
+            "    testFunction(10, 20 + 5, \"hello\");" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
         String expected =
@@ -169,5 +169,10 @@ public class IntegrationTest {
             "    }\n" +
             "}\n";
         assertEquals(expected, plugin.source());
+    }
+    public static class SAMPLE{
+        void something(){
+
+        }
     }
 }
