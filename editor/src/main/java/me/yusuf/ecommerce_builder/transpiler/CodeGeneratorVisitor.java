@@ -188,7 +188,7 @@ public class CodeGeneratorVisitor {
             case Expr e -> visitExpr(e);
             case FunctionCallExpr fc -> visitFunctionCallExpr(fc);
             case AssignmentExpr as -> visitAssignmentExpr(as);
-            case Primary p -> p.toString();
+            case Primary p-> p.toString();
             default ->
                     throw new RuntimeException("Unknown expression type: " + expr.getClass().getSimpleName());
         };
@@ -203,22 +203,8 @@ public class CodeGeneratorVisitor {
     // first line, last and before the last lines are not indented.
     private String indentBlock(String code) {
         String indent = "        ";
-        String[] lines = code.split("\n", -1);
-        if (lines.length < 3) {
-            return code;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lines.length; i++) {
-            if (i == 0 || i >= lines.length - 2) {
-                sb.append(lines[i]);
-            } else {
-                sb.append(indent).append(lines[i]);
-            }
-            if (i < lines.length - 1) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
+        // edit this so that it doesn't indent the last line, and the line before it, AI!
+        return code.replaceAll("\n(?!$)", "\n" + indent);
     }
     
     public Type[] getMethodArguementTypes(String source) {
