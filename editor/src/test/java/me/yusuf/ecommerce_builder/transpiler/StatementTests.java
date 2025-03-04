@@ -70,7 +70,7 @@ public class StatementTests extends TestBase {
     @Test
     public void testLoopStatement() {
         // Test a loop statement: "1 olduğu sürece { }"
-        String input = "1 olduğu sürece { }";
+        String input = "1 iken { }";
         TurkishPseudoCodeParser parser = getParser(input);
         TurkishPseudoCodeParser.LoopStatementContext ctx = parser.loopStatement();
         LoopStatement actual = visitor.visitLoopStatement(ctx);
@@ -165,7 +165,7 @@ public class StatementTests extends TestBase {
     @Test
     public void testForeachStatement() {
         // Test foreach statement: "item içindeki her items için { }"
-        String input = "item içindeki her items için { }";
+        String input = "items içindeki her item için { }";
         TurkishPseudoCodeParser parser = getParser(input);
         TurkishPseudoCodeParser.ForeachStatementContext ctx = parser.foreachStatement();
         ForeachStatement actual = visitor.visitForeachStatement(ctx);

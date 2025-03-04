@@ -13,7 +13,7 @@ exprStatement: (functionCall | assignment) ';';
 
 foreachStatement: IDENTIFIER ICINDEKI HER IDENTIFIER ICIN block;
 
-loopStatement: expr OLDUĞU_SÜRECE block;
+loopStatement: expr IKEN block;
 
 ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
 
@@ -68,7 +68,7 @@ HATA: 'hatasında';
 EĞER: 'eğer';
 İSE: 'ise';
 DEĞİLSE: 'değilse';
-OLDUĞU_SÜRECE: 'olduğu sürece';
+IKEN: 'iken';
 FONKSİYON: 'fonksiyon';
 DÖNDÜR: 'döndür';
 DEĞİŞKEN: 'değişken';

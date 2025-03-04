@@ -20,9 +20,9 @@ public class TurkishPseudoCodeParser extends Parser {
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		VE=10, VEYA=11, DEĞİL=12, EŞİTTİR=13, EŞİT_DEĞİLDİR=14, BÜYÜKTÜR=15, KÜÇÜKTÜR=16, 
 		BÜYÜK_EŞİTTİR=17, KÜÇÜK_EŞİTTİR=18, ARTI=19, EKSİ=20, ÇARPIM=21, BÖLÜ=22, 
-		HATA=23, EĞER=24, İSE=25, DEĞİLSE=26, OLDUĞU_SÜRECE=27, FONKSİYON=28, 
-		DÖNDÜR=29, DEĞİŞKEN=30, ICINDEKI=31, HER=32, ICIN=33, SONRA=34, SAYI=35, 
-		YAZI=36, IDENTIFIER=37, WS=38, COMMENT=39, MULTILINE_COMMENT=40;
+		HATA=23, EĞER=24, İSE=25, DEĞİLSE=26, IKEN=27, FONKSİYON=28, DÖNDÜR=29, 
+		DEĞİŞKEN=30, ICINDEKI=31, HER=32, ICIN=33, SONRA=34, SAYI=35, YAZI=36, 
+		IDENTIFIER=37, WS=38, COMMENT=39, MULTILINE_COMMENT=40;
 	public static final int
 		RULE_pluginDef = 0, RULE_hataExpr = 1, RULE_statement = 2, RULE_functionCall = 3, 
 		RULE_exprStatement = 4, RULE_foreachStatement = 5, RULE_loopStatement = 6, 
@@ -49,9 +49,8 @@ public class TurkishPseudoCodeParser extends Parser {
 			null, "'yap'", "'('", "','", "')'", "';'", "'{'", "'}'", "'='", "'.'", 
 			"'ve'", "'veya'", "'de\u011Fil'", "'=='", "'!='", "'>'", "'<'", "'>='", 
 			"'<='", "'+'", "'-'", "'*'", "'/'", "'hatas\u0131nda'", "'e\u011Fer'", 
-			"'ise'", "'de\u011Filse'", "'oldu\u011Fu s\u00FCrece'", "'fonksiyon'", 
-			"'d\u00F6nd\u00FCr'", "'de\u011Fi\u015Fken'", "'i\u00E7indeki'", "'her'", 
-			"'i\u00E7in'", "'sonras\u0131nda'"
+			"'ise'", "'de\u011Filse'", "'iken'", "'fonksiyon'", "'d\u00F6nd\u00FCr'", 
+			"'de\u011Fi\u015Fken'", "'i\u00E7indeki'", "'her'", "'i\u00E7in'", "'sonras\u0131nda'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -62,7 +61,7 @@ public class TurkishPseudoCodeParser extends Parser {
 			"B\u0001Y\u0003KT\u0006R", "K\u0001\u0002\u0003KT\u0006R", "B\u0001Y\u0003K_E\u0007\u0008TT\u000BR", 
 			"K\u0001\u0002\u0003K_E\u0007\u0008TT\u000BR", "ARTI", "EKS\u0003", "\u0000ARPIM", 
 			"B\u0001L\u0003", "HATA", "E\u0001ER", "\u0000SE", "DE\u0002\u0003LSE", 
-			"OLDU\u0004U_S\u0008RECE", "FONKS\u0005YON", "D\u0001ND\u0004R", "DE\u0002\u0003\u0004KEN", 
+			"IKEN", "FONKS\u0005YON", "D\u0001ND\u0004R", "DE\u0002\u0003\u0004KEN", 
 			"ICINDEKI", "HER", "ICIN", "SONRA", "SAYI", "YAZI", "IDENTIFIER", "WS", 
 			"COMMENT", "MULTILINE_COMMENT"
 		};
@@ -501,7 +500,7 @@ public class TurkishPseudoCodeParser extends Parser {
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public TerminalNode OLDUĞU_SÜRECE() { return getToken(TurkishPseudoCodeParser.OLDUĞU_SÜRECE, 0); }
+		public TerminalNode IKEN() { return getToken(TurkishPseudoCodeParser.IKEN, 0); }
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
@@ -525,7 +524,7 @@ public class TurkishPseudoCodeParser extends Parser {
 			setState(101);
 			expr();
 			setState(102);
-			match(OLDUĞU_SÜRECE);
+			match(IKEN);
 			setState(103);
 			block();
 			}
