@@ -1,3 +1,5 @@
+package me.yusuf.ecommerce_builder.transpiler;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -8,7 +10,7 @@ import me.yusuf.ecommerce_builder.transpiler.CodeGeneratorVisitor;
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
 import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeLexer;
 import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
-import me.yusuf.ecommerce_builder.shared.PluginRegistry.Plugin; 
+import me.yusuf.ecommerce_builder.transpiler.Plugin;
 
 public class IntegrationTest {
 
@@ -40,7 +42,7 @@ public class IntegrationTest {
             "        yazdır(x);\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.code);
+        assertEquals(expected, plugin.source());
     }
 
     @Test
@@ -82,6 +84,6 @@ public class IntegrationTest {
             "        }\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.code);
+        assertEquals(expected, plugin.source());
     }
 }
