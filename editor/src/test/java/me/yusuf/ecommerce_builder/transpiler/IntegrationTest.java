@@ -26,7 +26,7 @@ public class IntegrationTest {
     @Test
     public void testSimplePlugin() {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Simple {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something hataEx hatasında yap Simple {" +
             "    değişken x = 5;" +
             "    yazdır(x);" +
             "}";
@@ -46,7 +46,7 @@ public class IntegrationTest {
     @Test
     public void testComplexPlugin() throws Exception {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Complex {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something hataEx hatasında yap Complex {" +
             "    değişken a = 10;" +
             "    değişken b = 20;" +
             "    eğer a < b ise {" +
@@ -88,7 +88,7 @@ public class IntegrationTest {
     @Test
     public void testNestedIfs() throws Exception {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something hataEx hatasında yap Nested {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something hataEx hatasında yap Nested {" +
             "    değişken x = 7;" +
             "    eğer x < 10 ise {" +
             "         yazdır(\"less\");" +
@@ -121,7 +121,7 @@ public class IntegrationTest {
     @Test
     public void testArithmeticExpressions() throws Exception {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap Arithmetic {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap Arithmetic {" +
             "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
             "    yazdır(sum);;" +
             "}";
@@ -140,7 +140,7 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallNoArgs() throws Exception {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap NoArgs {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap NoArgs {" +
             "    testFunction();" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
@@ -157,7 +157,7 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallMultipleArgs() throws Exception {
         String pseudoCode =
-            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$$SAMPLE.something sonrasında yap MultiArgs {" +
+            "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap MultiArgs {" +
             "    testFunction(10, 20 + 5, \"hello\");" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);

@@ -21,8 +21,8 @@ public class TurkishPseudoCodeParser extends Parser {
 		VE=10, VEYA=11, DEĞİL=12, EŞİTTİR=13, EŞİT_DEĞİLDİR=14, BÜYÜKTÜR=15, KÜÇÜKTÜR=16, 
 		BÜYÜK_EŞİTTİR=17, KÜÇÜK_EŞİTTİR=18, ARTI=19, EKSİ=20, ÇARPIM=21, BÖLÜ=22, 
 		HATA=23, EĞER=24, İSE=25, DEĞİLSE=26, OLDUĞU_SÜRECE=27, FONKSİYON=28, 
-		DÖNDÜR=29, YAZDIR=30, DEĞİŞKEN=31, ICINDEKI=32, HER=33, ICIN=34, SONRA=35, 
-		SAYI=36, YAZI=37, IDENTIFIER=38, WS=39, COMMENT=40, MULTILINE_COMMENT=41;
+		DÖNDÜR=29, DEĞİŞKEN=30, ICINDEKI=31, HER=32, ICIN=33, SONRA=34, SAYI=35, 
+		YAZI=36, IDENTIFIER=37, WS=38, COMMENT=39, MULTILINE_COMMENT=40;
 	public static final int
 		RULE_pluginDef = 0, RULE_hataExpr = 1, RULE_statement = 2, RULE_functionCall = 3, 
 		RULE_exprStatement = 4, RULE_foreachStatement = 5, RULE_loopStatement = 6, 
@@ -50,8 +50,8 @@ public class TurkishPseudoCodeParser extends Parser {
 			"'ve'", "'veya'", "'de\u011Fil'", "'=='", "'!='", "'>'", "'<'", "'>='", 
 			"'<='", "'+'", "'-'", "'*'", "'/'", "'hatas\u0131nda'", "'e\u011Fer'", 
 			"'ise'", "'de\u011Filse'", "'oldu\u011Fu s\u00FCrece'", "'fonksiyon'", 
-			"'d\u00F6nd\u00FCr'", "'yazd\u0131r'", "'de\u011Fi\u015Fken'", "'i\u00E7indeki'", 
-			"'her'", "'i\u00E7in'", "'sonras\u0131nda'"
+			"'d\u00F6nd\u00FCr'", "'de\u011Fi\u015Fken'", "'i\u00E7indeki'", "'her'", 
+			"'i\u00E7in'", "'sonras\u0131nda'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -62,9 +62,9 @@ public class TurkishPseudoCodeParser extends Parser {
 			"B\u0001Y\u0003KT\u0006R", "K\u0001\u0002\u0003KT\u0006R", "B\u0001Y\u0003K_E\u0007\u0008TT\u000BR", 
 			"K\u0001\u0002\u0003K_E\u0007\u0008TT\u000BR", "ARTI", "EKS\u0003", "\u0000ARPIM", 
 			"B\u0001L\u0003", "HATA", "E\u0001ER", "\u0000SE", "DE\u0002\u0003LSE", 
-			"OLDU\u0004U_S\u0008RECE", "FONKS\u0005YON", "D\u0001ND\u0004R", "YAZDIR", 
-			"DE\u0002\u0003\u0004KEN", "ICINDEKI", "HER", "ICIN", "SONRA", "SAYI", 
-			"YAZI", "IDENTIFIER", "WS", "COMMENT", "MULTILINE_COMMENT"
+			"OLDU\u0004U_S\u0008RECE", "FONKS\u0005YON", "D\u0001ND\u0004R", "DE\u0002\u0003\u0004KEN", 
+			"ICINDEKI", "HER", "ICIN", "SONRA", "SAYI", "YAZI", "IDENTIFIER", "WS", 
+			"COMMENT", "MULTILINE_COMMENT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -1618,7 +1618,7 @@ public class TurkishPseudoCodeParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3+\u00e2\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3*\u00e2\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -1643,19 +1643,19 @@ public class TurkishPseudoCodeParser extends Parser {
 		"\2\36\u0097\3\2\2\2 \u00a0\3\2\2\2\"\u00a2\3\2\2\2$\u00ab\3\2\2\2&\u00ad"+
 		"\3\2\2\2(\u00b6\3\2\2\2*\u00b8\3\2\2\2,\u00c1\3\2\2\2.\u00c7\3\2\2\2\60"+
 		"\u00c9\3\2\2\2\62\u00cb\3\2\2\2\64\u00cf\3\2\2\2\66\u00df\3\2\2\28;\5"+
-		"\64\33\29<\5\4\3\2:<\7%\2\2;9\3\2\2\2;:\3\2\2\2<=\3\2\2\2=>\7\3\2\2>?"+
-		"\7(\2\2?@\5\22\n\2@\3\3\2\2\2AB\5\64\33\2BC\7\31\2\2C\5\3\2\2\2DK\5\16"+
+		"\64\33\29<\5\4\3\2:<\7$\2\2;9\3\2\2\2;:\3\2\2\2<=\3\2\2\2=>\7\3\2\2>?"+
+		"\7\'\2\2?@\5\22\n\2@\3\3\2\2\2AB\5\64\33\2BC\7\31\2\2C\5\3\2\2\2DK\5\16"+
 		"\b\2EK\5\20\t\2FK\5\f\7\2GK\5\24\13\2HK\5\n\6\2IK\5\22\n\2JD\3\2\2\2J"+
 		"E\3\2\2\2JF\3\2\2\2JG\3\2\2\2JH\3\2\2\2JI\3\2\2\2K\7\3\2\2\2LM\5\64\33"+
 		"\2MV\7\4\2\2NS\5\32\16\2OP\7\5\2\2PR\5\32\16\2QO\3\2\2\2RU\3\2\2\2SQ\3"+
 		"\2\2\2ST\3\2\2\2TW\3\2\2\2US\3\2\2\2VN\3\2\2\2VW\3\2\2\2WX\3\2\2\2XY\7"+
 		"\6\2\2Y\t\3\2\2\2Z]\5\b\5\2[]\5\26\f\2\\Z\3\2\2\2\\[\3\2\2\2]^\3\2\2\2"+
-		"^_\7\7\2\2_\13\3\2\2\2`a\7(\2\2ab\7\"\2\2bc\7#\2\2cd\7(\2\2de\7$\2\2e"+
-		"f\5\22\n\2f\r\3\2\2\2gh\5\32\16\2hi\7\35\2\2ij\5\22\n\2j\17\3\2\2\2kl"+
-		"\7\32\2\2lm\5\32\16\2mn\7\33\2\2nq\5\22\n\2op\7\34\2\2pr\5\22\n\2qo\3"+
+		"^_\7\7\2\2_\13\3\2\2\2`a\7\'\2\2ab\7!\2\2bc\7\"\2\2cd\7\'\2\2de\7#\2\2"+
+		"ef\5\22\n\2f\r\3\2\2\2gh\5\32\16\2hi\7\35\2\2ij\5\22\n\2j\17\3\2\2\2k"+
+		"l\7\32\2\2lm\5\32\16\2mn\7\33\2\2nq\5\22\n\2op\7\34\2\2pr\5\22\n\2qo\3"+
 		"\2\2\2qr\3\2\2\2r\21\3\2\2\2sw\7\b\2\2tv\5\6\4\2ut\3\2\2\2vy\3\2\2\2w"+
-		"u\3\2\2\2wx\3\2\2\2xz\3\2\2\2yw\3\2\2\2z{\7\t\2\2{\23\3\2\2\2|}\7!\2\2"+
-		"}~\5\26\f\2~\177\7\7\2\2\177\25\3\2\2\2\u0080\u0081\7(\2\2\u0081\u0082"+
+		"u\3\2\2\2wx\3\2\2\2xz\3\2\2\2yw\3\2\2\2z{\7\t\2\2{\23\3\2\2\2|}\7 \2\2"+
+		"}~\5\26\f\2~\177\7\7\2\2\177\25\3\2\2\2\u0080\u0081\7\'\2\2\u0081\u0082"+
 		"\7\n\2\2\u0082\u0083\5\32\16\2\u0083\27\3\2\2\2\u0084\u0085\7\37\2\2\u0085"+
 		"\u0086\5\32\16\2\u0086\31\3\2\2\2\u0087\u008c\5\34\17\2\u0088\u0089\7"+
 		"\r\2\2\u0089\u008b\5\34\17\2\u008a\u0088\3\2\2\2\u008b\u008e\3\2\2\2\u008c"+
@@ -1679,13 +1679,13 @@ public class TurkishPseudoCodeParser extends Parser {
 		"\60\31\2\u00c4\u00c5\5.\30\2\u00c5\u00c8\3\2\2\2\u00c6\u00c8\5\62\32\2"+
 		"\u00c7\u00c3\3\2\2\2\u00c7\u00c6\3\2\2\2\u00c8/\3\2\2\2\u00c9\u00ca\t"+
 		"\6\2\2\u00ca\61\3\2\2\2\u00cb\u00cd\5\66\34\2\u00cc\u00ce\7\16\2\2\u00cd"+
-		"\u00cc\3\2\2\2\u00cd\u00ce\3\2\2\2\u00ce\63\3\2\2\2\u00cf\u00d4\7(\2\2"+
-		"\u00d0\u00d1\7\13\2\2\u00d1\u00d3\7(\2\2\u00d2\u00d0\3\2\2\2\u00d3\u00d6"+
-		"\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4\u00d5\3\2\2\2\u00d5\65\3\2\2\2\u00d6"+
-		"\u00d4\3\2\2\2\u00d7\u00e0\7&\2\2\u00d8\u00e0\7\'\2\2\u00d9\u00e0\7(\2"+
-		"\2\u00da\u00db\7\4\2\2\u00db\u00dc\5\32\16\2\u00dc\u00dd\7\6\2\2\u00dd"+
-		"\u00e0\3\2\2\2\u00de\u00e0\5\n\6\2\u00df\u00d7\3\2\2\2\u00df\u00d8\3\2"+
-		"\2\2\u00df\u00d9\3\2\2\2\u00df\u00da\3\2\2\2\u00df\u00de\3\2\2\2\u00e0"+
+		"\u00cc\3\2\2\2\u00cd\u00ce\3\2\2\2\u00ce\63\3\2\2\2\u00cf\u00d4\7\'\2"+
+		"\2\u00d0\u00d1\7\13\2\2\u00d1\u00d3\7\'\2\2\u00d2\u00d0\3\2\2\2\u00d3"+
+		"\u00d6\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4\u00d5\3\2\2\2\u00d5\65\3\2\2"+
+		"\2\u00d6\u00d4\3\2\2\2\u00d7\u00e0\7%\2\2\u00d8\u00e0\7&\2\2\u00d9\u00e0"+
+		"\7\'\2\2\u00da\u00db\7\4\2\2\u00db\u00dc\5\32\16\2\u00dc\u00dd\7\6\2\2"+
+		"\u00dd\u00e0\3\2\2\2\u00de\u00e0\5\n\6\2\u00df\u00d7\3\2\2\2\u00df\u00d8"+
+		"\3\2\2\2\u00df\u00d9\3\2\2\2\u00df\u00da\3\2\2\2\u00df\u00de\3\2\2\2\u00e0"+
 		"\67\3\2\2\2\23;JSV\\qw\u008c\u0094\u009d\u00a8\u00b3\u00be\u00c7\u00cd"+
 		"\u00d4\u00df";
 	public static final ATN _ATN =

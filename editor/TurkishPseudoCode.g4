@@ -20,6 +20,7 @@ ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
 block: '{' statement* '}';
 
 varDeclaration: DEĞİŞKEN assignment ';';
+
 assignment: IDENTIFIER '=' expr;
 
 
