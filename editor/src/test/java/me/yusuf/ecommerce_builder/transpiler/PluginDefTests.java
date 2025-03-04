@@ -61,11 +61,13 @@ public class PluginDefTests extends TestBase {
 
         // The argument should be an expression representing the number 42.
         Expression argExpr = funcCall.args[0];
+        var p  =new Primary.Number();
+        p.number = 42;
+        Assertions.assertEquals(Primary.wrap(p),argExpr);
         // Typically, the visitor constructs a UnaryExpr wrapping a PostfixExpr wrapping a Primary.Number.
         // We can get its string form or, ideally, directly access the fields.
         // In this case, we check that converting the expression to string gives "42".
         // Alternatively, we can downcast if we know the structure.
         // We'll downcast if possible.
-        Assertions.assertEquals("42", argExpr.toString(), "The argument does not equal the number 42");
     }
 }
