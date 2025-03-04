@@ -86,4 +86,90 @@ public class IntegrationTest {
             "}\n";
         assertEquals(expected, plugin.source());
     }
+    
+    @Test
+    public void testNestedIfs() throws Exception {
+        String pseudoCode =
+            "run hataEx yap Nested {" +
+            "    değişken x = 7;" +
+            "    eğer x < 10 ise {" +
+            "         yazdır \"less\";" +
+            "         eğer x == 7 ise {" +
+            "              yazdır \"equal to seven\";" +
+            "         }" +
+            "    } değilse {" +
+            "         yazdır \"not less\";" +
+            "    }" +
+            "}";
+        Plugin plugin = generatePluginFromSource(pseudoCode);
+        String expected =
+            "public class NestedPlugin implements Runnable {\n" +
+            "    @Override\n" +
+            "    public void run() {\n" +
+            "        var x = 7;\n" +
+            "        if(x<10) {\n" +
+            "            yazdır(\"less\");\n" +
+            "            if(x==7) {\n" +
+            "                yazdır(\"equal to seven\");\n" +
+            "            }\n" +
+            "        } else {\n" +
+            "            yazdır(\"not less\");\n" +
+            "        }\n" +
+            "    }\n" +
+            "}\n";
+        assertEquals(expected, plugin.source());
+    }
+    
+    @Test
+    public void testArithmeticExpressions() throws Exception {
+        String pseudoCode =
+            "run hataEx yap Arithmetic {" +
+            "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
+            "    yazdır sum;" +
+            "}";
+        Plugin plugin = generatePluginFromSource(pseudoCode);
+        String expected =
+            "public class ArithmeticPlugin implements Runnable {\n" +
+            "    @Override\n" +
+            "    public void run() {\n" +
+            "        var sum = 1 + 2 - 3 * 4 / 2;\n" +
+            "        yazdır(sum);\n" +
+            "    }\n" +
+            "}\n";
+        assertEquals(expected, plugin.source());
+    }
+    
+    @Test
+    public void testFunctionCallNoArgs() throws Exception {
+        String pseudoCode =
+            "run hataEx yap NoArgs {" +
+            "    yazdır testFunction();" +
+            "}";
+        Plugin plugin = generatePluginFromSource(pseudoCode);
+        String expected =
+            "public class NoArgsPlugin implements Runnable {\n" +
+            "    @Override\n" +
+            "    public void run() {\n" +
+            "        testFunction();\n" +
+            "    }\n" +
+            "}\n";
+        assertEquals(expected, plugin.source());
+    }
+    
+    @Test
+    public void testFunctionCallMultipleArgs() throws Exception {
+        String pseudoCode =
+            "run hataEx yap MultiArgs {" +
+            "    yazdır testFunction(10, 20 + 5, \"hello\");" +
+            "}";
+        Plugin plugin = generatePluginFromSource(pseudoCode);
+        String expected =
+            "public class MultiArgsPlugin implements Runnable {\n" +
+            "    @Override\n" +
+            "    public void run() {\n" +
+            "        testFunction(10, 20 + 5, \"hello\");\n" +
+            "    }\n" +
+            "}\n";
+        assertEquals(expected, plugin.source());
+    }
 }
