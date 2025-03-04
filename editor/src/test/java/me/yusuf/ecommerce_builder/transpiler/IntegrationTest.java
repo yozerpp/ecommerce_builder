@@ -5,18 +5,16 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import me.yusuf.ecommerce_builder.transpiler.ASTBuilderVisitor;
-import me.yusuf.ecommerce_builder.transpiler.CodeGeneratorVisitor;
+
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
 import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeLexer;
 import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
-import me.yusuf.ecommerce_builder.transpiler.Plugin;
 
 public class IntegrationTest {
 
     // Helper method to perform the integration:
     // Pseudo-code --> AST --> Generated Code.
-    private Plugin generatePluginFromSource(String source) throws Exception {
+    private Plugin generatePluginFromSource(String source) {
         CharStream charStream = CharStreams.fromString(source);
         TurkishPseudoCodeLexer lexer = new TurkishPseudoCodeLexer(charStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -26,11 +24,11 @@ public class IntegrationTest {
     }
 
     @Test
-    public void testSimplePlugin() throws Exception {
+    public void testSimplePlugin() {
         String pseudoCode =
-            "run hataEx yap Simple {" +
+            "run hataEx hatasında yap Simple {" +
             "    değişken x = 5;" +
-            "    yazdır x;" +
+            "    yazdır(x);" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
 
@@ -48,19 +46,19 @@ public class IntegrationTest {
     @Test
     public void testComplexPlugin() throws Exception {
         String pseudoCode =
-            "run hataEx yap Complex {" +
+            "run hataEx hatasında yap Complex {" +
             "    değişken a = 10;" +
             "    değişken b = 20;" +
             "    eğer a < b ise {" +
-            "         yazdır \"a is less\";" +
+            "         yazdır(\"a is less\");" +
             "    } değilse {" +
-            "         yazdır \"a is not less\";" +
+            "         yazdır(\"a is not less\");" +
             "    }" +
             "    olduğu sürece a != b {" +
             "         a = a + 1;" +
             "    }" +
             "    her item içindeki items için {" +
-            "         yazdır item;" +
+            "         yazdır(item);" +
             "    }" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
@@ -90,7 +88,7 @@ public class IntegrationTest {
     @Test
     public void testNestedIfs() throws Exception {
         String pseudoCode =
-            "run hataEx yap Nested {" +
+            "run hataEx hatasında yap Nested {" +
             "    değişken x = 7;" +
             "    eğer x < 10 ise {" +
             "         yazdır \"less\";" +
@@ -123,7 +121,7 @@ public class IntegrationTest {
     @Test
     public void testArithmeticExpressions() throws Exception {
         String pseudoCode =
-            "run hataEx yap Arithmetic {" +
+            "run sonra yap Arithmetic {" +
             "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
             "    yazdır sum;" +
             "}";
@@ -142,7 +140,7 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallNoArgs() throws Exception {
         String pseudoCode =
-            "run hataEx yap NoArgs {" +
+            "run sonra yap NoArgs {" +
             "    yazdır testFunction();" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
@@ -159,7 +157,7 @@ public class IntegrationTest {
     @Test
     public void testFunctionCallMultipleArgs() throws Exception {
         String pseudoCode =
-            "run hataEx yap MultiArgs {" +
+            "run sonra yap MultiArgs {" +
             "    yazdır testFunction(10, 20 + 5, \"hello\");" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);

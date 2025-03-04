@@ -27,19 +27,19 @@ public class TurkishPseudoCodeParser extends Parser {
 		RULE_pluginDef = 0, RULE_hataExpr = 1, RULE_statement = 2, RULE_functionCall = 3, 
 		RULE_exprStatement = 4, RULE_foreachStatement = 5, RULE_loopStatement = 6, 
 		RULE_ifStatement = 7, RULE_block = 8, RULE_varDeclaration = 9, RULE_assignment = 10, 
-		RULE_yazdir = 11, RULE_returnStatement = 12, RULE_expr = 13, RULE_logicalAndExpr = 14, 
-		RULE_equalityExpr = 15, RULE_equalityOp = 16, RULE_comparisonExpr = 17, 
-		RULE_comparisonOp = 18, RULE_additiveExpr = 19, RULE_additiveOp = 20, 
-		RULE_multiplicativeExpr = 21, RULE_multiplicativeOp = 22, RULE_unaryExpr = 23, 
-		RULE_unaryOp = 24, RULE_postfixExpr = 25, RULE_primary = 26;
+		RULE_returnStatement = 11, RULE_expr = 12, RULE_logicalAndExpr = 13, RULE_equalityExpr = 14, 
+		RULE_equalityOp = 15, RULE_comparisonExpr = 16, RULE_comparisonOp = 17, 
+		RULE_additiveExpr = 18, RULE_additiveOp = 19, RULE_multiplicativeExpr = 20, 
+		RULE_multiplicativeOp = 21, RULE_unaryExpr = 22, RULE_unaryOp = 23, RULE_postfixExpr = 24, 
+		RULE_primary = 25;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"pluginDef", "hataExpr", "statement", "functionCall", "exprStatement", 
 			"foreachStatement", "loopStatement", "ifStatement", "block", "varDeclaration", 
-			"assignment", "yazdir", "returnStatement", "expr", "logicalAndExpr", 
-			"equalityExpr", "equalityOp", "comparisonExpr", "comparisonOp", "additiveExpr", 
-			"additiveOp", "multiplicativeExpr", "multiplicativeOp", "unaryExpr", 
-			"unaryOp", "postfixExpr", "primary"
+			"assignment", "returnStatement", "expr", "logicalAndExpr", "equalityExpr", 
+			"equalityOp", "comparisonExpr", "comparisonOp", "additiveExpr", "additiveOp", 
+			"multiplicativeExpr", "multiplicativeOp", "unaryExpr", "unaryOp", "postfixExpr", 
+			"primary"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -146,31 +146,31 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(54);
+			setState(52);
 			match(IDENTIFIER);
-			setState(57);
+			setState(55);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENTIFIER:
 				{
-				setState(55);
+				setState(53);
 				hataExpr();
 				}
 				break;
 			case SONRA:
 				{
-				setState(56);
+				setState(54);
 				match(SONRA);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(59);
+			setState(57);
 			match(T__0);
-			setState(60);
+			setState(58);
 			match(IDENTIFIER);
-			setState(61);
+			setState(59);
 			block();
 			}
 		}
@@ -205,9 +205,9 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63);
+			setState(61);
 			match(IDENTIFIER);
-			setState(64);
+			setState(62);
 			match(HATA);
 			}
 		}
@@ -260,59 +260,59 @@ public class TurkishPseudoCodeParser extends Parser {
 		StatementContext _localctx = new StatementContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_statement);
 		try {
-			setState(79);
+			setState(77);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(66);
+				setState(64);
 				loopStatement();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(67);
+				setState(65);
 				ifStatement();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(68);
+				setState(66);
 				foreachStatement();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(69);
+				setState(67);
 				varDeclaration();
-				setState(70);
+				setState(68);
 				match(T__1);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(72);
+				setState(70);
 				exprStatement();
 				{
-				setState(76);
+				setState(74);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case T__1:
 					{
-					setState(73);
+					setState(71);
 					match(T__1);
 					}
 					break;
 				case SONRA:
 					{
-					setState(74);
+					setState(72);
 					match(SONRA);
-					setState(75);
+					setState(73);
 					statement();
 					}
 					break;
@@ -325,7 +325,7 @@ public class TurkishPseudoCodeParser extends Parser {
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(78);
+				setState(76);
 				block();
 				}
 				break;
@@ -368,29 +368,29 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(81);
+			setState(79);
 			match(IDENTIFIER);
-			setState(82);
+			setState(80);
 			match(T__2);
-			setState(83);
+			setState(81);
 			expr();
-			setState(88);
+			setState(86);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__3) {
 				{
 				{
-				setState(84);
+				setState(82);
 				match(T__3);
-				setState(85);
+				setState(83);
 				expr();
 				}
 				}
-				setState(90);
+				setState(88);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(91);
+			setState(89);
 			match(T__4);
 			}
 		}
@@ -427,20 +427,20 @@ public class TurkishPseudoCodeParser extends Parser {
 		ExprStatementContext _localctx = new ExprStatementContext(_ctx, getState());
 		enterRule(_localctx, 8, RULE_exprStatement);
 		try {
-			setState(95);
+			setState(93);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(93);
+				setState(91);
 				functionCall();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(94);
+				setState(92);
 				assignment();
 				}
 				break;
@@ -485,17 +485,17 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(97);
+			setState(95);
 			match(IDENTIFIER);
-			setState(98);
+			setState(96);
 			match(ICINDEKI);
-			setState(99);
+			setState(97);
 			match(HER);
-			setState(100);
+			setState(98);
 			match(IDENTIFIER);
-			setState(101);
+			setState(99);
 			match(ICIN);
-			setState(102);
+			setState(100);
 			block();
 			}
 		}
@@ -535,11 +535,11 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(104);
+			setState(102);
 			expr();
-			setState(105);
+			setState(103);
 			match(OLDUĞU_SÜRECE);
-			setState(106);
+			setState(104);
 			block();
 			}
 		}
@@ -585,22 +585,22 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(108);
+			setState(106);
 			match(EĞER);
-			setState(109);
+			setState(107);
 			expr();
-			setState(110);
+			setState(108);
 			match(İSE);
-			setState(111);
+			setState(109);
 			block();
-			setState(114);
+			setState(112);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DEĞİLSE) {
 				{
-				setState(112);
+				setState(110);
 				match(DEĞİLSE);
-				setState(113);
+				setState(111);
 				block();
 				}
 			}
@@ -643,23 +643,23 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(116);
+			setState(114);
 			match(T__5);
-			setState(120);
+			setState(118);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__5) | (1L << DEĞİL) | (1L << EKSİ) | (1L << EĞER) | (1L << DEĞİŞKEN) | (1L << SAYI) | (1L << YAZI) | (1L << IDENTIFIER))) != 0)) {
 				{
 				{
-				setState(117);
+				setState(115);
 				statement();
 				}
 				}
-				setState(122);
+				setState(120);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(123);
+			setState(121);
 			match(T__6);
 			}
 		}
@@ -696,9 +696,9 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(125);
+			setState(123);
 			match(DEĞİŞKEN);
-			setState(126);
+			setState(124);
 			assignment();
 			}
 		}
@@ -735,50 +735,11 @@ public class TurkishPseudoCodeParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(128);
+			setState(126);
 			match(IDENTIFIER);
-			setState(129);
+			setState(127);
 			match(T__7);
-			setState(130);
-			expr();
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class YazdirContext extends ParserRuleContext {
-		public TerminalNode YAZDIR() { return getToken(TurkishPseudoCodeParser.YAZDIR, 0); }
-		public ExprContext expr() {
-			return getRuleContext(ExprContext.class,0);
-		}
-		public YazdirContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_yazdir; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TurkishPseudoCodeVisitor ) return ((TurkishPseudoCodeVisitor<? extends T>)visitor).visitYazdir(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final YazdirContext yazdir() throws RecognitionException {
-		YazdirContext _localctx = new YazdirContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_yazdir);
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(132);
-			match(YAZDIR);
-			setState(133);
+			setState(128);
 			expr();
 			}
 		}
@@ -811,13 +772,13 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final ReturnStatementContext returnStatement() throws RecognitionException {
 		ReturnStatementContext _localctx = new ReturnStatementContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_returnStatement);
+		enterRule(_localctx, 22, RULE_returnStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(135);
+			setState(130);
 			match(DÖNDÜR);
-			setState(136);
+			setState(131);
 			expr();
 			}
 		}
@@ -856,28 +817,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final ExprContext expr() throws RecognitionException {
 		ExprContext _localctx = new ExprContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_expr);
+		enterRule(_localctx, 24, RULE_expr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(138);
+			setState(133);
 			logicalAndExpr();
-			setState(143);
+			setState(138);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(139);
+					setState(134);
 					match(VEYA);
-					setState(140);
+					setState(135);
 					logicalAndExpr();
 					}
 					} 
 				}
-				setState(145);
+				setState(140);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
 			}
@@ -918,28 +879,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final LogicalAndExprContext logicalAndExpr() throws RecognitionException {
 		LogicalAndExprContext _localctx = new LogicalAndExprContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_logicalAndExpr);
+		enterRule(_localctx, 26, RULE_logicalAndExpr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(146);
+			setState(141);
 			equalityExpr();
-			setState(151);
+			setState(146);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(147);
+					setState(142);
 					match(VE);
-					setState(148);
+					setState(143);
 					equalityExpr();
 					}
 					} 
 				}
-				setState(153);
+				setState(148);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
 			}
@@ -982,28 +943,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final EqualityExprContext equalityExpr() throws RecognitionException {
 		EqualityExprContext _localctx = new EqualityExprContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_equalityExpr);
+		enterRule(_localctx, 28, RULE_equalityExpr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(154);
+			setState(149);
 			comparisonExpr();
-			setState(160);
+			setState(155);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(155);
+					setState(150);
 					equalityOp();
-					setState(156);
+					setState(151);
 					comparisonExpr();
 					}
 					} 
 				}
-				setState(162);
+				setState(157);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
 			}
@@ -1036,12 +997,12 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final EqualityOpContext equalityOp() throws RecognitionException {
 		EqualityOpContext _localctx = new EqualityOpContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_equalityOp);
+		enterRule(_localctx, 30, RULE_equalityOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(163);
+			setState(158);
 			_la = _input.LA(1);
 			if ( !(_la==EŞİTTİR || _la==EŞİT_DEĞİLDİR) ) {
 			_errHandler.recoverInline(this);
@@ -1090,28 +1051,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final ComparisonExprContext comparisonExpr() throws RecognitionException {
 		ComparisonExprContext _localctx = new ComparisonExprContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_comparisonExpr);
+		enterRule(_localctx, 32, RULE_comparisonExpr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(165);
+			setState(160);
 			additiveExpr();
-			setState(171);
+			setState(166);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(166);
+					setState(161);
 					comparisonOp();
-					setState(167);
+					setState(162);
 					additiveExpr();
 					}
 					} 
 				}
-				setState(173);
+				setState(168);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			}
@@ -1146,12 +1107,12 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final ComparisonOpContext comparisonOp() throws RecognitionException {
 		ComparisonOpContext _localctx = new ComparisonOpContext(_ctx, getState());
-		enterRule(_localctx, 36, RULE_comparisonOp);
+		enterRule(_localctx, 34, RULE_comparisonOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(174);
+			setState(169);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BÜYÜKTÜR) | (1L << KÜÇÜKTÜR) | (1L << BÜYÜK_EŞİTTİR) | (1L << KÜÇÜK_EŞİTTİR))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -1200,28 +1161,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final AdditiveExprContext additiveExpr() throws RecognitionException {
 		AdditiveExprContext _localctx = new AdditiveExprContext(_ctx, getState());
-		enterRule(_localctx, 38, RULE_additiveExpr);
+		enterRule(_localctx, 36, RULE_additiveExpr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(176);
+			setState(171);
 			multiplicativeExpr();
-			setState(182);
+			setState(177);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(177);
+					setState(172);
 					additiveOp();
-					setState(178);
+					setState(173);
 					multiplicativeExpr();
 					}
 					} 
 				}
-				setState(184);
+				setState(179);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
 			}
@@ -1254,12 +1215,12 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final AdditiveOpContext additiveOp() throws RecognitionException {
 		AdditiveOpContext _localctx = new AdditiveOpContext(_ctx, getState());
-		enterRule(_localctx, 40, RULE_additiveOp);
+		enterRule(_localctx, 38, RULE_additiveOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(185);
+			setState(180);
 			_la = _input.LA(1);
 			if ( !(_la==ARTI || _la==EKSİ) ) {
 			_errHandler.recoverInline(this);
@@ -1308,28 +1269,28 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final MultiplicativeExprContext multiplicativeExpr() throws RecognitionException {
 		MultiplicativeExprContext _localctx = new MultiplicativeExprContext(_ctx, getState());
-		enterRule(_localctx, 42, RULE_multiplicativeExpr);
+		enterRule(_localctx, 40, RULE_multiplicativeExpr);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(187);
+			setState(182);
 			unaryExpr();
-			setState(193);
+			setState(188);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(188);
+					setState(183);
 					multiplicativeOp();
-					setState(189);
+					setState(184);
 					unaryExpr();
 					}
 					} 
 				}
-				setState(195);
+				setState(190);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
 			}
@@ -1362,12 +1323,12 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final MultiplicativeOpContext multiplicativeOp() throws RecognitionException {
 		MultiplicativeOpContext _localctx = new MultiplicativeOpContext(_ctx, getState());
-		enterRule(_localctx, 44, RULE_multiplicativeOp);
+		enterRule(_localctx, 42, RULE_multiplicativeOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(196);
+			setState(191);
 			_la = _input.LA(1);
 			if ( !(_la==ÇARPIM || _la==BÖLÜ) ) {
 			_errHandler.recoverInline(this);
@@ -1413,18 +1374,18 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final UnaryExprContext unaryExpr() throws RecognitionException {
 		UnaryExprContext _localctx = new UnaryExprContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_unaryExpr);
+		enterRule(_localctx, 44, RULE_unaryExpr);
 		try {
-			setState(202);
+			setState(197);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case DEĞİL:
 			case EKSİ:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(198);
+				setState(193);
 				unaryOp();
-				setState(199);
+				setState(194);
 				unaryExpr();
 				}
 				break;
@@ -1434,7 +1395,7 @@ public class TurkishPseudoCodeParser extends Parser {
 			case IDENTIFIER:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(201);
+				setState(196);
 				postfixExpr();
 				}
 				break;
@@ -1469,12 +1430,12 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final UnaryOpContext unaryOp() throws RecognitionException {
 		UnaryOpContext _localctx = new UnaryOpContext(_ctx, getState());
-		enterRule(_localctx, 48, RULE_unaryOp);
+		enterRule(_localctx, 46, RULE_unaryOp);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(204);
+			setState(199);
 			_la = _input.LA(1);
 			if ( !(_la==DEĞİL || _la==EKSİ) ) {
 			_errHandler.recoverInline(this);
@@ -1515,18 +1476,18 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final PostfixExprContext postfixExpr() throws RecognitionException {
 		PostfixExprContext _localctx = new PostfixExprContext(_ctx, getState());
-		enterRule(_localctx, 50, RULE_postfixExpr);
+		enterRule(_localctx, 48, RULE_postfixExpr);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(206);
+			setState(201);
 			primary();
-			setState(208);
+			setState(203);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
 			case 1:
 				{
-				setState(207);
+				setState(202);
 				match(DEĞİL);
 				}
 				break;
@@ -1567,47 +1528,47 @@ public class TurkishPseudoCodeParser extends Parser {
 
 	public final PrimaryContext primary() throws RecognitionException {
 		PrimaryContext _localctx = new PrimaryContext(_ctx, getState());
-		enterRule(_localctx, 52, RULE_primary);
+		enterRule(_localctx, 50, RULE_primary);
 		try {
-			setState(218);
+			setState(213);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,15,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(210);
+				setState(205);
 				match(SAYI);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(211);
+				setState(206);
 				match(YAZI);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(212);
+				setState(207);
 				match(IDENTIFIER);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(213);
+				setState(208);
 				match(T__2);
-				setState(214);
+				setState(209);
 				expr();
-				setState(215);
+				setState(210);
 				match(T__4);
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(217);
+				setState(212);
 				exprStatement();
 				}
 				break;
@@ -1625,74 +1586,72 @@ public class TurkishPseudoCodeParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3*\u00df\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3*\u00da\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
-		"\4\32\t\32\4\33\t\33\4\34\t\34\3\2\3\2\3\2\5\2<\n\2\3\2\3\2\3\2\3\2\3"+
-		"\3\3\3\3\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4O\n\4\3\4\5\4R\n"+
-		"\4\3\5\3\5\3\5\3\5\3\5\7\5Y\n\5\f\5\16\5\\\13\5\3\5\3\5\3\6\3\6\5\6b\n"+
-		"\6\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t"+
-		"\5\tu\n\t\3\n\3\n\7\ny\n\n\f\n\16\n|\13\n\3\n\3\n\3\13\3\13\3\13\3\f\3"+
-		"\f\3\f\3\f\3\r\3\r\3\r\3\16\3\16\3\16\3\17\3\17\3\17\7\17\u0090\n\17\f"+
-		"\17\16\17\u0093\13\17\3\20\3\20\3\20\7\20\u0098\n\20\f\20\16\20\u009b"+
-		"\13\20\3\21\3\21\3\21\3\21\7\21\u00a1\n\21\f\21\16\21\u00a4\13\21\3\22"+
-		"\3\22\3\23\3\23\3\23\3\23\7\23\u00ac\n\23\f\23\16\23\u00af\13\23\3\24"+
-		"\3\24\3\25\3\25\3\25\3\25\7\25\u00b7\n\25\f\25\16\25\u00ba\13\25\3\26"+
-		"\3\26\3\27\3\27\3\27\3\27\7\27\u00c2\n\27\f\27\16\27\u00c5\13\27\3\30"+
-		"\3\30\3\31\3\31\3\31\3\31\5\31\u00cd\n\31\3\32\3\32\3\33\3\33\5\33\u00d3"+
-		"\n\33\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\5\34\u00dd\n\34\3\34\2\2"+
-		"\35\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\66\2\7\3"+
-		"\2\16\17\3\2\20\23\3\2\24\25\3\2\26\27\4\2\r\r\25\25\2\u00da\28\3\2\2"+
-		"\2\4A\3\2\2\2\6Q\3\2\2\2\bS\3\2\2\2\na\3\2\2\2\fc\3\2\2\2\16j\3\2\2\2"+
-		"\20n\3\2\2\2\22v\3\2\2\2\24\177\3\2\2\2\26\u0082\3\2\2\2\30\u0086\3\2"+
-		"\2\2\32\u0089\3\2\2\2\34\u008c\3\2\2\2\36\u0094\3\2\2\2 \u009c\3\2\2\2"+
-		"\"\u00a5\3\2\2\2$\u00a7\3\2\2\2&\u00b0\3\2\2\2(\u00b2\3\2\2\2*\u00bb\3"+
-		"\2\2\2,\u00bd\3\2\2\2.\u00c6\3\2\2\2\60\u00cc\3\2\2\2\62\u00ce\3\2\2\2"+
-		"\64\u00d0\3\2\2\2\66\u00dc\3\2\2\28;\7\'\2\29<\5\4\3\2:<\7$\2\2;9\3\2"+
-		"\2\2;:\3\2\2\2<=\3\2\2\2=>\7\3\2\2>?\7\'\2\2?@\5\22\n\2@\3\3\2\2\2AB\7"+
-		"\'\2\2BC\7\30\2\2C\5\3\2\2\2DR\5\16\b\2ER\5\20\t\2FR\5\f\7\2GH\5\24\13"+
-		"\2HI\7\4\2\2IR\3\2\2\2JN\5\n\6\2KO\7\4\2\2LM\7$\2\2MO\5\6\4\2NK\3\2\2"+
-		"\2NL\3\2\2\2OR\3\2\2\2PR\5\22\n\2QD\3\2\2\2QE\3\2\2\2QF\3\2\2\2QG\3\2"+
-		"\2\2QJ\3\2\2\2QP\3\2\2\2R\7\3\2\2\2ST\7\'\2\2TU\7\5\2\2UZ\5\34\17\2VW"+
-		"\7\6\2\2WY\5\34\17\2XV\3\2\2\2Y\\\3\2\2\2ZX\3\2\2\2Z[\3\2\2\2[]\3\2\2"+
-		"\2\\Z\3\2\2\2]^\7\7\2\2^\t\3\2\2\2_b\5\b\5\2`b\5\26\f\2a_\3\2\2\2a`\3"+
-		"\2\2\2b\13\3\2\2\2cd\7\'\2\2de\7!\2\2ef\7\"\2\2fg\7\'\2\2gh\7#\2\2hi\5"+
-		"\22\n\2i\r\3\2\2\2jk\5\34\17\2kl\7\34\2\2lm\5\22\n\2m\17\3\2\2\2no\7\31"+
-		"\2\2op\5\34\17\2pq\7\32\2\2qt\5\22\n\2rs\7\33\2\2su\5\22\n\2tr\3\2\2\2"+
-		"tu\3\2\2\2u\21\3\2\2\2vz\7\b\2\2wy\5\6\4\2xw\3\2\2\2y|\3\2\2\2zx\3\2\2"+
-		"\2z{\3\2\2\2{}\3\2\2\2|z\3\2\2\2}~\7\t\2\2~\23\3\2\2\2\177\u0080\7 \2"+
-		"\2\u0080\u0081\5\26\f\2\u0081\25\3\2\2\2\u0082\u0083\7\'\2\2\u0083\u0084"+
-		"\7\n\2\2\u0084\u0085\5\34\17\2\u0085\27\3\2\2\2\u0086\u0087\7\37\2\2\u0087"+
-		"\u0088\5\34\17\2\u0088\31\3\2\2\2\u0089\u008a\7\36\2\2\u008a\u008b\5\34"+
-		"\17\2\u008b\33\3\2\2\2\u008c\u0091\5\36\20\2\u008d\u008e\7\f\2\2\u008e"+
-		"\u0090\5\36\20\2\u008f\u008d\3\2\2\2\u0090\u0093\3\2\2\2\u0091\u008f\3"+
-		"\2\2\2\u0091\u0092\3\2\2\2\u0092\35\3\2\2\2\u0093\u0091\3\2\2\2\u0094"+
-		"\u0099\5 \21\2\u0095\u0096\7\13\2\2\u0096\u0098\5 \21\2\u0097\u0095\3"+
-		"\2\2\2\u0098\u009b\3\2\2\2\u0099\u0097\3\2\2\2\u0099\u009a\3\2\2\2\u009a"+
-		"\37\3\2\2\2\u009b\u0099\3\2\2\2\u009c\u00a2\5$\23\2\u009d\u009e\5\"\22"+
-		"\2\u009e\u009f\5$\23\2\u009f\u00a1\3\2\2\2\u00a0\u009d\3\2\2\2\u00a1\u00a4"+
-		"\3\2\2\2\u00a2\u00a0\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3!\3\2\2\2\u00a4"+
-		"\u00a2\3\2\2\2\u00a5\u00a6\t\2\2\2\u00a6#\3\2\2\2\u00a7\u00ad\5(\25\2"+
-		"\u00a8\u00a9\5&\24\2\u00a9\u00aa\5(\25\2\u00aa\u00ac\3\2\2\2\u00ab\u00a8"+
-		"\3\2\2\2\u00ac\u00af\3\2\2\2\u00ad\u00ab\3\2\2\2\u00ad\u00ae\3\2\2\2\u00ae"+
-		"%\3\2\2\2\u00af\u00ad\3\2\2\2\u00b0\u00b1\t\3\2\2\u00b1\'\3\2\2\2\u00b2"+
-		"\u00b8\5,\27\2\u00b3\u00b4\5*\26\2\u00b4\u00b5\5,\27\2\u00b5\u00b7\3\2"+
-		"\2\2\u00b6\u00b3\3\2\2\2\u00b7\u00ba\3\2\2\2\u00b8\u00b6\3\2\2\2\u00b8"+
-		"\u00b9\3\2\2\2\u00b9)\3\2\2\2\u00ba\u00b8\3\2\2\2\u00bb\u00bc\t\4\2\2"+
-		"\u00bc+\3\2\2\2\u00bd\u00c3\5\60\31\2\u00be\u00bf\5.\30\2\u00bf\u00c0"+
-		"\5\60\31\2\u00c0\u00c2\3\2\2\2\u00c1\u00be\3\2\2\2\u00c2\u00c5\3\2\2\2"+
-		"\u00c3\u00c1\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4-\3\2\2\2\u00c5\u00c3\3"+
-		"\2\2\2\u00c6\u00c7\t\5\2\2\u00c7/\3\2\2\2\u00c8\u00c9\5\62\32\2\u00c9"+
-		"\u00ca\5\60\31\2\u00ca\u00cd\3\2\2\2\u00cb\u00cd\5\64\33\2\u00cc\u00c8"+
-		"\3\2\2\2\u00cc\u00cb\3\2\2\2\u00cd\61\3\2\2\2\u00ce\u00cf\t\6\2\2\u00cf"+
-		"\63\3\2\2\2\u00d0\u00d2\5\66\34\2\u00d1\u00d3\7\r\2\2\u00d2\u00d1\3\2"+
-		"\2\2\u00d2\u00d3\3\2\2\2\u00d3\65\3\2\2\2\u00d4\u00dd\7%\2\2\u00d5\u00dd"+
-		"\7&\2\2\u00d6\u00dd\7\'\2\2\u00d7\u00d8\7\5\2\2\u00d8\u00d9\5\34\17\2"+
-		"\u00d9\u00da\7\7\2\2\u00da\u00dd\3\2\2\2\u00db\u00dd\5\n\6\2\u00dc\u00d4"+
-		"\3\2\2\2\u00dc\u00d5\3\2\2\2\u00dc\u00d6\3\2\2\2\u00dc\u00d7\3\2\2\2\u00dc"+
-		"\u00db\3\2\2\2\u00dd\67\3\2\2\2\22;NQZatz\u0091\u0099\u00a2\u00ad\u00b8"+
-		"\u00c3\u00cc\u00d2\u00dc";
+		"\4\32\t\32\4\33\t\33\3\2\3\2\3\2\5\2:\n\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3"+
+		"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4M\n\4\3\4\5\4P\n\4\3\5\3\5"+
+		"\3\5\3\5\3\5\7\5W\n\5\f\5\16\5Z\13\5\3\5\3\5\3\6\3\6\5\6`\n\6\3\7\3\7"+
+		"\3\7\3\7\3\7\3\7\3\7\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\5\ts\n\t"+
+		"\3\n\3\n\7\nw\n\n\f\n\16\nz\13\n\3\n\3\n\3\13\3\13\3\13\3\f\3\f\3\f\3"+
+		"\f\3\r\3\r\3\r\3\16\3\16\3\16\7\16\u008b\n\16\f\16\16\16\u008e\13\16\3"+
+		"\17\3\17\3\17\7\17\u0093\n\17\f\17\16\17\u0096\13\17\3\20\3\20\3\20\3"+
+		"\20\7\20\u009c\n\20\f\20\16\20\u009f\13\20\3\21\3\21\3\22\3\22\3\22\3"+
+		"\22\7\22\u00a7\n\22\f\22\16\22\u00aa\13\22\3\23\3\23\3\24\3\24\3\24\3"+
+		"\24\7\24\u00b2\n\24\f\24\16\24\u00b5\13\24\3\25\3\25\3\26\3\26\3\26\3"+
+		"\26\7\26\u00bd\n\26\f\26\16\26\u00c0\13\26\3\27\3\27\3\30\3\30\3\30\3"+
+		"\30\5\30\u00c8\n\30\3\31\3\31\3\32\3\32\5\32\u00ce\n\32\3\33\3\33\3\33"+
+		"\3\33\3\33\3\33\3\33\3\33\5\33\u00d8\n\33\3\33\2\2\34\2\4\6\b\n\f\16\20"+
+		"\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\2\7\3\2\16\17\3\2\20\23\3\2\24"+
+		"\25\3\2\26\27\4\2\r\r\25\25\2\u00d6\2\66\3\2\2\2\4?\3\2\2\2\6O\3\2\2\2"+
+		"\bQ\3\2\2\2\n_\3\2\2\2\fa\3\2\2\2\16h\3\2\2\2\20l\3\2\2\2\22t\3\2\2\2"+
+		"\24}\3\2\2\2\26\u0080\3\2\2\2\30\u0084\3\2\2\2\32\u0087\3\2\2\2\34\u008f"+
+		"\3\2\2\2\36\u0097\3\2\2\2 \u00a0\3\2\2\2\"\u00a2\3\2\2\2$\u00ab\3\2\2"+
+		"\2&\u00ad\3\2\2\2(\u00b6\3\2\2\2*\u00b8\3\2\2\2,\u00c1\3\2\2\2.\u00c7"+
+		"\3\2\2\2\60\u00c9\3\2\2\2\62\u00cb\3\2\2\2\64\u00d7\3\2\2\2\669\7\'\2"+
+		"\2\67:\5\4\3\28:\7$\2\29\67\3\2\2\298\3\2\2\2:;\3\2\2\2;<\7\3\2\2<=\7"+
+		"\'\2\2=>\5\22\n\2>\3\3\2\2\2?@\7\'\2\2@A\7\30\2\2A\5\3\2\2\2BP\5\16\b"+
+		"\2CP\5\20\t\2DP\5\f\7\2EF\5\24\13\2FG\7\4\2\2GP\3\2\2\2HL\5\n\6\2IM\7"+
+		"\4\2\2JK\7$\2\2KM\5\6\4\2LI\3\2\2\2LJ\3\2\2\2MP\3\2\2\2NP\5\22\n\2OB\3"+
+		"\2\2\2OC\3\2\2\2OD\3\2\2\2OE\3\2\2\2OH\3\2\2\2ON\3\2\2\2P\7\3\2\2\2QR"+
+		"\7\'\2\2RS\7\5\2\2SX\5\32\16\2TU\7\6\2\2UW\5\32\16\2VT\3\2\2\2WZ\3\2\2"+
+		"\2XV\3\2\2\2XY\3\2\2\2Y[\3\2\2\2ZX\3\2\2\2[\\\7\7\2\2\\\t\3\2\2\2]`\5"+
+		"\b\5\2^`\5\26\f\2_]\3\2\2\2_^\3\2\2\2`\13\3\2\2\2ab\7\'\2\2bc\7!\2\2c"+
+		"d\7\"\2\2de\7\'\2\2ef\7#\2\2fg\5\22\n\2g\r\3\2\2\2hi\5\32\16\2ij\7\34"+
+		"\2\2jk\5\22\n\2k\17\3\2\2\2lm\7\31\2\2mn\5\32\16\2no\7\32\2\2or\5\22\n"+
+		"\2pq\7\33\2\2qs\5\22\n\2rp\3\2\2\2rs\3\2\2\2s\21\3\2\2\2tx\7\b\2\2uw\5"+
+		"\6\4\2vu\3\2\2\2wz\3\2\2\2xv\3\2\2\2xy\3\2\2\2y{\3\2\2\2zx\3\2\2\2{|\7"+
+		"\t\2\2|\23\3\2\2\2}~\7 \2\2~\177\5\26\f\2\177\25\3\2\2\2\u0080\u0081\7"+
+		"\'\2\2\u0081\u0082\7\n\2\2\u0082\u0083\5\32\16\2\u0083\27\3\2\2\2\u0084"+
+		"\u0085\7\36\2\2\u0085\u0086\5\32\16\2\u0086\31\3\2\2\2\u0087\u008c\5\34"+
+		"\17\2\u0088\u0089\7\f\2\2\u0089\u008b\5\34\17\2\u008a\u0088\3\2\2\2\u008b"+
+		"\u008e\3\2\2\2\u008c\u008a\3\2\2\2\u008c\u008d\3\2\2\2\u008d\33\3\2\2"+
+		"\2\u008e\u008c\3\2\2\2\u008f\u0094\5\36\20\2\u0090\u0091\7\13\2\2\u0091"+
+		"\u0093\5\36\20\2\u0092\u0090\3\2\2\2\u0093\u0096\3\2\2\2\u0094\u0092\3"+
+		"\2\2\2\u0094\u0095\3\2\2\2\u0095\35\3\2\2\2\u0096\u0094\3\2\2\2\u0097"+
+		"\u009d\5\"\22\2\u0098\u0099\5 \21\2\u0099\u009a\5\"\22\2\u009a\u009c\3"+
+		"\2\2\2\u009b\u0098\3\2\2\2\u009c\u009f\3\2\2\2\u009d\u009b\3\2\2\2\u009d"+
+		"\u009e\3\2\2\2\u009e\37\3\2\2\2\u009f\u009d\3\2\2\2\u00a0\u00a1\t\2\2"+
+		"\2\u00a1!\3\2\2\2\u00a2\u00a8\5&\24\2\u00a3\u00a4\5$\23\2\u00a4\u00a5"+
+		"\5&\24\2\u00a5\u00a7\3\2\2\2\u00a6\u00a3\3\2\2\2\u00a7\u00aa\3\2\2\2\u00a8"+
+		"\u00a6\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9#\3\2\2\2\u00aa\u00a8\3\2\2\2"+
+		"\u00ab\u00ac\t\3\2\2\u00ac%\3\2\2\2\u00ad\u00b3\5*\26\2\u00ae\u00af\5"+
+		"(\25\2\u00af\u00b0\5*\26\2\u00b0\u00b2\3\2\2\2\u00b1\u00ae\3\2\2\2\u00b2"+
+		"\u00b5\3\2\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\'\3\2\2\2"+
+		"\u00b5\u00b3\3\2\2\2\u00b6\u00b7\t\4\2\2\u00b7)\3\2\2\2\u00b8\u00be\5"+
+		".\30\2\u00b9\u00ba\5,\27\2\u00ba\u00bb\5.\30\2\u00bb\u00bd\3\2\2\2\u00bc"+
+		"\u00b9\3\2\2\2\u00bd\u00c0\3\2\2\2\u00be\u00bc\3\2\2\2\u00be\u00bf\3\2"+
+		"\2\2\u00bf+\3\2\2\2\u00c0\u00be\3\2\2\2\u00c1\u00c2\t\5\2\2\u00c2-\3\2"+
+		"\2\2\u00c3\u00c4\5\60\31\2\u00c4\u00c5\5.\30\2\u00c5\u00c8\3\2\2\2\u00c6"+
+		"\u00c8\5\62\32\2\u00c7\u00c3\3\2\2\2\u00c7\u00c6\3\2\2\2\u00c8/\3\2\2"+
+		"\2\u00c9\u00ca\t\6\2\2\u00ca\61\3\2\2\2\u00cb\u00cd\5\64\33\2\u00cc\u00ce"+
+		"\7\r\2\2\u00cd\u00cc\3\2\2\2\u00cd\u00ce\3\2\2\2\u00ce\63\3\2\2\2\u00cf"+
+		"\u00d8\7%\2\2\u00d0\u00d8\7&\2\2\u00d1\u00d8\7\'\2\2\u00d2\u00d3\7\5\2"+
+		"\2\u00d3\u00d4\5\32\16\2\u00d4\u00d5\7\7\2\2\u00d5\u00d8\3\2\2\2\u00d6"+
+		"\u00d8\5\n\6\2\u00d7\u00cf\3\2\2\2\u00d7\u00d0\3\2\2\2\u00d7\u00d1\3\2"+
+		"\2\2\u00d7\u00d2\3\2\2\2\u00d7\u00d6\3\2\2\2\u00d8\65\3\2\2\2\229LOX_"+
+		"rx\u008c\u0094\u009d\u00a8\u00b3\u00be\u00c7\u00cd\u00d7";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

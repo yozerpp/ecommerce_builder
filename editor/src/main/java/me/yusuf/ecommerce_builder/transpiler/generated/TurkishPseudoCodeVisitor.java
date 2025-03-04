@@ -77,12 +77,6 @@ public interface TurkishPseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment(TurkishPseudoCodeParser.AssignmentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#yazdir}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitYazdir(TurkishPseudoCodeParser.YazdirContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TurkishPseudoCodeParser#returnStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -26,7 +26,6 @@ varDeclaration: DEĞİŞKEN assignment;
 
 assignment: IDENTIFIER '=' expr;
 
-yazdir: YAZDIR expr;
 
 returnStatement: DÖNDÜR expr;
 
