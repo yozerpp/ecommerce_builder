@@ -5,15 +5,7 @@ import java.util.List;
 
 import me.yusuf.ecommerce_builder.shared.PluginRegistry;
 import me.yusuf.ecommerce_builder.transpiler.ast.*;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.AdditiveExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.ComparisonExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.EqualityExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.LogicalAndExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.MultiplicativeExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.PostfixExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
+import me.yusuf.ecommerce_builder.transpiler.ast.expression.*;
 import me.yusuf.utils.ReflectionUtils;
 import me.yusuf.utils.StringUtils;
 
@@ -30,21 +22,19 @@ public class CodeGeneratorVisitor {
     public String visitPluginDef(PluginDef pd) {
         return "public class " + pd.name + "Plugin implements Runnable {\n" +
                "    @Override\n" +
-               "    public void run() {\n" +
-               indent(visitBlock(pd.block)) +
-               "\n    }\n" +
+               "    public void run() " +
+               indentBlock(visitBlock(pd.block)) +
                "}\n";
     }
 
     public String visitBlock(Block block) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("{\n");
         for (Statement stmt : block.statements) {
             sb.append(visitStatement(stmt)).append("\n");
         }
+        sb.append("}\n");
         return sb.toString();
     }
-
-
 
     public String visitVarDeclarationStatement(VarDeclarationStatement vds) {
         return "var " + vds.expr.left + " = " + visitExpression(vds.expr.right) + ";";
@@ -68,21 +58,22 @@ public class CodeGeneratorVisitor {
 
     public String visitIfStatement(IfStatement ifs) {
         StringBuilder sb = new StringBuilder();
-        sb.append("if(").append(visitExpression(ifs.condition)).append(") {\n");
-        sb.append(indent(visitBlock(ifs.happyPath))).append("\n}");
+        sb.append("if(").append(visitExpression(ifs.condition)).append(")");
+        sb.append(indentBlock(visitBlock(ifs.happyPath)));
         if (ifs.sadPath != null) {
-            sb.append(" else {\n").append(indent(visitBlock(ifs.sadPath))).append("\n}");
+            sb.append(" else").append(indentBlock(visitBlock(ifs.sadPath)));
         }
         return sb.toString();
     }
 
     public String visitLoopStatement(LoopStatement ls) {
-        return "while(" + visitExpression(ls.condition) + ") {\n" +
-               indent(visitBlock(ls.block)) + "\n}";
+        return "while(" + visitExpression(ls.condition) + ")" +
+               indentBlock(visitBlock(ls.block));
     }
 
     public String visitForeachStatement(ForeachStatement fe) {
-        return "for(var " + fe.elementName + " : " + fe.collectionName + ") {\n    // body\n}";
+        return "for(var " + fe.elementName + " : " + fe.collectionName + ")" +
+                visitBlock(fe.block);
     }
 
     public String visitUnaryExpr(UnaryExpr ue) {
@@ -180,10 +171,8 @@ public class CodeGeneratorVisitor {
             case ForeachStatement foreachStatement -> visitForeachStatement(foreachStatement);
             case VarDeclarationStatement varDeclarationStatement ->
                     visitVarDeclarationStatement(varDeclarationStatement);
-            case AssignmentExpr assignmentExpr -> visitAssignmentExpr(assignmentExpr);
-            case FunctionCallExpr functionCallExpr -> visitFunctionCallExpr(functionCallExpr);
+            case ExpressionStatement es -> visitExpressionStatement(es);
             case Block block -> visitBlock(block);
-            case null -> "";
             default -> throw new RuntimeException("Unknown node type: " + node.getClass().getSimpleName());
         };
     }
@@ -197,8 +186,9 @@ public class CodeGeneratorVisitor {
             case AdditiveExpr ae -> visitAdditiveExpr(ae);
             case MultiplicativeExpr me -> visitMultiplicativeExpr(me);
             case Expr e -> visitExpr(e);
-            case ExpressionStatement es -> visitExpressionStatement(es);
-            case null -> throw new RuntimeException("expression is null.");
+            case FunctionCallExpr fc -> visitFunctionCallExpr(fc);
+            case AssignmentExpr as -> visitAssignmentExpr(as);
+            case Primary p-> p.toString();
             default ->
                     throw new RuntimeException("Unknown expression type: " + expr.getClass().getSimpleName());
         };
@@ -210,11 +200,11 @@ public class CodeGeneratorVisitor {
             default -> throw new IllegalStateException("Unexpected value: " + a);
         } + ";";
     }
-
-
-    private String indent(String code) {
+    // first line, last and before the last lines are not indented.
+    private String indentBlock(String code) {
         String indent = "        ";
-        return indent + code.replaceAll("\n(?!$)", "\n" + indent);
+        // edit this so that it doesn't indent the last line, and the line before it, AI!
+        return code.replaceAll("\n(?!$)", "\n" + indent);
     }
     
     public Type[] getMethodArguementTypes(String source) {
