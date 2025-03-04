@@ -77,8 +77,9 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     @Override
     public ForeachStatement visitForeachStatement(TurkishPseudoCodeParser.ForeachStatementContext ctx) {
         var ret= new ForeachStatement();
-        ret.elementName = ctx.IDENTIFIER(0).getText();
-        ret.collectionName = ctx.IDENTIFIER(1).getText();
+        ret.elementName = ctx.IDENTIFIER(1).getText();
+        ret.collectionName = ctx.IDENTIFIER(0).getText();
+        ret.block = visitBlock(ctx.block());
         return ret;
     }
 

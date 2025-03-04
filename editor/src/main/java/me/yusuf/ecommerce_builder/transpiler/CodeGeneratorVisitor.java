@@ -22,17 +22,17 @@ public class CodeGeneratorVisitor {
     public String visitPluginDef(PluginDef pd) {
         return "public class " + pd.name + "Plugin implements Runnable {\n" +
                "    @Override\n" +
-               "    public void run() " +
-               indentBlock(visitBlock(pd.block)) +
+               "    public void run() {\n" +
+                indent(visitBlock(pd.block),2) +
+                "    }\n"+
                "}\n";
     }
 
     public String visitBlock(Block block) {
-        StringBuilder sb = new StringBuilder("{\n");
+        StringBuilder sb = new StringBuilder();
         for (Statement stmt : block.statements) {
             sb.append(visitStatement(stmt)).append("\n");
         }
-        sb.append("}\n");
         return sb.toString();
     }
 
@@ -58,22 +58,24 @@ public class CodeGeneratorVisitor {
 
     public String visitIfStatement(IfStatement ifs) {
         StringBuilder sb = new StringBuilder();
-        sb.append("if(").append(visitExpression(ifs.condition)).append(")");
-        sb.append(indentBlock(visitBlock(ifs.happyPath)));
+        sb.append("if(").append(visitExpression(ifs.condition)).append(") {\n");
+        sb.append(indent(visitBlock(ifs.happyPath)));
+        sb.append("}");
         if (ifs.sadPath != null) {
-            sb.append(" else").append(indentBlock(visitBlock(ifs.sadPath)));
+            sb.append(" else {\n").append(indent(visitBlock(ifs.sadPath)));
+            sb.append("}");
         }
         return sb.toString();
     }
 
     public String visitLoopStatement(LoopStatement ls) {
-        return "while(" + visitExpression(ls.condition) + ")" +
-               indentBlock(visitBlock(ls.block));
+        return "while(" + visitExpression(ls.condition) + ") {\n" +
+               indent(visitBlock(ls.block)) + "}";
     }
 
     public String visitForeachStatement(ForeachStatement fe) {
-        return "for(var " + fe.elementName + " : " + fe.collectionName + ")" +
-                visitBlock(fe.block);
+        return "for(var " + fe.elementName + " : " + fe.collectionName + ") {\n" +
+                indent(visitBlock(fe.block)) + "}";
     }
 
     public String visitUnaryExpr(UnaryExpr ue) {
@@ -200,13 +202,14 @@ public class CodeGeneratorVisitor {
             default -> throw new IllegalStateException("Unexpected value: " + a);
         } + ";";
     }
-    // first line, last and before the last lines are not indented.
-    private String indentBlock(String code) {
-        String indent = "        ";
-        // edit this so that it doesn't indent the last line, and the line before it, AI!
-        return code.replaceAll("\n(?!$)", "\n" + indent);
+    private String indent(String code, int level) {
+        if (code.isEmpty()) return code;
+        String indent = "    ".repeat(level);
+        return indent + code.replaceAll("\n(?!$)", "\n" + indent);
     }
-    
+    private String indent(String code){
+        return indent(code, 1);
+    }
     public Type[] getMethodArguementTypes(String source) {
         // Assumes methodSignature is in the format:
         // "public void methodName(java.lang.String, java.lang.Integer)"
