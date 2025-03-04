@@ -54,10 +54,10 @@ public class IntegrationTest {
             "    } değilse {" +
             "         yazdır(\"a is not less\");" +
             "    }" +
-            "    olduğu sürece a != b {" +
+            "    a != b iken {" +
             "         a = a + 1;" +
             "    }" +
-            "    her item içindeki items için {" +
+            "    items içindeki her item için {" +
             "         yazdır(item);" +
             "    }" +
             "}";
@@ -69,16 +69,16 @@ public class IntegrationTest {
             "    public void run() {\n" +
             "        var a = 10;\n" +
             "        var b = 20;\n" +
-            "        if(a<b) {\n" +
+            "        if(a < b) {\n" +
             "            yazdır(\"a is less\");\n" +
             "        } else {\n" +
             "            yazdır(\"a is not less\");\n" +
             "        }\n" +
-            "        while(a!=b) {\n" +
-            "            a = (a + 1);\n" +
+            "        while(a != b) {\n" +
+            "            a = a + 1;\n" +
             "        }\n" +
             "        for(var item : items) {\n" +
-            "            // body\n" +
+            "            yazdır(item);\n" +
             "        }\n" +
             "    }\n" +
             "}\n";
@@ -105,9 +105,9 @@ public class IntegrationTest {
             "    @Override\n" +
             "    public void run() {\n" +
             "        var x = 7;\n" +
-            "        if(x<10) {\n" +
+            "        if(x < 10) {\n" +
             "            yazdır(\"less\");\n" +
-            "            if(x==7) {\n" +
+            "            if(x == 7) {\n" +
             "                yazdır(\"equal to seven\");\n" +
             "            }\n" +
             "        } else {\n" +
@@ -123,7 +123,7 @@ public class IntegrationTest {
         String pseudoCode =
             "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap Arithmetic {" +
             "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
-            "    yazdır(sum);;" +
+            "    yazdır(sum);" +
             "}";
         Plugin plugin = generatePluginFromSource(pseudoCode);
         String expected =
@@ -131,7 +131,7 @@ public class IntegrationTest {
             "    @Override\n" +
             "    public void run() {\n" +
             "        var sum = 1 + 2 - 3 * 4 / 2;\n" +
-            "        yazdır(sum);;\n" +
+            "        yazdır(sum);\n" +
             "    }\n" +
             "}\n";
         assertEquals(expected, plugin.source());

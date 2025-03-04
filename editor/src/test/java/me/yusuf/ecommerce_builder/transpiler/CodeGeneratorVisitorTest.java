@@ -40,7 +40,6 @@ public class CodeGeneratorVisitorTest {
         String expected = "public class TestPlugin implements Runnable {\n" +
                           "    @Override\n" +
                           "    public void run() {\n" +
-                          "        \n" +
                           "    }\n" +
                           "}\n";
         String result = visitor.visitPluginDef(pd);
@@ -58,8 +57,7 @@ public class CodeGeneratorVisitorTest {
         // Create an empty happyPath block.
         ifStmt.happyPath = new Block();
         block.statements.add(ifStmt);
-        String expected = "if(cond();) {\n" +
-                          "        \n" +
+        String expected = "if(cond()) {\n" +
                           "}\n";
         String result = visitor.visitBlock(block);
         assertEquals(expected, result);
@@ -81,7 +79,7 @@ public class CodeGeneratorVisitorTest {
         // In our case, vds.expr.right is a FunctionCallExpr, so visitFunctionCallExpr returns "dummyFunc();"
         // Hence visitVarDeclarationStatement returns:
         // "var " + vds.expr.left + " = " + "dummyFunc();" + ";"
-        expected = "var x = dummyFunc();;";
+        expected = "var x = dummyFunc();";
         String result = visitor.visitVarDeclarationStatement(vds);
         assertEquals(expected, result);
     }
@@ -93,7 +91,7 @@ public class CodeGeneratorVisitorTest {
         asn.left = "y";
         // For right-hand side, use a FunctionCallExpr.
         asn.right = createSimpleFuncCall("func");
-        String expected = "y = func();;";
+        String expected = "y = func()";
         String result = visitor.visitAssignmentExpr(asn);
         assertEquals(expected, result);
     }
@@ -104,7 +102,7 @@ public class CodeGeneratorVisitorTest {
         FunctionCallExpr fce = new FunctionCallExpr();
         fce.functionName = "g";
         fce.args = new Expression[0];
-        String expected = "g();";
+        String expected = "g()";
         String result = visitor.visitFunctionCallExpr(fce);
         assertEquals(expected, result);
     }
@@ -119,8 +117,7 @@ public class CodeGeneratorVisitorTest {
         Block happy = new Block();
         ifs.happyPath = happy;
         // No sadPath.
-        String expected = "if(cond();) {\n" +
-                          "        \n" +
+        String expected = "if(cond()) {\n" +
                           "}";
         String result = visitor.visitIfStatement(ifs);
         assertEquals(expected, result);
@@ -134,8 +131,7 @@ public class CodeGeneratorVisitorTest {
         ls.condition = createSimpleFuncCall("whileCond");
         // Block: empty
         ls.block = new Block();
-        String expected = "while(whileCond();) {\n" +
-                          "        \n" +
+        String expected = "while(whileCond()) {\n" +
                           "}";
         String result = visitor.visitLoopStatement(ls);
         assertEquals(expected, result);
@@ -147,7 +143,9 @@ public class CodeGeneratorVisitorTest {
         ForeachStatement fe = new ForeachStatement();
         fe.elementName = "e";
         fe.collectionName = "coll";
-        String expected = "for(var e : coll) {\n    // body\n}";
+        fe.block = new Block();
+        String expected = "for(var e : coll) {\n" +
+                "}";
         String result = visitor.visitForeachStatement(fe);
         assertEquals(expected, result);
     }
@@ -158,13 +156,13 @@ public class CodeGeneratorVisitorTest {
         // Test with "değil" operator
         UnaryExpr ue = new UnaryExpr("değil", createSimpleFuncCall("dummy"));
         // visitUnaryExpr should convert "değil" to "!" and wrap the result of visit on operand.
-        String expected = "(!dummy();)";
+        String expected = "(!dummy())";
         String result = visitor.visitUnaryExpr(ue);
         assertEquals(expected, result);
 
         // Test with "-" operator.
         UnaryExpr ue2 = new UnaryExpr("-", createSimpleFuncCall("dummy2"));
-        expected = "(-dummy2();)";
+        expected = "(-dummy2())";
         result = visitor.visitUnaryExpr(ue2);
         assertEquals(expected, result);
     }
@@ -175,7 +173,7 @@ public class CodeGeneratorVisitorTest {
         // Create a PostfixExpr with primary as a function call "p" and hasNot = true.
         PostfixExpr pe = new PostfixExpr(createSimpleFuncCall("p"), true);
         // Expected: visitExpression(primary) returns "p();" and then adds "!".
-        String expected = "p();!";
+        String expected = "p()!";
         String result = visitor.visitPostfixExpr(pe);
         assertEquals(expected, result);
     }
