@@ -1,9 +1,7 @@
 package me.yusuf.ecommerce_builder.transpiler;
 
-import me.yusuf.ecommerce_builder.transpiler.ast.ASTNode;
 import me.yusuf.ecommerce_builder.transpiler.ast.Block;
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.transpiler.ast.Statement;
 import me.yusuf.ecommerce_builder.transpiler.ast.AssignmentExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.FunctionCallExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.ForeachStatement;
@@ -13,14 +11,11 @@ import me.yusuf.ecommerce_builder.transpiler.ast.VarDeclarationStatement;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Primary;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
 import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class PluginDefTests extends TestBase {
+public class StatementTests extends TestBase {
 
     ASTBuilderVisitor visitor = new ASTBuilderVisitor();
 

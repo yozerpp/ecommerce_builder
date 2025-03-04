@@ -1,8 +1,8 @@
 package me.yusuf.ecommerce_builder.transpiler;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
+
 import me.yusuf.ecommerce_builder.shared.PluginRegistry;
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
 import me.yusuf.ecommerce_builder.transpiler.ast.ASTNode;
@@ -18,6 +18,7 @@ import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.PostfixExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
 import me.yusuf.utils.ReflectionUtils;
+import me.yusuf.utils.StringUtils;
 
 public class CodeGeneratorVisitor {
 
@@ -25,10 +26,10 @@ public class CodeGeneratorVisitor {
 
     public Plugin generate(PluginDef pluginDef) {
         String code = visitPluginDef(pluginDef);
-        return new Plugin(new PluginRegistry.PluginMetadata(null, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod)),
-                code); //TODO: Parse arge types.
+        Type[] argTypes = getMethodArguementTypes(code);
+        return new Plugin(new PluginRegistry.PluginMetadata(argTypes, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod)),
+                code);
     }
-
     public String visitPluginDef(PluginDef pd) {
         return "public class " + pd.name + "Plugin implements Runnable {\n" +
                "    @Override\n" +
@@ -46,12 +47,23 @@ public class CodeGeneratorVisitor {
         return sb.toString();
     }
 
-    public String visitStatement(Statement stmt) {
-        return visitASTNode((ASTNode) stmt);
+    public String visitStatement(Statement node) {
+        return switch (node) {
+            case IfStatement ifStatement -> visitIfStatement(ifStatement);
+            case LoopStatement loopStatement -> visitLoopStatement(loopStatement);
+            case ForeachStatement foreachStatement -> visitForeachStatement(foreachStatement);
+            case VarDeclarationStatement varDeclarationStatement ->
+                    visitVarDeclarationStatement(varDeclarationStatement);
+            case AssignmentExpr assignmentExpr -> visitAssignmentExpr(assignmentExpr);
+            case FunctionCallExpr functionCallExpr -> visitFunctionCallExpr(functionCallExpr);
+            case Block block -> visitBlock(block);
+            case null -> "";
+            default -> throw new RuntimeException("Unknown node type: " + node.getClass().getSimpleName());
+        };
     }
 
     public String visitVarDeclarationStatement(VarDeclarationStatement vds) {
-        return "var " + vds.expr.left + " = " + visitAssignmentExpr(vds.expr.right) + ";";
+        return "var " + vds.expr.left + " = " + visitExpression(vds.expr.right) + ";";
     }
 
     public String visitAssignmentExpr(AssignmentExpr asn) {
@@ -110,42 +122,24 @@ public class CodeGeneratorVisitor {
     }
 
     public String visitExpression(Expression expr) {
-        if (expr instanceof UnaryExpr) {
-            return visitUnaryExpr((UnaryExpr) expr);
-        } else if (expr instanceof PostfixExpr) {
-            return visitPostfixExpr((PostfixExpr) expr);
-        } else if (expr instanceof AssignmentExpr) {
-            return visitAssignmentExpr((AssignmentExpr) expr);
-        } else if (expr instanceof FunctionCallExpr) {
-            return visitFunctionCallExpr((FunctionCallExpr) expr);
-        }
-        return expr.toString();
+        return switch (expr) {
+            case UnaryExpr unaryExpr -> visitUnaryExpr(unaryExpr);
+            case PostfixExpr postfixExpr -> visitPostfixExpr(postfixExpr);
+            case AssignmentExpr assignmentExpr -> visitAssignmentExpr(assignmentExpr);
+            case FunctionCallExpr functionCallExpr -> visitFunctionCallExpr(functionCallExpr);
+            case null-> throw new RuntimeException("expression is null.");
+            default ->
+                    throw new RuntimeException("Unknown expression type: " + expr.getClass().getSimpleName());
+        };
     }
 
     public String visitASTNode(ASTNode node) {
-        if (node instanceof PluginDef) {
-            return visitPluginDef((PluginDef) node);
-        } else if (node instanceof Block) {
-            return visitBlock((Block) node);
-        } else if (node instanceof VarDeclarationStatement) {
-            return visitVarDeclarationStatement((VarDeclarationStatement) node);
-        } else if (node instanceof AssignmentExpr) {
-            return visitAssignmentExpr((AssignmentExpr) node);
-        } else if (node instanceof FunctionCallExpr) {
-            return visitFunctionCallExpr((FunctionCallExpr) node);
-        } else if (node instanceof IfStatement) {
-            return visitIfStatement((IfStatement) node);
-        } else if (node instanceof LoopStatement) {
-            return visitLoopStatement((LoopStatement) node);
-        } else if (node instanceof ForeachStatement) {
-            return visitForeachStatement((ForeachStatement) node);
-        } else if (node instanceof UnaryExpr) {
-            return visitUnaryExpr((UnaryExpr) node);
-        } else if (node instanceof PostfixExpr) {
-            return visitPostfixExpr((PostfixExpr) node);
-        } else if (node instanceof Expression) {
-            return visitExpression((Expression) node);
-        }
+        if (node instanceof PluginDef pd) {
+            return visitPluginDef(pd);
+        } else if (node instanceof Expression ex)
+            return visitExpression(ex);
+        else if (node instanceof Statement st)
+            return visitStatement(st);
         return node.toString();
     }
 
@@ -154,24 +148,17 @@ public class CodeGeneratorVisitor {
         return indent + code.replace("\n", "\n" + indent);
     }
     
-    public Type[] parseMethodArgumentTypes(String methodSignature) throws ClassNotFoundException {
+    public Type[] getMethodArguementTypes(String source) {
         // Assumes methodSignature is in the format:
-        // "public void methodName(java.lang.String, java.lang.Integer)" 
-        int start = methodSignature.indexOf('(');
-        int end = methodSignature.indexOf(')');
-        if (start == -1 || end == -1 || end < start) {
-            return new Type[0];
-        }
-        String args = methodSignature.substring(start + 1, end).trim();
-        if (args.isEmpty()) {
-            return new Type[0];
-        }
-        String[] argTypes = args.split(",");
-        List<Type> types = new ArrayList<>();
-        for (String argType : argTypes) {
-            String trimmed = argType.trim();
-            types.add(Class.forName(trimmed));
-        }
-        return types.toArray(new Type[0]);
+        // "public void methodName(java.lang.String, java.lang.Integer)"
+        String paramStr =  StringUtils.find(source, "run\\((.*)\\)\\s*\\{").getFirst()[0];
+        List<String[]> params = StringUtils.findNamed(paramStr, "(?<argTp>\\w+(?:\\.\\w+)*)\\s+\\w+,?",new String[]{"argTp"});
+        return params.stream().map(p -> p[0]).map(p->{
+            try {
+                return Class.forName(p);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }).toArray(Type[]::new);
     }
 }

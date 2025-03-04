@@ -1,9 +1,9 @@
 package me.yusuf.ecommerce_builder.transpiler.ast;
 
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expr;
+import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
 
 public class IfStatement implements Statement {
-    public Expr condition;
+    public Expression condition;
     public Block happyPath;
     public Block sadPath;
 }
