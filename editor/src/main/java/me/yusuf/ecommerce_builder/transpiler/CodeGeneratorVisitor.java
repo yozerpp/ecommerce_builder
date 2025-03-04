@@ -1,5 +1,8 @@
 package me.yusuf.ecommerce_builder.transpiler;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import me.yusuf.ecommerce_builder.shared.PluginRegistry;
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
 import me.yusuf.ecommerce_builder.transpiler.ast.ASTNode;
@@ -21,123 +24,127 @@ public class CodeGeneratorVisitor {
     public CodeGeneratorVisitor() {}
 
     public Plugin generate(PluginDef pluginDef) {
-        String code = visit(pluginDef);
+        String code = visitPluginDef(pluginDef);
         return new Plugin(new PluginRegistry.PluginMetadata(null, ReflectionUtils.loadMethodFromFullyQualifiedName(pluginDef.hookedMethod)),
                 code); //TODO: Parse arge types.
     }
 
-    public String visit(PluginDef pd) {
+    public String visitPluginDef(PluginDef pd) {
         return "public class " + pd.name + "Plugin implements Runnable {\n" +
                "    @Override\n" +
                "    public void run() {\n" +
-               indent(visit(pd.block)) +
+               indent(visitBlock(pd.block)) +
                "\n    }\n" +
                "}\n";
     }
 
-    public String visit(Block block) {
+    public String visitBlock(Block block) {
         StringBuilder sb = new StringBuilder();
         for (Statement stmt : block.statements) {
-            sb.append(visit(stmt)).append("\n");
+            sb.append(visitStatement(stmt)).append("\n");
         }
         return sb.toString();
     }
 
-    public String visit(VarDeclarationStatement vds) {
-        return "var " + vds.expr.left + " = " + visit(vds.expr.right) + ";";
+    public String visitStatement(Statement stmt) {
+        return visitASTNode((ASTNode) stmt);
     }
 
-    public String visit(AssignmentExpr asn) {
-        return asn.left + " = " + visit(asn.right) + ";";
+    public String visitVarDeclarationStatement(VarDeclarationStatement vds) {
+        return "var " + vds.expr.left + " = " + visitAssignmentExpr(vds.expr.right) + ";";
     }
 
-    public String visit(FunctionCallExpr fce) {
+    public String visitAssignmentExpr(AssignmentExpr asn) {
+        return asn.left + " = " + visitExpression(asn.right) + ";";
+    }
+
+    public String visitFunctionCallExpr(FunctionCallExpr fce) {
         String args = "";
         if (fce.args != null && fce.args.length > 0) {
             String[] argStr = new String[fce.args.length];
             for (int i = 0; i < fce.args.length; i++) {
-                argStr[i] = visit(fce.args[i]);
+                argStr[i] = visitExpression(fce.args[i]);
             }
             args = String.join(", ", argStr);
         }
         return fce.functionName + "(" + args + ");";
     }
 
-    public String visit(IfStatement ifs) {
+    public String visitIfStatement(IfStatement ifs) {
         StringBuilder sb = new StringBuilder();
-        sb.append("if(").append(visit(ifs.condition)).append(") {\n");
-        sb.append(indent(visit(ifs.happyPath))).append("\n}");
+        sb.append("if(").append(visitExpression(ifs.condition)).append(") {\n");
+        sb.append(indent(visitBlock(ifs.happyPath))).append("\n}");
         if (ifs.sadPath != null) {
-            sb.append(" else {\n").append(indent(visit(ifs.sadPath))).append("\n}");
+            sb.append(" else {\n").append(indent(visitBlock(ifs.sadPath))).append("\n}");
         }
         return sb.toString();
     }
 
-    public String visit(LoopStatement ls) {
-        return "while(" + visit(ls.condition) + ") {\n" +
-               indent(visit(ls.block)) + "\n}";
+    public String visitLoopStatement(LoopStatement ls) {
+        return "while(" + visitExpression(ls.condition) + ") {\n" +
+               indent(visitBlock(ls.block)) + "\n}";
     }
 
-    public String visit(ForeachStatement fe) {
+    public String visitForeachStatement(ForeachStatement fe) {
         return "for(var " + fe.elementName + " : " + fe.collectionName + ") {\n    // body\n}";
     }
 
-    public String visit(UnaryExpr ue) {
+    public String visitUnaryExpr(UnaryExpr ue) {
         String op = ue.operator;
         if (op != null) {
             if (op.equals("değil")) {
                 op = "!";
             }
-            return "(" + op + visit(ue.operand) + ")";
+            return "(" + op + visitExpression(ue.operand) + ")";
         } else {
-            return visit(ue.operand);
+            return visitExpression(ue.operand);
         }
     }
 
-    public String visit(PostfixExpr pe) {
-        String code = visit(pe.primary);
+    public String visitPostfixExpr(PostfixExpr pe) {
+        String code = visitExpression(pe.primary);
         if (pe.hasNot) {
             code += "!";
         }
         return code;
     }
 
-    public String visit(Expression expr) {
+    public String visitExpression(Expression expr) {
         if (expr instanceof UnaryExpr) {
-            return visit((UnaryExpr) expr);
+            return visitUnaryExpr((UnaryExpr) expr);
         } else if (expr instanceof PostfixExpr) {
-            return visit((PostfixExpr) expr);
+            return visitPostfixExpr((PostfixExpr) expr);
         } else if (expr instanceof AssignmentExpr) {
-            return visit((AssignmentExpr) expr);
+            return visitAssignmentExpr((AssignmentExpr) expr);
         } else if (expr instanceof FunctionCallExpr) {
-            return visit((FunctionCallExpr) expr);
+            return visitFunctionCallExpr((FunctionCallExpr) expr);
         }
         return expr.toString();
     }
 
-    public String visit(ASTNode node) {
+    public String visitASTNode(ASTNode node) {
         if (node instanceof PluginDef) {
-            return visit((PluginDef) node);
+            return visitPluginDef((PluginDef) node);
         } else if (node instanceof Block) {
-            return visit((Block) node);
+            return visitBlock((Block) node);
         } else if (node instanceof VarDeclarationStatement) {
-            return visit((VarDeclarationStatement) node);
+            return visitVarDeclarationStatement((VarDeclarationStatement) node);
         } else if (node instanceof AssignmentExpr) {
-            return visit((AssignmentExpr) node);
+            return visitAssignmentExpr((AssignmentExpr) node);
         } else if (node instanceof FunctionCallExpr) {
-            return visit((FunctionCallExpr) node);
+            return visitFunctionCallExpr((FunctionCallExpr) node);
         } else if (node instanceof IfStatement) {
-            return visit((IfStatement) node);
+            return visitIfStatement((IfStatement) node);
         } else if (node instanceof LoopStatement) {
-            return visit((LoopStatement) node);
+            return visitLoopStatement((LoopStatement) node);
         } else if (node instanceof ForeachStatement) {
-            return visit((ForeachStatement) node);
+            return visitForeachStatement((ForeachStatement) node);
         } else if (node instanceof UnaryExpr) {
-            return visit((UnaryExpr) node);
+            return visitUnaryExpr((UnaryExpr) node);
         } else if (node instanceof PostfixExpr) {
-            return visit((PostfixExpr) node);
+            return visitPostfixExpr((PostfixExpr) node);
         } else if (node instanceof Expression) {
-            return visit((Expression) node);
+            return visitExpression((Expression) node);
         }
         return node.toString();
     }
@@ -145,5 +152,26 @@ public class CodeGeneratorVisitor {
     private String indent(String code) {
         String indent = "        ";
         return indent + code.replace("\n", "\n" + indent);
+    }
+    
+    public Type[] parseMethodArgumentTypes(String methodSignature) throws ClassNotFoundException {
+        // Assumes methodSignature is in the format:
+        // "public void methodName(java.lang.String, java.lang.Integer)" 
+        int start = methodSignature.indexOf('(');
+        int end = methodSignature.indexOf(')');
+        if (start == -1 || end == -1 || end < start) {
+            return new Type[0];
+        }
+        String args = methodSignature.substring(start + 1, end).trim();
+        if (args.isEmpty()) {
+            return new Type[0];
+        }
+        String[] argTypes = args.split(",");
+        List<Type> types = new ArrayList<>();
+        for (String argType : argTypes) {
+            String trimmed = argType.trim();
+            types.add(Class.forName(trimmed));
+        }
+        return types.toArray(new Type[0]);
     }
 }
