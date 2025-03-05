@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import me.yusuf.ecommerce_builder.shared.MethodMetadata;
 
 import java.util.Optional;
 import java.util.Set;
@@ -26,47 +27,54 @@ public class SellerService extends ServiceBase {
         this.shipmentRepository = shipmentRepository;
     }
 
+    @MethodMetadata(name = "Teklif")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public Set<ProductOffer> offers(){
         return sellerRepository.findWithProductOffersProductByUserId(getUser().getId()).getProductOffers();
     }
+    
+    @MethodMetadata(name = "Gönderi")
     @PreAuthorize("hasAnyRole('ROLE_SELLER','ROLE_ADMIN', 'ROLE_STAFF')")
     @GetMapping("/profile/shipments")
-    public String shipments (Model model,@RequestParam(required = false, defaultValue = "null") Integer sellerId){
+    public String shipments(Model model, @RequestParam(required = false, defaultValue = "null") Integer sellerId){
         var user = getUser();
         int sId;
-        if (user.getAuthorities().stream().noneMatch(a->a.getAuthority().equals("ROLE_SELLER"))) {
+        if (user.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_SELLER"))) {
             Optional<Seller> s;
             if (sellerId == null) return "redirect:/error?code=403";
-            else if((s=sellerRepository.findById(sellerId)).isEmpty()) return "redirect:/error?code=404";
+            else if((s = sellerRepository.findById(sellerId)).isEmpty()) return "redirect:/error?code=404";
             else sId = s.get().getUserId();
         }
         else sId = user.getId();
-        var shipments = shipmentRepository.findAllBySellerId(sId,null);
+        var shipments = shipmentRepository.findAllBySellerId(sId, null);
         model.addAttribute("shipments", shipments);
         return "fragments/seller/shipments";
     }
+    
+    @MethodMetadata(name = "Oluştur")
     @PostMapping
     public String createSeller(@RequestBody Seller seller){
-
         sellerRepository.save(seller);
         return "redirect:/login";
     }
+    
+    @MethodMetadata(name = "Profil")
     @GetMapping
     public String sellerProfile(Model model){
         var user = getUser();
         Seller seller;
         if(user == null)
             return "redirect:/login";
-        else if((seller = user.getSeller())!=null){
+        else if((seller = user.getSeller()) != null){
             model.addAttribute("seller", seller);
             return "seller";
         } else return "redirect:/logout?continue=login&message=You+are+not+a+seller";
     }
+    
+    @MethodMetadata(name = "Sayfa")
     @GetMapping("/{id}")
     public String sellerPage(@PathVariable int id, Model model){
-        model.addAttribute("seller",sellerRepository.findWithProductOffersProductByUserId(id));
+        model.addAttribute("seller", sellerRepository.findWithProductOffersProductByUserId(id));
         return "seller";
     }
-
 }

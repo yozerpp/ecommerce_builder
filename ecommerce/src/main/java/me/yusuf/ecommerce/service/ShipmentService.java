@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import me.yusuf.ecommerce_builder.shared.MethodMetadata;
 
 import java.net.URI;
 import java.util.Objects;
@@ -34,6 +35,8 @@ public class ShipmentService extends ServiceBase {
         this.sellerRepository = sellerRepository;
         this.orderRepository = orderRepository;
     }
+    
+    @MethodMetadata(name = "Sipariş")
     @GetMapping("/order/{id}")
     public String getShipmentsOfOrder(@PathVariable int id, Model model){
         var shipments = shipmentRepository.findWithOrdersByOrderId(id, null);
@@ -44,15 +47,20 @@ public class ShipmentService extends ServiceBase {
         else model.addAttribute("shipments", shipments);
         return "shipments";
     }
+    
+    @MethodMetadata(name = "Liste")
     @GetMapping
     public String getShipments(Model model){
         Page<Shipment> shipments;
-        if (getUser().getSeller()!=null)
+        if (getUser().getSeller() != null)
             shipments = shipmentRepository.getShipmentsOfCurrentSeller(null);
-        else shipments = shipmentRepository.getShipmentsOfCurrentBuyer(null);
+        else 
+            shipments = shipmentRepository.getShipmentsOfCurrentBuyer(null);
         model.addAttribute("shipments", shipments);
         return "shipments";
     }
+    
+    @MethodMetadata(name = "Getir")
     @GetMapping("/{id}")
     public String getShipment(Model model, @PathVariable int id){
         var ship = shipmentRepository.findById(id);
@@ -60,30 +68,36 @@ public class ShipmentService extends ServiceBase {
         model.addAttribute("shipment", ship);
         return "shipment";
     }
+    
+    @MethodMetadata(name = "Kargoya")
     @PreAuthorize("hasRole('ROLE_SELLER') and T(me.yusuf.ecommerce.domain.user.User).cast(principal).getId().equals(#sellerId)")
     @PostMapping("/seller/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<String> markShipped(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){
         var seller = getUser().getSeller();
-        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId,productId,sellerId);
-        if(shipment==null) return ResponseEntity.notFound().build();
-        if(shipment.getDeliveryStatusSeller()!=null) return ResponseEntity.badRequest().body("Buyer has already canceled or approved this shipment.");
+        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId, productId, sellerId);
+        if(shipment == null) return ResponseEntity.notFound().build();
+        if(shipment.getDeliveryStatusSeller() != null) return ResponseEntity.badRequest().body("Buyer has already canceled or approved this shipment.");
         shipment.setDeliveryStatusSeller(Shipment.DeliveryStatus.SHIPPED);
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString() + "/shipment/"  + shipment.getId())).build();
     }
+    
+    @MethodMetadata(name = "İptal")
     @PreAuthorize("hasRole('ROLE_SELLER') and T(me.yusuf.ecommerce.domain.user.User).cast(principal).getId().equals(#sellerId)")
     @DeleteMapping("/seller/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<Void> cancelShipment(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){
-        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId,productId,sellerId);
+        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId, productId, sellerId);
         shipment.setDeliveryStatusSeller(Shipment.DeliveryStatus.CANCELLED);
         shipment.getOrder().setStatus(Order.OrderStatus.CANCELLED);
         orderRepository.save(shipment.getOrder());
         shipmentRepository.save(shipment);
         return ResponseEntity.ok().build();
     }
+    
+    @MethodMetadata(name = "Teslim")
     @PreAuthorize("orderRepository.belongsToCurrentUserById(orderId)")
     @PostMapping("/buyer/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<Void> markDelivered(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){
-        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId,productId,sellerId);
+        var shipment = shipmentRepository.findByOrderIdAndProductIdAndSellerId(orderId, productId, sellerId);
         shipment.setDeliveryStatusBuyer(Shipment.DeliveryStatus.DELIVERED);
         shipmentRepository.save(shipment);
         return ResponseEntity.ok().build();

@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import me.yusuf.ecommerce_builder.shared.MethodMetadata;
 
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,13 @@ public class NotificationService extends ServiceBase {
         super(entityManager);
         this.notificationRepository = notificationRepository;
     }
+    
+    @MethodMetadata(name = "Bildirim")
     public Page<Notification> notifications(@RequestParam(required = false, defaultValue = "false") boolean read,
-                                            @RequestParam(required = false, defaultValue = "0") int page,
-                                            @RequestParam(required = false, defaultValue = "20") int pageSize,
-                                            Model model, @RequestParam(required = false, defaultValue = "false") boolean fullPage){
-        var pageable = PageRequest.of(page,pageSize,Sort.by("createdAt").descending());
+                                             @RequestParam(required = false, defaultValue = "0") int page,
+                                             @RequestParam(required = false, defaultValue = "20") int pageSize,
+                                             Model model, @RequestParam(required = false, defaultValue = "false") boolean fullPage){
+        var pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         return notificationRepository.getNotificationsOfCurrentUser(read, pageable);
     }
 }

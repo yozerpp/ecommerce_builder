@@ -13,6 +13,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import me.yusuf.ecommerce_builder.shared.MethodMetadata;
 import java.util.List;
 
 @Service
@@ -25,24 +26,31 @@ public class OrderService extends ServiceBase
         this.orderRepository = orderRepository;
         this.shipmentRepository = shipmentRepository;
     }
+    
+    @MethodMetadata(name = "Sipariş")
     @PreAuthorize("isAuthenticated()")
     public List<Order> getOrders(Pageable pageable) {
         return orderRepository.getOrdersOfCurrentUser(pageable);
     }
+    
+    @MethodMetadata(name = "Getir")
     @PreAuthorize("isAuthenticated()")
     public @Nullable Order getOrder(int id) {
         return orderRepository.findById(id);
     }
-
+    
+    @MethodMetadata(name = "Güncelle")
     @PreAuthorize("isAuthenticated()")
-    public void updateOrder(@RequestParam int id,@RequestParam Order newOrder) {
+    public void updateOrder(@RequestParam int id, @RequestParam Order newOrder) {
         newOrder.setId(id);
         orderRepository.save(newOrder);
     }
+    
+    @MethodMetadata(name = "Oluştur")
     @PreAuthorize("!isAnonymous()")
     public Integer createOrder() {
         var user = getUser();
-        var cart=  user.getActiveSessionRef().getCart();
+        var cart = user.getActiveSessionRef().getCart();
         var order = new Order();
         order.setUser(user);
         order.setCart(cart);
@@ -50,7 +58,7 @@ public class OrderService extends ServiceBase
         payment.setOrder(order);
         payment.setSuccessful(true);
         order.setPayment(payment);
-        var shipments = cart.getCartItems().stream().map(i->{
+        var shipments = cart.getCartItems().stream().map(i -> {
             Shipment ship = new Shipment();
             var o = i.getProductOffer();
             ship.setProduct(o.getProduct());
@@ -65,6 +73,8 @@ public class OrderService extends ServiceBase
         shipmentRepository.saveAll(List.of(shipments));
         return orderRepository.save(order).getId();
     }
+    
+    @MethodMetadata(name = "İptal")
     @PreAuthorize("isAuthenticated()")
     public void cancelOrder(@PathVariable int id){
         orderRepository.cancelById(id);
