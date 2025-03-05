@@ -1,6 +1,6 @@
 package me.yusuf.ecommerce.controller;
 
-import me.yusuf.ecommerce.domain.user.UserService;
+import me.yusuf.ecommerce.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 

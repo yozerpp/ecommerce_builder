@@ -1,7 +1,9 @@
-package me.yusuf.ecommerce.domain.coupon;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
+import me.yusuf.ecommerce.domain.coupon.Coupon;
+import me.yusuf.ecommerce.domain.coupon.CouponRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;

@@ -2,7 +2,7 @@ package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.seller.Seller;
-import me.yusuf.ecommerce.domain.seller.SellerService;
+import me.yusuf.ecommerce.service.SellerService;
 import me.yusuf.ecommerce.utils.Utils;
 import org.springframework.web.bind.annotation.*;
 

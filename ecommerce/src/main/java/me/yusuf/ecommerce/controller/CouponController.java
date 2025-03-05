@@ -1,7 +1,7 @@
 package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.coupon.Coupon;
-import me.yusuf.ecommerce.domain.coupon.CouponService;
+import me.yusuf.ecommerce.service.CouponService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 

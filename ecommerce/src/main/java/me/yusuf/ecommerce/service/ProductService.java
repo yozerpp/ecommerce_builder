@@ -1,4 +1,4 @@
-package me.yusuf.ecommerce.domain.product;
+package me.yusuf.ecommerce.service;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.category.Category;
 import me.yusuf.ecommerce.domain.category.CategoryRepository;
+import me.yusuf.ecommerce.domain.product.*;
 import me.yusuf.ecommerce.domain.role.Role;
 import me.yusuf.ecommerce.domain.seller.Seller;
 import me.yusuf.ecommerce.domain.seller.SellerRepository;

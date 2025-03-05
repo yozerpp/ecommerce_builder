@@ -1,6 +1,10 @@
-package me.yusuf.ecommerce.domain.user;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
+import me.yusuf.ecommerce.domain.user.LoginForm;
+import me.yusuf.ecommerce.domain.user.RegistrationForm;
+import me.yusuf.ecommerce.domain.user.User;
+import me.yusuf.ecommerce.domain.user.UserRepository;
 import me.yusuf.ecommerce.security.UserAuthService;
 import me.yusuf.ecommerce.utils.Utils;
 import org.springframework.security.access.prepost.PreAuthorize;

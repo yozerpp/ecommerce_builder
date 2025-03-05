@@ -3,7 +3,7 @@ package me.yusuf.ecommerce.controller;
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.cart.Cart;
 import me.yusuf.ecommerce.domain.cart.CartItemRepository;
-import me.yusuf.ecommerce.domain.cart.CartService;
+import me.yusuf.ecommerce.service.CartService;
 import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.hibernate.Hibernate;

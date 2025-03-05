@@ -1,7 +1,11 @@
-package me.yusuf.ecommerce.domain.cart;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
+import me.yusuf.ecommerce.domain.cart.Cart;
+import me.yusuf.ecommerce.domain.cart.CartItem;
+import me.yusuf.ecommerce.domain.cart.CartItemRepository;
+import me.yusuf.ecommerce.domain.cart.CartRepository;
 import me.yusuf.ecommerce.domain.product.ProductOffer;
 import me.yusuf.ecommerce.domain.session.SessionRepository;
 import me.yusuf.ecommerce.domain.user.User;

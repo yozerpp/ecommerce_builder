@@ -1,10 +1,12 @@
-package me.yusuf.ecommerce.domain.shipment;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.order.Order;
 import me.yusuf.ecommerce.domain.order.OrderRepository;
 import me.yusuf.ecommerce.domain.seller.SellerRepository;
+import me.yusuf.ecommerce.domain.shipment.Shipment;
+import me.yusuf.ecommerce.domain.shipment.ShipmentRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

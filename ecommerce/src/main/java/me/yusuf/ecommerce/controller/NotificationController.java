@@ -1,6 +1,6 @@
 package me.yusuf.ecommerce.controller;
 
-import me.yusuf.ecommerce.domain.notification.NotificationService;
+import me.yusuf.ecommerce.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;

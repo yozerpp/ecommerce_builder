@@ -1,7 +1,9 @@
-package me.yusuf.ecommerce.domain.notification;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
+import me.yusuf.ecommerce.domain.notification.Notification;
+import me.yusuf.ecommerce.domain.notification.NotificationRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

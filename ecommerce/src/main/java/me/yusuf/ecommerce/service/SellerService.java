@@ -1,8 +1,10 @@
-package me.yusuf.ecommerce.domain.seller;
+package me.yusuf.ecommerce.service;
 
 import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce.domain.ServiceBase;
 import me.yusuf.ecommerce.domain.product.ProductOffer;
+import me.yusuf.ecommerce.domain.seller.Seller;
+import me.yusuf.ecommerce.domain.seller.SellerRepository;
 import me.yusuf.ecommerce.domain.shipment.ShipmentRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.prepost.PreAuthorize;

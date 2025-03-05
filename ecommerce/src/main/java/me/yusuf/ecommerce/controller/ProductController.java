@@ -2,7 +2,7 @@ package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.product.Product;
 import me.yusuf.ecommerce.domain.product.ProductForm;
-import me.yusuf.ecommerce.domain.product.ProductService;
+import me.yusuf.ecommerce.service.ProductService;
 import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;

@@ -1,7 +1,7 @@
 package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.order.Order;
-import me.yusuf.ecommerce.domain.order.OrderService;
+import me.yusuf.ecommerce.service.OrderService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;

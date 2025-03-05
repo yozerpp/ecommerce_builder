@@ -2,7 +2,7 @@ package me.yusuf.ecommerce.controller;
 
 import me.yusuf.ecommerce.domain.user.User;
 import me.yusuf.ecommerce.domain.user.UserRepository;
-import me.yusuf.ecommerce.domain.user.UserService;
+import me.yusuf.ecommerce.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
