@@ -10,6 +10,7 @@ import org.reflections.scanners.SubTypesScanner;
 public class MethodMetadataRegistry {
     String packageName;
     private static List<Class<?>> getClasses(String packageName) {
+        //implement this without reflections package, AI!
         Reflections reflections = new Reflections(packageName, new SubTypesScanner(false));
         Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
         return allClasses.stream()
