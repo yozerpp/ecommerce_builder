@@ -41,22 +41,22 @@ public class ProductService extends ServiceBase {
         this.sellerRepository = sellerRepository;
     }
 
-    @MethodMetadata(name = "Tümü")
+    @MethodMetadata(name = "Tüm Ürünler")
     public Page<Product> all(){
         return productRepository.findAll(Pageable.ofSize(20));
     }
     
-    @MethodMetadata(name = "Ara")
+    @MethodMetadata(name = "Ürün Ara")
     public List<Product> search(String[] params){
         return Utils.search(Product.class, _entityManager, params);
     }
     
-    @MethodMetadata(name = "Getir")
+    @MethodMetadata(name = "Ürün Getir")
     public Product product(Integer id){
         return productRepository.findById(id);
     }
     
-    @MethodMetadata(name = "Oluştur")
+    @MethodMetadata(name = "Ürün Oluştur")
     @PreAuthorize("hasAnyRole('ROLE_SELLER','ROLE_ADMIN','ROLE_STAFF')")
     public Integer createProduct(@RequestBody ProductForm form, Boolean cat) {
         try {
@@ -83,7 +83,7 @@ public class ProductService extends ServiceBase {
         }
     }
     
-    @MethodMetadata(name = "Teklif")
+    @MethodMetadata(name = "Teklif Oluştur")
     public ProductOffer.ProductOfferId createOffer(@RequestBody ProductForm form, @RequestParam(required = false, defaultValue = "null") Integer id, @RequestParam(required = false, defaultValue = "null") Integer sellerId) throws BadRequestException, NotFoundException {
         Seller seller;
         if(getUser().getAuthorities().contains(Role.ADMIN)) {
@@ -110,14 +110,14 @@ public class ProductService extends ServiceBase {
         return productOffer.getId();
     }
     
-    @MethodMetadata(name = "Sil")
+    @MethodMetadata(name = "Teklif Sil")
     public void deleteOffer(@PathVariable int productId, @PathVariable int sellerId) throws NotFoundException {
         var ps = productOfferRepository.findWithSellerById(new ProductOffer.ProductOfferId(productId, sellerId));
         if(ps == null) throw new NotFoundException("Product offer not found");
         productOfferRepository.delete(ps);
     }
     
-    @MethodMetadata(name = "Güncelle")
+    @MethodMetadata(name = "Teklif Güncelle")
     public void updateOffer(@PathVariable int productId, @PathVariable int sellerId, @RequestParam(required = false, defaultValue = "null") Integer stock, @RequestParam(required = false, defaultValue = "null") Double price, @RequestParam(required = false, defaultValue = "null") Float discount, @RequestParam(required = false, defaultValue = "null") String description) throws NotFoundException {
         var ps = productOfferRepository.findWithSellerById(new ProductOffer.ProductOfferId(productId, sellerId));
         if(ps == null) throw new NotFoundException("Product offer not found");

@@ -33,7 +33,7 @@ public class CartService extends ServiceBase {
         this.sessionRepository = sessionRepository;
     }
     
-    @MethodMetadata(name = "Ekle")
+    @MethodMetadata(name = "Sepete Ekle")
     public AddToCartResponse addToCart(Integer productId, Integer sellerId) {
         var session = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getActiveSessionRef();
         var cart = session.getCart();
@@ -45,7 +45,7 @@ public class CartService extends ServiceBase {
         return new AddToCartResponse(true, null, cartItemRepository.save(newItem).getId());
     }
     
-    @MethodMetadata(name = "Temizle")
+    @MethodMetadata(name = "Sepeti Temizle")
     public Tuple2<Cart, User> clearCart() {
         var cart = getCart();
         cartRepository.delete(cart);
@@ -60,7 +60,7 @@ public class CartService extends ServiceBase {
         return new Tuple2<>(cart, user);
     }
     
-    @MethodMetadata(name = "Değiştir")
+    @MethodMetadata(name = "Adet Değiştir")
     public Tuple3<User, Cart, CartItem> changeQuantity(int quantity, Boolean increment, int productId, int sellerId) throws ChangeSetPersister.NotFoundException, BadRequestException {
         var cart = getCart();
         CartItem cartItem;
@@ -83,7 +83,7 @@ public class CartService extends ServiceBase {
         return new Tuple3<>(getUser(), cart, cartItem);
     }
     
-    @MethodMetadata(name = "Kaldır")
+    @MethodMetadata(name = "Sepetten Kaldır")
     public Tuple3<User, Cart, CartItem> removeItem(int productId, int sellerId) throws NotFoundException {
         var item = cartItemRepository.findById(new CartItem.CartItemId(new ProductOffer.ProductOfferId(productId, sellerId), getCart().getId()));
         var context = new Tuple3<>(getUser(), getCart(), item);
@@ -93,7 +93,7 @@ public class CartService extends ServiceBase {
         return context;
     }
     
-    @MethodMetadata(name = "Getir")
+    @MethodMetadata(name = "Sepet Getir")
     public static Cart getCart(){
         var session = getSession();
         var cart = session.getCart();

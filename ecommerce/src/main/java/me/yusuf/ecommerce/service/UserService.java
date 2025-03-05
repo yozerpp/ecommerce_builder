@@ -26,18 +26,18 @@ public class UserService {
         this.userAuthService = userAuthService;
     }
     
-    @MethodMetadata(name = "Mevcut")
+    @MethodMetadata(name = "Kullanıcı Getir")
     @PreAuthorize("!isAnonymous()")
     public User getCurrentUser(){
          return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
-    @MethodMetadata(name = "Giriş")
+    @MethodMetadata(name = "Giriş Form")
     public Map<String, Map.Entry<String,Boolean>> getLoginForm(Model model){
         return Utils.propertyMap(LoginForm.class);
     }
     
-    @MethodMetadata(name = "Giriş")
+    @MethodMetadata(name = "Giriş Yap")
     @PreAuthorize("isAnonymous()")
     public void login(@RequestParam String username, @RequestParam String password) throws LoginException {
         User user;
@@ -53,18 +53,18 @@ public class UserService {
         user.eraseCredentials();
     }
     
-    @MethodMetadata(name = "Güncelle")
+    @MethodMetadata(name = "Kullanıcı Güncelle")
     public void updateUser(@RequestBody User user){
         userRepository.save(user);
     }
     
-    @MethodMetadata(name = "KayıtForm")
+    @MethodMetadata(name = "Kayıt Form")
     @PreAuthorize("isAnonymous()")
     public Map<String, Map.Entry<String, Boolean>> getSignUpForm(){
         return Utils.propertyMap(RegistrationForm.class);
     }
     
-    @MethodMetadata(name = "Kayıt")
+    @MethodMetadata(name = "Kayıt Ol")
     @PreAuthorize("isAnonymous()")
     public void signUp(User user){
         userRepository.save(user);

@@ -29,7 +29,7 @@ public class NotificationService extends ServiceBase {
         this.notificationRepository = notificationRepository;
     }
     
-    @MethodMetadata(name = "Bildirim")
+    @MethodMetadata(name = "Bildirim Getir")
     public Page<Notification> notifications(@RequestParam(required = false, defaultValue = "false") boolean read,
                                              @RequestParam(required = false, defaultValue = "0") int page,
                                              @RequestParam(required = false, defaultValue = "20") int pageSize,

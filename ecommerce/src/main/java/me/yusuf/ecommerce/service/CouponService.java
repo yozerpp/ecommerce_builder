@@ -24,7 +24,7 @@ public class CouponService extends ServiceBase {
         this.couponRepository = couponRepository;
     }
     
-    @MethodMetadata(name = "Oluştur")
+    @MethodMetadata(name = "Kupon Oluştur")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SELLER')")
     public String createCoupon(@RequestBody Coupon coupon){
         coupon.setSeller(getUser().getSeller());
@@ -32,12 +32,12 @@ public class CouponService extends ServiceBase {
         return coupon.getCode();
     }
     
-    @MethodMetadata(name = "Getir")
+    @MethodMetadata(name = "Kupon Getir")
     public @Nullable Coupon getCoupon(@PathVariable String code){
         return couponRepository.findCouponByCode(code);
     }
     
-    @MethodMetadata(name = "İptal")
+    @MethodMetadata(name = "Kupon İptal")
     public void invalidateCoupon(@PathVariable String code) {
         couponRepository.deactivateCouponByCode(code);
     }

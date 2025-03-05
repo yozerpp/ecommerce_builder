@@ -27,13 +27,13 @@ public class SellerService extends ServiceBase {
         this.shipmentRepository = shipmentRepository;
     }
 
-    @MethodMetadata(name = "Teklif")
+    @MethodMetadata(name = "Teklif Getir")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public Set<ProductOffer> offers(){
         return sellerRepository.findWithProductOffersProductByUserId(getUser().getId()).getProductOffers();
     }
     
-    @MethodMetadata(name = "Gönderi")
+    @MethodMetadata(name = "Gönderi Getir")
     @PreAuthorize("hasAnyRole('ROLE_SELLER','ROLE_ADMIN', 'ROLE_STAFF')")
     @GetMapping("/profile/shipments")
     public String shipments(Model model, @RequestParam(required = false, defaultValue = "null") Integer sellerId){
@@ -51,14 +51,14 @@ public class SellerService extends ServiceBase {
         return "fragments/seller/shipments";
     }
     
-    @MethodMetadata(name = "Oluştur")
+    @MethodMetadata(name = "Satıcı Oluştur")
     @PostMapping
     public String createSeller(@RequestBody Seller seller){
         sellerRepository.save(seller);
         return "redirect:/login";
     }
     
-    @MethodMetadata(name = "Profil")
+    @MethodMetadata(name = "Satıcı Profil")
     @GetMapping
     public String sellerProfile(Model model){
         var user = getUser();
@@ -71,7 +71,7 @@ public class SellerService extends ServiceBase {
         } else return "redirect:/logout?continue=login&message=You+are+not+a+seller";
     }
     
-    @MethodMetadata(name = "Sayfa")
+    @MethodMetadata(name = "Satıcı Sayfa")
     @GetMapping("/{id}")
     public String sellerPage(@PathVariable int id, Model model){
         model.addAttribute("seller", sellerRepository.findWithProductOffersProductByUserId(id));

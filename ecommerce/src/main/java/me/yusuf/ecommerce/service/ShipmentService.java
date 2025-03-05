@@ -36,7 +36,7 @@ public class ShipmentService extends ServiceBase {
         this.orderRepository = orderRepository;
     }
     
-    @MethodMetadata(name = "Sipariş")
+    @MethodMetadata(name = "Sipariş Gönderi")
     @GetMapping("/order/{id}")
     public String getShipmentsOfOrder(@PathVariable int id, Model model){
         var shipments = shipmentRepository.findWithOrdersByOrderId(id, null);
@@ -48,7 +48,7 @@ public class ShipmentService extends ServiceBase {
         return "shipments";
     }
     
-    @MethodMetadata(name = "Liste")
+    @MethodMetadata(name = "Gönderi Liste")
     @GetMapping
     public String getShipments(Model model){
         Page<Shipment> shipments;
@@ -60,7 +60,7 @@ public class ShipmentService extends ServiceBase {
         return "shipments";
     }
     
-    @MethodMetadata(name = "Getir")
+    @MethodMetadata(name = "Gönderi Getir")
     @GetMapping("/{id}")
     public String getShipment(Model model, @PathVariable int id){
         var ship = shipmentRepository.findById(id);
@@ -69,7 +69,7 @@ public class ShipmentService extends ServiceBase {
         return "shipment";
     }
     
-    @MethodMetadata(name = "Kargoya")
+    @MethodMetadata(name = "Kargo Gönder")
     @PreAuthorize("hasRole('ROLE_SELLER') and T(me.yusuf.ecommerce.domain.user.User).cast(principal).getId().equals(#sellerId)")
     @PostMapping("/seller/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<String> markShipped(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){
@@ -81,7 +81,7 @@ public class ShipmentService extends ServiceBase {
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString() + "/shipment/"  + shipment.getId())).build();
     }
     
-    @MethodMetadata(name = "İptal")
+    @MethodMetadata(name = "Kargo İptal")
     @PreAuthorize("hasRole('ROLE_SELLER') and T(me.yusuf.ecommerce.domain.user.User).cast(principal).getId().equals(#sellerId)")
     @DeleteMapping("/seller/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<Void> cancelShipment(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){
@@ -93,7 +93,7 @@ public class ShipmentService extends ServiceBase {
         return ResponseEntity.ok().build();
     }
     
-    @MethodMetadata(name = "Teslim")
+    @MethodMetadata(name = "Teslim Et")
     @PreAuthorize("orderRepository.belongsToCurrentUserById(orderId)")
     @PostMapping("/buyer/{orderId}/{productId}/{sellerId}")
     public ResponseEntity<Void> markDelivered(@PathVariable(name = "orderId") int orderId, @PathVariable(name = "productId") int productId, @PathVariable(name = "sellerId") int sellerId){

@@ -27,26 +27,26 @@ public class OrderService extends ServiceBase
         this.shipmentRepository = shipmentRepository;
     }
     
-    @MethodMetadata(name = "Sipariş")
+    @MethodMetadata(name = "Sipariş Getir")
     @PreAuthorize("isAuthenticated()")
     public List<Order> getOrders(Pageable pageable) {
         return orderRepository.getOrdersOfCurrentUser(pageable);
     }
     
-    @MethodMetadata(name = "Getir")
+    @MethodMetadata(name = "Sipariş Getir")
     @PreAuthorize("isAuthenticated()")
     public @Nullable Order getOrder(int id) {
         return orderRepository.findById(id);
     }
     
-    @MethodMetadata(name = "Güncelle")
+    @MethodMetadata(name = "Sipariş Güncelle")
     @PreAuthorize("isAuthenticated()")
     public void updateOrder(@RequestParam int id, @RequestParam Order newOrder) {
         newOrder.setId(id);
         orderRepository.save(newOrder);
     }
     
-    @MethodMetadata(name = "Oluştur")
+    @MethodMetadata(name = "Sipariş Oluştur")
     @PreAuthorize("!isAnonymous()")
     public Integer createOrder() {
         var user = getUser();
@@ -74,7 +74,7 @@ public class OrderService extends ServiceBase
         return orderRepository.save(order).getId();
     }
     
-    @MethodMetadata(name = "İptal")
+    @MethodMetadata(name = "Sipariş İptal")
     @PreAuthorize("isAuthenticated()")
     public void cancelOrder(@PathVariable int id){
         orderRepository.cancelById(id);
