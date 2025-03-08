@@ -8,7 +8,7 @@ statement: döngüİfadesi
          | değişkenTanımı
          | exprStatement
          | block;
-functionCall: değişkenErişimi '(' (denklem (',' denklem)* )?')';
+functionCall: değişkenErişimi '(' (denklem (',' denklem)* )? ')';
 exprStatement: (functionCall | atama) ';';
 
 foreachStatement: koleksiyonİsmi İÇİNDEKİ HER elementİsmi İÇİN block;
@@ -33,13 +33,13 @@ equalityOp: EŞİTTİR | EŞİT_DEĞİLDİR;
 comparisonExpr: additiveExpr ( comparisonOp additiveExpr )*;
 comparisonOp: BÜYÜKTÜR | KÜÇÜKTÜR | BÜYÜK_EŞİTTİR | KÜÇÜK_EŞİTTİR;
 additiveExpr: multiplicativeExpr ( additiveOp multiplicativeExpr )*;
-additiveOp: ARTI|EKSİ;
+additiveOp: ARTI | EKSİ;
 multiplicativeExpr: unaryExpr ( multiplicativeOp unaryExpr )*;
 multiplicativeOp: ÇARPIM | BÖLÜ;
 unaryExpr: unaryOp unaryExpr | postfixExpr;
 unaryOp: EKSİ | DEĞİL;
 postfixExpr: primary ( DEĞİL )?;
-değişkenErişimi: IDENTIFIER ('.' IDENTIFIER)*;
+değişkenErişimi: IDENTIFIER (APOSTROPHE_NIN IDENTIFIER)*;
 primary: SAYI
        | YAZI
        | değişkenErişimi
@@ -53,10 +53,10 @@ VEYA: 'veya';
 DEĞİL: 'değil';
 EŞİTTİR: '==';
 EŞİT_DEĞİLDİR: '!=';
-BÜYÜKTÜR:'>';
-KÜÇÜKTÜR:'<';
-BÜYÜK_EŞİTTİR:'>=';
-KÜÇÜK_EŞİTTİR:'<=';
+BÜYÜKTÜR: '>';
+KÜÇÜKTÜR: '<';
+BÜYÜK_EŞİTTİR: '>=';
+KÜÇÜK_EŞİTTİR: '<=';
 ARTI: '+';
 EKSİ: '-';
 ÇARPIM: '*';
@@ -74,6 +74,11 @@ DEĞ: 'değ';
 HER: 'her';
 İÇİN: 'için';
 SONRA: 'sonrasında';
+
+APOSTROPHE_NIN: '\'' 'n' 'ı' 'n'
+               | '\'' 'n' 'i' 'n'
+               | '\'' 'n' 'ü' 'n'
+               | '\'' 'n' 'u' 'n';
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
 YAZI: '"' .*? '"';
