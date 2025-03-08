@@ -1,33 +1,30 @@
 grammar TurkishPseudoCode;
-pluginDef: id_with_dots (hataExpr | SONRA) 'yap' IDENTIFIER block;
-hataExpr: id_with_dots HATA;
+pluginDef: değişkenErişimi (hataExpr | SONRA) 'yap' IDENTIFIER block;
+hataExpr: değişkenErişimi HATA;
 
-statement: loopStatement
-         | ifStatement
+statement: döngüİfadesi
+         | eğerİfadesi
          | foreachStatement
-         | varDeclaration
+         | değişkenTanımı
          | exprStatement
          | block;
-functionCall: id_with_dots '(' (expr (',' expr)* )?')';
-exprStatement: (functionCall | assignment) ';';
+functionCall: değişkenErişimi '(' (denklem (',' denklem)* )?')';
+exprStatement: (functionCall | atama) ';';
 
-foreachStatement: IDENTIFIER ICINDEKI HER IDENTIFIER ICIN block;
-
-loopStatement: expr IKEN block;
-
-ifStatement: EĞER expr İSE block (DEĞİLSE block)?;
-
+foreachStatement: koleksiyonİsmi İÇİNDEKİ HER elementİsmi İÇİN block;
+koleksiyonİsmi: IDENTIFIER;
+elementİsmi: IDENTIFIER;
+döngüİfadesi: koşul IKEN block;
+eğerİfadesi: EĞER koşul İSE block (DEĞİLSE block)?;
+koşul: denklem;
 block: '{' statement* '}';
 
-varDeclaration: DEĞİŞKEN assignment ';';
+değişkenTanımı: DEĞ atama ';';
 
-assignment: IDENTIFIER '=' expr;
-
-
-returnStatement: DÖNDÜR expr;
-
-
-expr: logicalAndExpr ( VEYA logicalAndExpr )*;
+atama: değişken '=' denklem;
+değişken: IDENTIFIER;
+dönmeİfadesi: DÖNDÜR denklem;
+denklem: logicalAndExpr ( VEYA logicalAndExpr )*;
 
 logicalAndExpr: equalityExpr ( VE equalityExpr )*;
 
@@ -42,11 +39,11 @@ multiplicativeOp: ÇARPIM | BÖLÜ;
 unaryExpr: unaryOp unaryExpr | postfixExpr;
 unaryOp: EKSİ | DEĞİL;
 postfixExpr: primary ( DEĞİL )?;
-id_with_dots: IDENTIFIER ('.' IDENTIFIER)*;
+değişkenErişimi: IDENTIFIER ('.' IDENTIFIER)*;
 primary: SAYI
        | YAZI
-       | IDENTIFIER
-       | '(' expr ')'
+       | değişkenErişimi
+       | '(' denklem ')'
        | exprStatement
        ;
 
@@ -71,11 +68,11 @@ DEĞİLSE: 'değilse';
 IKEN: 'iken';
 FONKSİYON: 'fonksiyon';
 DÖNDÜR: 'döndür';
-DEĞİŞKEN: 'değişken';
+DEĞ: 'değ';
 
-ICINDEKI: 'içindeki';
+İÇİNDEKİ: 'içindeki';
 HER: 'her';
-ICIN: 'için';
+İÇİN: 'için';
 SONRA: 'sonrasında';
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
