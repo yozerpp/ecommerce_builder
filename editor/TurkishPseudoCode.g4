@@ -1,53 +1,60 @@
 grammar TurkishPseudoCode;
-pluginDef: değişkenErişimi (hataExpr | SONRA) 'yap' IDENTIFIER block;
-hataExpr: değişkenErişimi HATA;
-
-statement: döngüİfadesi
+işlevTanımı: varlıkİsmi eylemİsmi (hataİfadesi| sonraİfadesi) YAP işlevİsmi gövde;
+varlıkİsmi: İSİM;
+eylemİsmi: İSİM+;
+işlevİsmi: İSİM;
+hataİfadesi: BULUNMA_EKİ hataİsmi HATASINDA;
+sonraİfadesi: AYRILMA_EKİ SONRA;
+hataDenklemi: hataİsmi HATASINDA;
+hataİsmi: İSİM+;
+ifade: döngüİfadesi
          | eğerİfadesi
-         | foreachStatement
+         | herBiriİfadesi
          | değişkenTanımı
-         | exprStatement
-         | block;
-functionCall: değişkenErişimi '(' (denklem (',' denklem)* )? ')';
-exprStatement: (functionCall | atama) ';';
+         | denklemİfadesi
+         | gövde;
+fonksiyonÇağrımı: değişken '(' (denklem (',' denklem)* )? ')';
+denklemİfadesi: (fonksiyonÇağrımı | atama) ';';
 
-foreachStatement: koleksiyonİsmi İÇİNDEKİ HER elementİsmi İÇİN block;
-koleksiyonİsmi: IDENTIFIER;
-elementİsmi: IDENTIFIER;
-döngüİfadesi: koşul IKEN block;
-eğerİfadesi: EĞER koşul İSE block (DEĞİLSE block)?;
+herBiriİfadesi: koleksiyonİsmi İÇİNDEKİ HER elementİsmi İÇİN gövde;
+koleksiyonİsmi: İSİM;
+elementİsmi: İSİM;
+döngüİfadesi: koşul IKEN gövde;
+eğerİfadesi: EĞER koşul İSE gövde (DEĞİLSE gövde)?;
 koşul: denklem;
-block: '{' statement* '}';
+gövde: '{' ifade* '}';
 
-değişkenTanımı: DEĞ atama ';';
+değişkenTanımı: DEĞ ilkelDeğişken ';';
 
 atama: değişken '=' denklem;
-değişken: IDENTIFIER;
+
+ilkelDeğişken: İSİM;
 dönmeİfadesi: DÖNDÜR denklem;
-denklem: logicalAndExpr ( VEYA logicalAndExpr )*;
+denklem: mantıksalVeDenklemi ( VEYA mantıksalVeDenklemi )*;
 
-logicalAndExpr: equalityExpr ( VE equalityExpr )*;
+mantıksalVeDenklemi: eşitlikDenklemi ( VE eşitlikDenklemi )*;
 
-equalityExpr: comparisonExpr ( equalityOp comparisonExpr )*;
-equalityOp: EŞİTTİR | EŞİT_DEĞİLDİR;
-comparisonExpr: additiveExpr ( comparisonOp additiveExpr )*;
-comparisonOp: BÜYÜKTÜR | KÜÇÜKTÜR | BÜYÜK_EŞİTTİR | KÜÇÜK_EŞİTTİR;
-additiveExpr: multiplicativeExpr ( additiveOp multiplicativeExpr )*;
-additiveOp: ARTI | EKSİ;
-multiplicativeExpr: unaryExpr ( multiplicativeOp unaryExpr )*;
-multiplicativeOp: ÇARPIM | BÖLÜ;
-unaryExpr: unaryOp unaryExpr | postfixExpr;
-unaryOp: EKSİ | DEĞİL;
-postfixExpr: primary ( DEĞİL )?;
-değişkenErişimi: IDENTIFIER (APOSTROPHE_NIN IDENTIFIER)*;
-primary: SAYI
-       | YAZI
-       | değişkenErişimi
+eşitlikDenklemi: karşılaştırmaDenklemi ( eşitlikİşareti karşılaştırmaDenklemi )*;
+eşitlikİşareti: EŞİTTİR | EŞİT_DEĞİLDİR;
+karşılaştırmaDenklemi: toplamaDenklemi ( karşılaştrımaİşareti toplamaDenklemi )*;
+karşılaştrımaİşareti: BÜYÜKTÜR | KÜÇÜKTÜR | BÜYÜK_EŞİTTİR | KÜÇÜK_EŞİTTİR;
+toplamaDenklemi: çarpmaDenklemi ( toplamaÇıkarmaİşareti çarpmaDenklemi )*;
+toplamaÇıkarmaİşareti: ARTI | EKSİ;
+çarpmaDenklemi: tekliDenklem ( çarpmaBölmeİşareti tekliDenklem )*;
+çarpmaBölmeİşareti: ÇARPIM | BÖLÜ;
+tekliDenklem: eksiİşareti tekliDenklem | değilİfadesi;
+eksiİşareti: EKSİ ;
+değilİfadesi: değer ( DEĞİL )?;
+değişken: İSİM (SAHİPLİK_EKİ İSİM)*;
+sabitDeğer : SAYI | YAZI;
+değer:  sabitDeğer
+       | değişken
        | '(' denklem ')'
-       | exprStatement
+       | denklemİfadesi
        ;
 
 // Lexer Rules
+YAP: 'yap';
 VE: 've';
 VEYA: 'veya';
 DEĞİL: 'değil';
@@ -61,7 +68,7 @@ ARTI: '+';
 EKSİ: '-';
 ÇARPIM: '*';
 BÖLÜ: '/';
-HATA: 'hatasında';
+HATASINDA: 'hatasında';
 EĞER: 'eğer';
 İSE: 'ise';
 DEĞİLSE: 'değilse';
@@ -74,15 +81,27 @@ DEĞ: 'değ';
 HER: 'her';
 İÇİN: 'için';
 SONRA: 'sonrasında';
+BULUNMA_EKİ: '\'' 't' 'a'
+               | '\'' 't' 'e'
+               | '\'' 'd' 'a'
+               | '\'' 'd' 'e';
+AYRILMA_EKİ: '\'' 't' 'a' 'n'
+               | '\'' 't' 'e' 'n'
+               | '\'' 'd' 'a' 'n'
+               | '\'' 'd' 'e' 'n';
 
-APOSTROPHE_NIN: '\'' 'n' 'ı' 'n'
+SAHİPLİK_EKİ: '\'' 'n' 'ı' 'n'
                | '\'' 'n' 'i' 'n'
                | '\'' 'n' 'ü' 'n'
-               | '\'' 'n' 'u' 'n';
+               | '\'' 'n' 'u' 'n'
+               | '\'' 'ı' 'n'
+               | '\'' 'i' 'n'
+               | '\'' 'u' 'n'
+               | '\'' 'ü' 'n';
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
-YAZI: '"' .*? '"';
-IDENTIFIER: [a-zA-ZğüşıöçĞÜŞİÖÇ_]([a-zA-ZğüşıöçĞÜŞİÖÇ0-9_$])*;
-WS: [ \t\r\n]+ -> skip;
-COMMENT: '//' ~[\r\n]* -> skip;
-MULTILINE_COMMENT: '/*' .*? '*/' -> skip;
+YAZI: '"' .*? '"' | '\'' .*? '\'';
+İSİM: [a-zA-ZğüşıöçĞÜŞİÖÇ_]([a-zA-ZğüşıöçĞÜŞİÖÇ0-9_$])*;
+BOŞLUK: [ \t\r\n]+ -> skip;
+YORUM: '//' ~[\r\n]* -> skip;
+ÇOK_SATIR_YORUM: '/*' .*? '*/' -> skip;

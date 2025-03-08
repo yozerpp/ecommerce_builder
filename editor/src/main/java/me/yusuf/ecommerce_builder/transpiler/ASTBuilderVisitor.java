@@ -11,12 +11,12 @@ import java.util.List;
 public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
 
     @Override
-    public PluginDef visitPluginDef(TurkishPseudoCodeParser.PluginDefContext ctx) {
+    public PluginDef visitPluginDef(TurkishPseudoCodeParser.IşlevTanımıContext ctx) {
         var ret = new PluginDef();
-        ret.hookedMethod = ctx.id_with_dots().getText();
-        ret.hookedException = ctx.hataExpr() != null ? ctx.hataExpr().id_with_dots().getText() : null;
-        ret.block = visitBlock(ctx.block());
-        ret.name = ctx.IDENTIFIER().getText();
+        ret.hookedMethod = ctx.işlevİsmi().getText();
+        ret.hookedException = ctx.hataİfadesi() != null ? ctx.hataİfadesi().hataİsmi().getText() : null;
+        ret.block = visitBlock(ctx.gövde());
+        ret.name = ctx.eylemİsmi().getText();
         return ret;
     }
 
