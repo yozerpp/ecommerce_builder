@@ -28,11 +28,11 @@ public class StatementTests extends TestBase {
         // Input:
         //   MyPlugin MyException hatasında { myFunction(Integer.valueOf(42)); }
         String input = "SATIN_ALMA MyException hatasında yap MyPlugin { myFunction(42); }";
-        TurkishPseudoCodeParser parser = getParser(input);
-        // Parse the pluginDef rule from the parser
-        TurkishPseudoCodeParser.PluginDefContext ctx = parser.pluginDef();
+        var parser = getParser(input);
+        // Parse the işlevTanımı rule from the parser
+        var ctx = parser.işlevTanımı();
         // Visit the parse tree and build the AST PluginDef object.
-        PluginDef plugin = visitor.visitPluginDef(ctx);
+        PluginDef plugin = visitor.visitIşlevTanımı(ctx);
 
         // Assert that the pluginDef object is correctly created.
         // Check hookedMethod from the IDENTIFIER before hataExpr.
@@ -45,12 +45,12 @@ public class StatementTests extends TestBase {
         Block block = plugin.block;
         // For our input, we expect one statement inside the block.
         Assertions.assertEquals(1, block.statements.size());
-        Assertions.assertEquals("myFunction(42)", block.statements.get(Integer.valueOf(0)).toString());
+        Assertions.assertEquals("myFunction(42)", block.statements.get(0).toString());
 
         // The single statement should be a function call expression.
         // Our visitor constructs ExpressionStatement from function calls.
         // We downcast it to FunctionCallExpr.
-        Object stmt = block.statements.get(Integer.valueOf(0));
+        Object stmt = block.statements.get(0);
         Assertions.assertInstanceOf(FunctionCallExpr.class, stmt, "The statement is not an instance of FunctionCallExpr");
         FunctionCallExpr funcCall = (FunctionCallExpr) stmt;
         // Assert that functionName is "myFunction"
@@ -63,25 +63,25 @@ public class StatementTests extends TestBase {
         Expression argExpr = funcCall.args[0];
         Primary.Number expectedNumber = new Primary.Number();
         expectedNumber.number = 42;
-        Assertions.assertEquals(Primary.wrap(expectedNumber), argExpr);
+        Assertions.assertEquals(Primary.wrap(expectedNumber).toString(), argExpr.toString());
     }
 
     @Test
     public void testLoopStatement() {
         // Test a loop statement: "1 olduğu sürece { }"
         String input = "1 iken { }";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.LoopStatementContext ctx = parser.loopStatement();
-        LoopStatement actual = visitor.visitLoopStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.döngüİfadesi();
+        LoopStatement actual = (LoopStatement) visitor.visitDöngüİfadesi(ctx);
 
         // Expected condition is the expression wrapping number 1.
-        var n  =new Primary.Number();
+        var n = new Primary.Number();
         n.number = 1;
         Expr expectedCondition = Primary.wrap(n);
         // Expected block is empty.
         Block expectedBlock = new Block();
 
-        Assertions.assertEquals(expectedCondition, actual.condition, "Loop condition does not match the expected expression.");
+        Assertions.assertEquals(expectedCondition.toString(), actual.condition.toString(), "Loop condition does not match the expected expression.");
         Assertions.assertEquals(expectedBlock.statements.size(), actual.block.statements.size(), "Loop block statements size mismatch.");
     }
 
@@ -90,30 +90,32 @@ public class StatementTests extends TestBase {
         // Test an if statement without else:
         // "eğer 1 ise { değişken x = 2; }"
         String input = "eğer 1 ise { değişken x = 2; }";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.IfStatementContext ctx = parser.ifStatement();
-        IfStatement actual = visitor.visitIfStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.eğerİfadesi();
+        IfStatement actual = (IfStatement) visitor.visitEğerİfadesi(ctx);
 
         // Expected condition: number 1 wrapped.
         var n = new Primary.Number();
-        n.number =1;
+        n.number = 1;
         Expr expectedCondition = Primary.wrap(n);
-        Assertions.assertEquals(expectedCondition, actual.condition, "If condition does not match.");
+        Assertions.assertEquals(expectedCondition.toString(), actual.condition.toString(), "If condition does not match.");
 
         // Expected happyPath: a block with one var declaration statement.
         Block expectedHappy = new Block();
         VarDeclarationStatement expectedVar = new VarDeclarationStatement();
         AssignmentExpr expectedAssign = new AssignmentExpr();
         expectedAssign.left = "x";
-        expectedAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(2)));
+        var num = new Primary.Number();
+        num.number = 2;
+        expectedAssign.right = Primary.wrap(num);
         expectedVar.expr = expectedAssign;
         expectedHappy.statements.add(expectedVar);
 
         // Check if the happyPath block has one statement.
         Assertions.assertEquals(expectedHappy.statements.size(), actual.happyPath.statements.size(), "Happy path block statement count mismatch.");
-        VarDeclarationStatement actualVar = (VarDeclarationStatement) actual.happyPath.statements.get(Integer.valueOf(0));
+        VarDeclarationStatement actualVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
         Assertions.assertEquals(expectedVar.expr.left, actualVar.expr.left, "Variable name mismatch in if-statement.");
-        Assertions.assertEquals(expectedVar.expr.right, actualVar.expr.right, "Variable assignment mismatch in if-statement.");
+        Assertions.assertEquals(expectedVar.expr.right.toString(), actualVar.expr.right.toString(), "Variable assignment mismatch in if-statement.");
         // sadPath should be null.
         Assertions.assertNull(actual.sadPath, "Sad path should be null when not provided.");
     }
@@ -123,51 +125,55 @@ public class StatementTests extends TestBase {
         // Test an if statement with else:
         // "eğer 1 ise { değişken x = 2; } değilse { değişken y = 3; }"
         String input = "eğer 1 ise { değişken x = 2; } değilse { değişken y = 3; }";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.IfStatementContext ctx = parser.ifStatement();
-        IfStatement actual = visitor.visitIfStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.eğerİfadesi();
+        IfStatement actual = (IfStatement) visitor.visitEğerİfadesi(ctx);
 
         // Expected condition: 1
-        var n=  new Primary.Number();
+        var n = new Primary.Number();
         n.number = 1;
         Expr expectedCondition = Primary.wrap(n);
-        Assertions.assertEquals(expectedCondition, actual.condition, "If condition does not match.");
+        Assertions.assertEquals(expectedCondition.toString(), actual.condition.toString(), "If condition does not match.");
 
         // Expected happyPath block with var declaration: x = 2
         VarDeclarationStatement expectedHappyVar = new VarDeclarationStatement();
         AssignmentExpr happyAssign = new AssignmentExpr();
         happyAssign.left = "x";
-        happyAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(2)));
+        var num2 = new Primary.Number();
+        num2.number = 2;
+        happyAssign.right = Primary.wrap(num2);
         expectedHappyVar.expr = happyAssign;
 
         // Expected sadPath block with var declaration: y = 3
         VarDeclarationStatement expectedSadVar = new VarDeclarationStatement();
         AssignmentExpr sadAssign = new AssignmentExpr();
         sadAssign.left = "y";
-        sadAssign.right = Primary.wrap(new Primary.Number(Integer.valueOf(3)));
+        var num3 = new Primary.Number();
+        num3.number = 3;
+        sadAssign.right = Primary.wrap(num3);
         expectedSadVar.expr = sadAssign;
 
         // Check happyPath block
         Assertions.assertFalse(actual.happyPath.statements.isEmpty(), "Happy path block should not be empty.");
-        VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(Integer.valueOf(0));
+        VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
         Assertions.assertEquals(expectedHappyVar.expr.left, actualHappyVar.expr.left, "Happy path variable name mismatch.");
-        Assertions.assertEquals(expectedHappyVar.expr.right, actualHappyVar.expr.right, "Happy path assignment mismatch.");
+        Assertions.assertEquals(expectedHappyVar.expr.right.toString(), actualHappyVar.expr.right.toString(), "Happy path assignment mismatch.");
 
         // Check sadPath block
         Assertions.assertNotNull(actual.sadPath, "Sad path block should not be null.");
         Assertions.assertFalse(actual.sadPath.statements.isEmpty(), "Sad path block should not be empty.");
-        VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(Integer.valueOf(0));
+        VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(0);
         Assertions.assertEquals(expectedSadVar.expr.left, actualSadVar.expr.left, "Sad path variable name mismatch.");
-        Assertions.assertEquals(expectedSadVar.expr.right, actualSadVar.expr.right, "Sad path assignment mismatch.");
+        Assertions.assertEquals(expectedSadVar.expr.right.toString(), actualSadVar.expr.right.toString(), "Sad path assignment mismatch.");
     }
 
     @Test
     public void testForeachStatement() {
         // Test foreach statement: "item içindeki her items için { }"
         String input = "items içindeki her item için { }";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.ForeachStatementContext ctx = parser.foreachStatement();
-        ForeachStatement actual = visitor.visitForeachStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.herBiriİfadesi();
+        ForeachStatement actual = (ForeachStatement) visitor.visitHerBiriİfadesi(ctx);
 
         Assertions.assertEquals("item", actual.elementName, "Foreach element name mismatch.");
         Assertions.assertEquals("items", actual.collectionName, "Foreach collection name mismatch.");
@@ -177,41 +183,49 @@ public class StatementTests extends TestBase {
     public void testVarDeclarationStatement() {
         // Test variable declaration statement: "değişken x = 42;"
         String input = "değişken x = 42;";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.VarDeclarationContext ctx = parser.varDeclaration();
-        VarDeclarationStatement actual = visitor.visitVarDeclaration(ctx);
+        var parser = getParser(input);
+        var ctx = parser.değişkenTanımı();
+        VarDeclarationStatement actual = (VarDeclarationStatement) visitor.visitDeğişkenTanımı(ctx);
 
         Assertions.assertEquals("x", actual.expr.left, "VarDeclaration variable name mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(42))), actual.expr.right, "VarDeclaration assignment mismatch.");
+        var num = new Primary.Number();
+        num.number = 42;
+        Assertions.assertEquals(Primary.wrap(num).toString(), actual.expr.right.toString(), "VarDeclaration assignment mismatch.");
     }
 
     @Test
     public void testFunctionCallStatement() {
         // Test function call statement: "myFunction(1,2);"
         String input = "myFunction(1,2);";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.ExprStatementContext ctx = parser.exprStatement();
-        Object result = visitor.visitExprStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.denklemİfadesi();
+        Object result = visitor.visitDenklemİfadesi(ctx);
         Assertions.assertInstanceOf(FunctionCallExpr.class, result, "Result is not a FunctionCallExpr.");
         FunctionCallExpr actual = (FunctionCallExpr) result;
 
         Assertions.assertEquals("myFunction", actual.functionName, "Function call name mismatch.");
         Assertions.assertEquals(2, actual.args.length, "Function call argument count mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(1))), actual.args[0], "First argument mismatch in function call.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(2))), actual.args[1], "Second argument mismatch in function call.");
+        var num1 = new Primary.Number();
+        num1.number = 1;
+        var num2 = new Primary.Number();
+        num2.number = 2;
+        Assertions.assertEquals(Primary.wrap(num1).toString(), actual.args[0].toString(), "First argument mismatch in function call.");
+        Assertions.assertEquals(Primary.wrap(num2).toString(), actual.args[1].toString(), "Second argument mismatch in function call.");
     }
 
     @Test
     public void testAssignmentStatement() {
         // Test assignment statement: "x = 42;"
         String input = "x = 42;";
-        TurkishPseudoCodeParser parser = getParser(input);
-        TurkishPseudoCodeParser.ExprStatementContext ctx = parser.exprStatement();
-        Object result = visitor.visitExprStatement(ctx);
+        var parser = getParser(input);
+        var ctx = parser.atama();
+        Object result = visitor.visitAtama(ctx);
         Assertions.assertInstanceOf(AssignmentExpr.class, result, "Result is not an AssignmentExpr.");
         AssignmentExpr actual = (AssignmentExpr) result;
 
         Assertions.assertEquals("x", actual.left, "Assignment variable name mismatch.");
-        Assertions.assertEquals(Primary.wrap(new Primary.Number(Integer.valueOf(42))), actual.right, "Assignment value mismatch.");
+        var num = new Primary.Number();
+        num.number = 42;
+        Assertions.assertEquals(Primary.wrap(num).toString(), actual.right.toString(), "Assignment value mismatch.");
     }
 }

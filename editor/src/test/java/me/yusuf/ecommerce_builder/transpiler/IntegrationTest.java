@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
+import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeLexer;
+import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
 
 public class IntegrationTest {
 
@@ -18,7 +20,7 @@ public class IntegrationTest {
         TurkishPseudoCodeLexer lexer = new TurkishPseudoCodeLexer(charStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TurkishPseudoCodeParser parser = new TurkishPseudoCodeParser(tokens);
-        PluginDef pluginDef = new ASTBuilderVisitor().visitPluginDef(parser.pluginDef());
+        PluginDef pluginDef = new ASTBuilderVisitor().visitIşlevTanımı(parser.işlevTanımı());
         return new CodeGeneratorVisitor().generate(pluginDef);
     }
 

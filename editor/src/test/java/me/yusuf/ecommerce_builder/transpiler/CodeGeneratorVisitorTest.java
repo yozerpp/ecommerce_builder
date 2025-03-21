@@ -71,15 +71,8 @@ public class CodeGeneratorVisitorTest {
         assign.left = "x";
         // Use a function call expression as the right-hand side.
         assign.right = createSimpleFuncCall("dummyFunc");
-        vds.value = assign;
-        // Expected: "var x = dummyFunc();"
-        String expected = "var x = x = dummyFunc();";
-        // NOTE: visitVarDeclarationStatement calls visitAssignmentExpr(vds.expr.right)
-        // and visitAssignmentExpr returns: asn.left + " = " + visitExpression(asn.right) + ";"
-        // In our case, vds.expr.right is a FunctionCallExpr, so visitFunctionCallExpr returns "dummyFunc();"
-        // Hence visitVarDeclarationStatement returns:
-        // "var " + vds.expr.left + " = " + "dummyFunc();" + ";"
-        expected = "var x = dummyFunc();";
+        vds.expr = assign;
+        String expected = "var x = dummyFunc();";
         String result = visitor.visitVarDeclarationStatement(vds);
         assertEquals(expected, result);
     }
