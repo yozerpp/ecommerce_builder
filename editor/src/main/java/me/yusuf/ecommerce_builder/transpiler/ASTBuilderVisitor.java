@@ -11,221 +11,253 @@ import java.util.List;
 public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
 
     @Override
-    public PluginDef visitPluginDef(TurkishPseudoCodeParser.IşlevTanımıContext ctx) {
-        var ret = new PluginDef();
+    public PluginDef visitIşlevTanımı(TurkishPseudoCodeParser.IşlevTanımıContext ctx) {
+        PluginDef ret = new PluginDef();
         ret.hookedMethod = ctx.işlevİsmi().getText();
-        ret.hookedException = ctx.hataİfadesi() != null ? ctx.hataİfadesi().hataİsmi().getText() : null;
-        ret.block = visitBlock(ctx.gövde());
+        if (ctx.hataİfadesi() != null) {
+            ret.hookedException = ctx.hataİfadesi().hataİsmi().getText();
+        } else if (ctx.sonraİfadesi() != null) {
+            ret.hookedException = ctx.sonraİfadesi().getText();
+        } else {
+            ret.hookedException = null;
+        }
+        ret.block = (Block) visitGövde(ctx.gövde());
         ret.name = ctx.eylemİsmi().getText();
         return ret;
     }
 
     @Override
-    public Block visitBlock(TurkishPseudoCodeParser.BlockContext ctx) {
-        var ret = new Block();
-        for (var stmt : ctx.statement()){
-            ret.statements.add(visitStatement(stmt));
+    public ASTNode visitGövde(TurkishPseudoCodeParser.GövdeContext ctx) {
+        Block block = new Block();
+        for (var ifadeCtx : ctx.ifade()) {
+            block.statements.add((Statement) visitİfade(ifadeCtx));
+        }
+        return block;
+    }
+    
+    public ASTNode visitİfade(TurkishPseudoCodeParser.IfadeContext ctx) {
+        if (ctx.döngüİfadesi() != null) {
+            return visitDöngüİfadesi(ctx.döngüİfadesi());
+        } else if (ctx.eğerİfadesi() != null) {
+            return visitEğerİfadesi(ctx.eğerİfadesi());
+        } else if (ctx.herBiriİfadesi() != null) {
+            return visitHerBiriİfadesi(ctx.herBiriİfadesi());
+        } else if (ctx.değişkenTanımı() != null) {
+            return visitDeğişkenTanımı(ctx.değişkenTanımı());
+        } else if (ctx.denklemİfadesi() != null) {
+            return visitDenklemİfadesi(ctx.denklemİfadesi());
+        } else if (ctx.gövde() != null) {
+            return visitGövde(ctx.gövde());
+        }
+        throw new IllegalArgumentException("Unknown ifade type: " + ctx.getText());
+    }
+
+    @Override
+    public Statement visitDöngüİfadesi(TurkishPseudoCodeParser.DöngüİfadesiContext ctx) {
+        LoopStatement ret = new LoopStatement();
+        ret.condition = (Expression) visitKoşul(ctx.koşul());
+        ret.block = (Block) visitGövde(ctx.gövde());
+        return ret;
+    }
+
+    @Override
+    public Statement visitEğerİfadesi(TurkishPseudoCodeParser.EğerİfadesiContext ctx) {
+        IfStatement ret = new IfStatement();
+        ret.condition = (Expression) visitKoşul(ctx.koşul());
+        ret.happyPath = (Block) visitGövde(ctx.gövde(0));
+        if (ctx.gövde().size() > 1) {
+            ret.sadPath = (Block) visitGövde(ctx.gövde(1));
         }
         return ret;
     }
 
     @Override
-    public Statement visitStatement(TurkishPseudoCodeParser.StatementContext ctx) {
-        if (ctx.loopStatement() != null) {
-            return visitLoopStatement(ctx.loopStatement());
-        } else if (ctx.ifStatement() != null) {
-            return visitIfStatement(ctx.ifStatement());
-        } else if (ctx.foreachStatement() != null) {
-            return visitForeachStatement(ctx.foreachStatement());
-        } else if (ctx.varDeclaration() != null) {
-            return visitVarDeclaration(ctx.varDeclaration());
-        } else if (ctx.exprStatement() != null) {
-            return visitExprStatement(ctx.exprStatement());
-        } else if (ctx.block() != null) {
-            return visitBlock(ctx.block());
+    public Statement visitHerBiriİfadesi(TurkishPseudoCodeParser.HerBiriİfadesiContext ctx) {
+        ForeachStatement ret = new ForeachStatement();
+        ret.collectionName = ctx.koleksiyonİsmi().getText();
+        ret.elementName = ctx.elementİsmi().getText();
+        ret.block = (Block) visitGövde(ctx.gövde());
+        return ret;
+    }
+
+    @Override
+    public Statement visitDeğişkenTanımı(TurkishPseudoCodeParser.DeğişkenTanımıContext ctx) {
+        VarDeclarationStatement ret = new VarDeclarationStatement();
+        ret.expr = (Expression) visitİlkelDeğişken(ctx.ilkelDeğişken());
+        return ret;
+    }
+
+    @Override
+    public Statement visitDenklemİfadesi(TurkishPseudoCodeParser.DenklemİfadesiContext ctx) {
+        if (ctx.fonksiyonÇağrımı() != null) {
+            return visitFonksiyonÇağrımı(ctx.fonksiyonÇağrımı());
+        } else if (ctx.atama() != null) {
+            return visitAtama(ctx.atama());
         }
-        throw new IllegalArgumentException("Unknown statement type: " + ctx.getText());
+        throw new RuntimeException("Unknown denklem ifadesi: " + ctx.getText());
     }
 
     @Override
-    public VarDeclarationStatement visitVarDeclaration(TurkishPseudoCodeParser.VarDeclarationContext ctx) {
-        var ret = new VarDeclarationStatement();
-        ret.expr = visitAssignment(ctx.assignment());
-        return ret;
-    }
-
-    @Override
-    public LoopStatement visitLoopStatement(TurkishPseudoCodeParser.LoopStatementContext ctx) {
-        var ret = new LoopStatement();
-        ret.condition = visitExpr(ctx.expr());
-        ret.block = visitBlock(ctx.block());
-        return ret;
-    }
-    // Expression visitor methods
-
-    @Override
-    public IfStatement visitIfStatement(TurkishPseudoCodeParser.IfStatementContext ctx) {
-        var ret = new IfStatement();
-        ret.condition = visitExpr(ctx.expr());
-        ret.happyPath = visitBlock(ctx.block(0));
-        if (ctx.block().size() > 1) {
-            ret.sadPath = visitBlock(ctx.block(1));
+    public FunctionCallExpr visitFonksiyonÇağrımı(TurkishPseudoCodeParser.FonksiyonÇağrımıContext ctx) {
+        FunctionCallExpr ret = new FunctionCallExpr();
+        ret.functionName = ctx.değişken().getText();
+        List<Expression> argsList = new ArrayList<>();
+        if (ctx.denklem() != null) {
+            for (TurkishPseudoCodeParser.DenklemContext denklemCtx : ctx.denklem()) {
+                argsList.add((Expression) visitDenklem(denklemCtx));
+            }
         }
+        ret.args = argsList.toArray(new Expression[0]);
         return ret;
     }
 
     @Override
-    public ForeachStatement visitForeachStatement(TurkishPseudoCodeParser.ForeachStatementContext ctx) {
-        var ret= new ForeachStatement();
-        ret.elementName = ctx.IDENTIFIER(1).getText();
-        ret.collectionName = ctx.IDENTIFIER(0).getText();
-        ret.block = visitBlock(ctx.block());
+    public AssignmentExpr visitAtama(TurkishPseudoCodeParser.AtamaContext ctx) {
+        AssignmentExpr ret = new AssignmentExpr();
+        ret.left = ctx.değişken().getText();
+        ret.right = (Expression) visitDenklem(ctx.denklem());
         return ret;
     }
 
     @Override
-    public ExpressionStatement visitExprStatement(TurkishPseudoCodeParser.ExprStatementContext ctx) {
-        if (ctx.functionCall()!=null)
-            return visitFunctionCall(ctx.functionCall());
-        else if (ctx.assignment()!=null)
-            return visitAssignment(ctx.assignment());
-        else throw new RuntimeException("Unknown expression type: " + ctx.getText());
-    }
-
-    @Override
-    public FunctionCallExpr visitFunctionCall(TurkishPseudoCodeParser.FunctionCallContext ctx) {
-        var ret = new FunctionCallExpr();
-        ret.args = ctx.expr().stream().map(this::visitExpr).toArray(Expression[]::new);
-        ret.functionName = ctx.id_with_dots().getText();
-        return ret;
-    }
-
-    @Override
-    public AssignmentExpr visitAssignment(TurkishPseudoCodeParser.AssignmentContext ctx) {
-        var ret = new AssignmentExpr();
-        ret.left = ctx.IDENTIFIER().getText();
-        ret.right = visitExpr(ctx.expr());
-        return ret;
-    }
-
-    @Override
-    public Expr visitExpr(TurkishPseudoCodeParser.ExprContext ctx) {
-        // logicalOrExpr: logicalAndExpr ( VEYA logicalAndExpr )*;
-        var first = (LogicalAndExpr) visitLogicalAndExpr(ctx.logicalAndExpr(0));
-        var rest = new ArrayList<LogicalAndExpr>();
-        for (int i=1; i < ctx.logicalAndExpr().size(); i++) {
-            rest.add((LogicalAndExpr) visit(ctx.logicalAndExpr(i )));
+    public Expression visitDenklem(TurkishPseudoCodeParser.DenklemContext ctx) {
+        LogicalAndExpr first = (LogicalAndExpr) visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(0));
+        List<LogicalAndExpr> rest = new ArrayList<>();
+        for (int i = 1; i < ctx.mantıksalVeDenklemi().size(); i++) {
+            rest.add((LogicalAndExpr) visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(i)));
         }
         return new Expr(first, rest);
     }
 
     @Override
-    public LogicalAndExpr visitLogicalAndExpr(TurkishPseudoCodeParser.LogicalAndExprContext ctx) {
-        // logicalAndExpr: equalityExpr ( VE equalityExpr )*;
-        var first = visitEqualityExpr(ctx.equalityExpr(0));
-        var rest = new ArrayList<EqualityExpr>();
-        for (int i =1; i < ctx.equalityExpr().size(); i++) {
-            rest.add( visitEqualityExpr(ctx.equalityExpr(i)));
+    public LogicalAndExpr visitMantıksalVeDenklemi(TurkishPseudoCodeParser.MantıksalVeDenklemiContext ctx) {
+        EqualityExpr first = (EqualityExpr) visitEşitlikDenklemi(ctx.eşitlikDenklemi(0));
+        List<EqualityExpr> rest = new ArrayList<>();
+        for (int i = 1; i < ctx.eşitlikDenklemi().size(); i++) {
+            rest.add((EqualityExpr) visitEşitlikDenklemi(ctx.eşitlikDenklemi(i)));
         }
         return new LogicalAndExpr(first, rest);
     }
 
     @Override
-    public EqualityExpr visitEqualityExpr(TurkishPseudoCodeParser.EqualityExprContext ctx) {
-        // equalityExpr: comparisonExpr ( ('==' | '!=') comparisonExpr )*;
-        var first = visitComparisonExpr(ctx.comparisonExpr(0));
-        var ops = new ArrayList<EqualityExpr.Op>();
-        for (int i =1; i < ctx.comparisonExpr().size(); i++) {
-            ops.add(new EqualityExpr.Op(ctx.equalityOp(i - 1).getText(),visitComparisonExpr(ctx.comparisonExpr(i ))));
+    public EqualityExpr visitEşitlikDenklemi(TurkishPseudoCodeParser.EşitlikDenklemiContext ctx) {
+        ComparisonExpr first = (ComparisonExpr) visitKarşılaştırmaDenklemi(ctx.karşılaştırmaDenklemi(0));
+        List<EqualityExpr.Op> ops = new ArrayList<>();
+        for (int i = 1; i < ctx.karşılaştırmaDenklemi().size(); i++) {
+            String operator = ctx.eşitlikİşareti(i - 1).getText();
+            ComparisonExpr expr = (ComparisonExpr) visitKarşılaştırmaDenklemi(ctx.karşılaştırmaDenklemi(i));
+            ops.add(new EqualityExpr.Op(operator, expr));
         }
         return new EqualityExpr(first, ops);
     }
 
     @Override
-    public ComparisonExpr visitComparisonExpr(TurkishPseudoCodeParser.ComparisonExprContext ctx) {
-        // comparisonExpr: additiveExpr ( ('>' | '<' | '>=' | '<=') additiveExpr )*;
-        var first = visitAdditiveExpr(ctx.additiveExpr(0));
-        var ops = new ArrayList<ComparisonExpr.Op>();
-        for (int i =1; i < ctx.additiveExpr().size(); i++) {
-            ops.add(new ComparisonExpr.Op(ctx.comparisonOp(i - 1).getText(),visitAdditiveExpr(ctx.additiveExpr(i))));
+    public ComparisonExpr visitKarşılaştırmaDenklemi(TurkishPseudoCodeParser.KarşılaştırmaDenklemiContext ctx) {
+        AdditiveExpr first = (AdditiveExpr) visitToplamaDenklemi(ctx.toplamaDenklemi(0));
+        List<ComparisonExpr.Op> ops = new ArrayList<>();
+        for (int i = 1; i < ctx.toplamaDenklemi().size(); i++) {
+            String operator = ctx.karşılaştrımaİşareti(i - 1).getText();
+            AdditiveExpr expr = (AdditiveExpr) visitToplamaDenklemi(ctx.toplamaDenklemi(i));
+            ops.add(new ComparisonExpr.Op(operator, expr));
         }
         return new ComparisonExpr(first, ops);
     }
 
     @Override
-    public AdditiveExpr visitAdditiveExpr(TurkishPseudoCodeParser.AdditiveExprContext ctx) {
-        // additiveExpr: multiplicativeExpr ( ('+' | '-') multiplicativeExpr )*;
-        var first = visitMultiplicativeExpr(ctx.multiplicativeExpr(0));
-        var ops = new ArrayList<AdditiveExpr.Op>();
-        for (int i=1; i < ctx.multiplicativeExpr().size(); i++) {
-            ops.add(new AdditiveExpr.Op(ctx.additiveOp(i- 1).getText(),visitMultiplicativeExpr(ctx.multiplicativeExpr(i ))));
+    public AdditiveExpr visitToplamaDenklemi(TurkishPseudoCodeParser.ToplamaDenklemiContext ctx) {
+        MultiplicativeExpr first = (MultiplicativeExpr) visitÇarpmaDenklemi(ctx.çarpmaDenklemi(0));
+        List<AdditiveExpr.Op> ops = new ArrayList<>();
+        for (int i = 1; i < ctx.çarpmaDenklemi().size(); i++) {
+            String operator = ctx.toplamaÇıkarmaİşareti(i - 1).getText();
+            MultiplicativeExpr expr = (MultiplicativeExpr) visitÇarpmaDenklemi(ctx.çarpmaDenklemi(i));
+            ops.add(new AdditiveExpr.Op(operator, expr));
         }
         return new AdditiveExpr(first, ops);
     }
 
     @Override
-    public MultiplicativeExpr visitMultiplicativeExpr(TurkishPseudoCodeParser.MultiplicativeExprContext ctx) {
-        // multiplicativeExpr: unaryExpr ( ('*' | '/') unaryExpr )*;
-        var first = visitUnaryExpr(ctx.unaryExpr(0));
-        var ops = new ArrayList<MultiplicativeExpr.Op>();
-        for (int i=1; i < ctx.unaryExpr().size(); i++) {
-            ops.add(new MultiplicativeExpr.Op(ctx.multiplicativeOp(i-1).getText() //TODO does this never return null?
-                    ,visitUnaryExpr(ctx.unaryExpr(i ))));
+    public MultiplicativeExpr visitÇarpmaDenklemi(TurkishPseudoCodeParser.ÇarpmaDenklemiContext ctx) {
+        UnaryExpr first = (UnaryExpr) visitTekliDenklem(ctx.tekliDenklemi(0));
+        List<MultiplicativeExpr.Op> ops = new ArrayList<>();
+        for (int i = 1; i < ctx.tekliDenklemi().size(); i++) {
+            String operator = ctx.çarpmaBölmeİşareti(i - 1).getText();
+            UnaryExpr expr = (UnaryExpr) visitTekliDenklem(ctx.tekliDenklemi(i));
+            ops.add(new MultiplicativeExpr.Op(operator, expr));
         }
         return new MultiplicativeExpr(first, ops);
     }
 
     @Override
-    public UnaryExpr visitUnaryExpr(TurkishPseudoCodeParser.UnaryExprContext ctx) {
-        // unaryExpr: ( '-' | DEĞİL ) unaryExpr | postfixExpr;
-        if (ctx.getChild(0).getText().equals("-") || ctx.getChild(0).getText().equals("değil")) {
-            String operator = ctx.getChild(0).getText();
-            ASTNode operand = visit(ctx.unaryExpr());
-            return new UnaryExpr(operator, (Expression) operand);
+    public UnaryExpr visitTekliDenklem(TurkishPseudoCodeParser.TekliDenklemiContext ctx) {
+        if (ctx.eksiİşareti() != null) {
+            String operator = ctx.eksiİşareti().getText();
+            Expression operand = (Expression) visitTekliDenklem(ctx.tekliDenklemi());
+            return new UnaryExpr(operator, operand);
         } else {
-            var operand = visitPostfixExpr(ctx.postfixExpr());
-            return new UnaryExpr(null, (Expression) operand);
+            return (UnaryExpr) visitDeğilİfadesi(ctx.değilİfadesi());
         }
     }
 
     @Override
-    public PostfixExpr visitPostfixExpr(TurkishPseudoCodeParser.PostfixExprContext ctx) {
-        // postfixExpr: primary ( DEĞİL )?;
-        var primary = visitPrimary(ctx.primary());
-        boolean hasNot = ctx.DEĞİL() != null;
-        return new PostfixExpr((Expression) primary, hasNot);
+    public ASTNode visitDeğilİfadesi(TurkishPseudoCodeParser.DeğilİfadesiContext ctx) {
+        Expression expr = (Expression) visitDeğer(ctx.değer());
+        if (ctx.DEĞİL() != null) {
+            return new PostfixExpr(expr, true);
+        }
+        return expr;
     }
 
     @Override
-    public Primary visitPrimary(TurkishPseudoCodeParser.PrimaryContext ctx) {
-        if (ctx.SAYI()!=null){
-            var ret = new Primary.Number();
-            if (isFloat(ctx.SAYI().getText()))
-                ret.number = Float.parseFloat(ctx.SAYI().getText());
-            else ret.number = Integer.parseInt(ctx.SAYI().getText());
+    public ASTNode visitDeğer(TurkishPseudoCodeParser.DeğerContext ctx) {
+        if (ctx.sabitDeğer() != null) {
+            return visitSabitDeğer(ctx.sabitDeğer());
+        } else if (ctx.değişken() != null) {
+            return visitDeğişken(ctx.değişken());
+        } else if (ctx.denklem() != null) {
+            return visitDenklem(ctx.denklem());
+        } else if (ctx.denklemİfadesi() != null) {
+            return visitDenklemİfadesi(ctx.denklemİfadesi());
+        }
+        throw new RuntimeException("Unknown değer type: " + ctx.getText());
+    }
+
+    @Override
+    public ASTNode visitSabitDeğer(TurkishPseudoCodeParser.SabitDeğerContext ctx) {
+        if (ctx.SAYI() != null) {
+            Primary.Number ret = new Primary.Number();
+            String text = ctx.SAYI().getText();
+            if (isFloat(text))
+                ret.number = Float.parseFloat(text);
+            else
+                ret.number = Integer.parseInt(text);
             return ret;
-        }else if(ctx.YAZI()!=null){
-            var ret =new Primary.Str();
+        } else if (ctx.YAZI() != null) {
+            Primary.Str ret = new Primary.Str();
             ret.string = ctx.YAZI().getText();
             return ret;
-        }else if(ctx.IDENTIFIER()!=null){
-            var ret = new Primary.Identifier();
-            ret.identifier = ctx.IDENTIFIER().getText();
-            return ret;
-        }else if(ctx.exprStatement()!=null){
-            if (ctx.exprStatement().assignment()!=null){
-                var ret= new AssignmentExpr();
-                ret.left = ctx.exprStatement().assignment().IDENTIFIER().getText();
-                ret.right = visitExpr(ctx.exprStatement().assignment().expr());
-                return ret;
-            } else if(ctx.exprStatement().functionCall()!=null){
-                var ret = new FunctionCallExpr();
-                ret.functionName = ctx.exprStatement().functionCall().id_with_dots().getText();
-                ret.args = ctx.exprStatement().functionCall().expr().stream().map(this::visitExpr).toArray(Expression[]::new);
-                return ret;
-            } else throw new RuntimeException("No type matches.");
-        } else throw new RuntimeException("No type matches.");
+        }
+        throw new RuntimeException("Unknown sabitDeğer: " + ctx.getText());
     }
+
+    @Override
+    public ASTNode visitDeğişken(TurkishPseudoCodeParser.DeğişkenContext ctx) {
+        Primary.Identifier ret = new Primary.Identifier();
+        ret.identifier = ctx.getText();
+        return ret;
+    }
+
+    @Override
+    public ASTNode visitİlkelDeğişken(TurkishPseudoCodeParser.IlkelDeğişkenContext ctx) {
+        Primary.Identifier ret = new Primary.Identifier();
+        ret.identifier = ctx.getText();
+        return ret;
+    }
+
+    @Override
+    public ASTNode visitKoşul(TurkishPseudoCodeParser.KoşulContext ctx) {
+        return visitDenklem(ctx.denklem());
+    }
+
     public static boolean isFloat(String str) {
         return str.matches("[-+]?[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?[fF]?");
     }
