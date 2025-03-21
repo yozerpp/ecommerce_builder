@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.transpiler;
 
+import me.yusuf.ecommerce_builder.shared.types.PluginSourceAndMetadata;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -7,14 +8,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeLexer;
-import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
 
 public class IntegrationTest {
 
     // Helper method to perform the integration:
     // Pseudo-code --> AST --> Generated Code.
-    private Plugin generatePluginFromSource(String source) {
+    private PluginSourceAndMetadata generatePluginFromSource(String source) {
         CharStream charStream = CharStreams.fromString(source);
         TurkishPseudoCodeLexer lexer = new TurkishPseudoCodeLexer(charStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -30,7 +29,7 @@ public class IntegrationTest {
             "    değişken x = 5;" +
             "    yazdır(x);" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
 
         String expected =
             "public class SimplePlugin implements Runnable {\n" +
@@ -40,7 +39,7 @@ public class IntegrationTest {
             "        yazdır(x);\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
 
     @Test
@@ -61,7 +60,7 @@ public class IntegrationTest {
             "         yazdır(item);" +
             "    }" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
 
         String expected =
             "public class ComplexPlugin implements Runnable {\n" +
@@ -82,7 +81,7 @@ public class IntegrationTest {
             "        }\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
     
     @Test
@@ -99,7 +98,7 @@ public class IntegrationTest {
             "         yazdır(\"not less\");" +
             "    }" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
             "public class NestedPlugin implements Runnable {\n" +
             "    @Override\n" +
@@ -115,7 +114,7 @@ public class IntegrationTest {
             "        }\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
     
     @Test
@@ -125,7 +124,7 @@ public class IntegrationTest {
             "    değişken sum = 1 + 2 - 3 * 4 / 2;" +
             "    yazdır(sum);" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
             "public class ArithmeticPlugin implements Runnable {\n" +
             "    @Override\n" +
@@ -134,7 +133,7 @@ public class IntegrationTest {
             "        yazdır(sum);\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
     
     @Test
@@ -143,7 +142,7 @@ public class IntegrationTest {
             "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap NoArgs {" +
             "    testFunction();" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
             "public class NoArgsPlugin implements Runnable {\n" +
             "    @Override\n" +
@@ -151,7 +150,7 @@ public class IntegrationTest {
             "        testFunction();\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
     
     @Test
@@ -160,7 +159,7 @@ public class IntegrationTest {
             "me.yusuf.ecommerce_builder.transpiler.IntegrationTest$SAMPLE.something sonrasında yap MultiArgs {" +
             "    testFunction(10, 20 + 5, \"hello\");" +
             "}";
-        Plugin plugin = generatePluginFromSource(pseudoCode);
+        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
             "public class MultiArgsPlugin implements Runnable {\n" +
             "    @Override\n" +
@@ -168,7 +167,7 @@ public class IntegrationTest {
             "        testFunction(10, 20 + 5, \"hello\");\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, plugin.source());
+        assertEquals(expected, pluginSourceAndMetadata.source());
     }
     public static class SAMPLE{
         void something(){

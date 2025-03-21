@@ -9,8 +9,6 @@ import me.yusuf.ecommerce_builder.transpiler.ast.expression.MultiplicativeExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.PostfixExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Primary;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
-import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
-import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

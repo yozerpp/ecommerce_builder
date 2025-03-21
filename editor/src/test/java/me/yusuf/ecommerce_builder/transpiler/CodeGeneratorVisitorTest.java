@@ -71,7 +71,7 @@ public class CodeGeneratorVisitorTest {
         assign.left = "x";
         // Use a function call expression as the right-hand side.
         assign.right = createSimpleFuncCall("dummyFunc");
-        vds.expr = assign;
+        vds.value = assign;
         // Expected: "var x = dummyFunc();"
         String expected = "var x = x = dummyFunc();";
         // NOTE: visitVarDeclarationStatement calls visitAssignmentExpr(vds.expr.right)

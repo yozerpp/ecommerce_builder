@@ -11,7 +11,6 @@ import me.yusuf.ecommerce_builder.transpiler.ast.VarDeclarationStatement;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Primary;
-import me.yusuf.ecommerce_builder.transpiler.generated.TurkishPseudoCodeParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
