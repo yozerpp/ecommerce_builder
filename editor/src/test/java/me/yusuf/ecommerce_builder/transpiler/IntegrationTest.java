@@ -35,7 +35,7 @@ public class IntegrationTest {
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
 
         String expected =
-            "public class SimplePlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_SimplePlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        var x = 5;\n" +
@@ -66,7 +66,7 @@ public class IntegrationTest {
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
 
         String expected =
-            "public class ComplexPlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_ComplexPlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        var a = 10;\n" +
@@ -103,7 +103,7 @@ public class IntegrationTest {
             "}";
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class NestedPlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_NestedPlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        var x = 7;\n" +
@@ -129,7 +129,7 @@ public class IntegrationTest {
             "}";
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class ArithmeticPlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_ArithmeticPlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        var sum = 1 + 2 - 3 * 4 / 2;\n" +
@@ -147,7 +147,7 @@ public class IntegrationTest {
             "}";
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class NoArgsPlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_NoArgsPlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        testFunction();\n" +
@@ -164,7 +164,7 @@ public class IntegrationTest {
             "}";
         PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class MultiArgsPlugin implements Runnable {\n" +
+            "public class " + EditorContextHolder.getEditorId() + "_MultiArgsPlugin implements Runnable {\n" +
             "    @Override\n" +
             "    public void run() {\n" +
             "        testFunction(10, 20 + 5, \"hello\");\n" +

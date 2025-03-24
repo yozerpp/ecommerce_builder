@@ -18,6 +18,7 @@ import me.yusuf.ecommerce_builder.transpiler.ast.PluginDef;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.UnaryExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.PostfixExpr;
 import me.yusuf.ecommerce_builder.transpiler.ast.expression.Expression;
+import me.yusuf.ecommerce_builder.transpiler.ast.expression.Primary;
 
 public class CodeGeneratorVisitorTest {
 
@@ -37,7 +38,7 @@ public class CodeGeneratorVisitorTest {
         pd.hookedMethod = "dummyMethod";
         // Create an empty block.
         pd.block = new Block();
-        String expected = "public class TestPlugin implements Runnable {\n" +
+        String expected = "public class 0_TestPlugin implements Runnable {\n" +
                           "    @Override\n" +
                           "    public void run() {\n" +
                           "    }\n" +
@@ -67,11 +68,9 @@ public class CodeGeneratorVisitorTest {
     public void testVisitVarDeclarationStatement() {
         CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         VarDeclarationStatement vds = new VarDeclarationStatement();
-        AssignmentExpr assign = new AssignmentExpr();
-        assign.left = "x";
+        vds.varName = "x";
         // Use a function call expression as the right-hand side.
-        assign.right = createSimpleFuncCall("dummyFunc");
-        vds.value = assign;
+        vds.value = createSimpleFuncCall("dummyFunc");
         String expected = "var x = dummyFunc();";
         String result = visitor.visitVarDeclarationStatement(vds);
         assertEquals(expected, result);

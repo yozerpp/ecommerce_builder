@@ -68,7 +68,7 @@ public class ExpressionTests extends TestBase {
         var in = "-10";
         var parser = getParser(in);
         var ctx = parser.tekliDenklem();
-        UnaryExpr unary = (UnaryExpr) visitor.visitTekliDenklem(ctx);
+        UnaryExpr unary = visitor.visitTekliDenklem(ctx);
         // Assert that the operator is "-" using direct field access.
         Assertions.assertEquals("-", unary.operator);
         var num = unary.operand;
@@ -80,7 +80,7 @@ public class ExpressionTests extends TestBase {
         var in = "değil 5";
         var parser = getParser(in);
         var ctx = parser.tekliDenklem();
-        UnaryExpr unary = (UnaryExpr) visitor.visitTekliDenklem(ctx);
+        UnaryExpr unary = visitor.visitTekliDenklem(ctx);
         // Assert that the operator is "değil" using direct field access.
         Assertions.assertEquals("değil", unary.operator);
         var num = unary.operand;
@@ -92,7 +92,7 @@ public class ExpressionTests extends TestBase {
         var in = "42";
         var parser = getParser(in);
         var ctx = parser.tekliDenklem();
-        UnaryExpr unary = (UnaryExpr) visitor.visitTekliDenklem(ctx);
+        UnaryExpr unary = visitor.visitTekliDenklem(ctx);
         // When there is no unary operator, operator should be null and operand should represent 42.
         Assertions.assertNull(unary.operator);
         var num = unary.operand;
@@ -105,7 +105,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 * 2";
         var parser = getParser(in);
         var ctx = parser.çarpmaDenklemi();
-        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitÇarpmaDenklemi(ctx);
+        MultiplicativeExpr mult = visitor.visitÇarpmaDenklemi(ctx);
         // Use direct field access to check the left operand from the first UnaryExpr.
         UnaryExpr leftUnary = mult.first;
         PostfixExpr left = (PostfixExpr) leftUnary.operand;
@@ -114,7 +114,7 @@ public class ExpressionTests extends TestBase {
         Assertions.assertEquals(1, mult.ops.size());
         Assertions.assertEquals("*", mult.ops.get(0).operator);
         // Use direct field access to check the right operand of the operator.
-        UnaryExpr rightUnary = (UnaryExpr) visitor.visitTekliDenklem(ctx.tekliDenklem(1));
+        UnaryExpr rightUnary = visitor.visitTekliDenklem(ctx.tekliDenklem(1));
         Assertions.assertEquals("2", rightUnary.toString());
     }
 
@@ -123,7 +123,7 @@ public class ExpressionTests extends TestBase {
         var in = "20 / 4";
         var parser = getParser(in);
         var ctx = parser.çarpmaDenklemi();
-        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitÇarpmaDenklemi(ctx);
+        MultiplicativeExpr mult = visitor.visitÇarpmaDenklemi(ctx);
         // Check that there is one operation with operator "/" using direct field access.
         Assertions.assertEquals(1, mult.ops.size());
         Assertions.assertEquals("/", mult.ops.get(0).operator);
@@ -134,7 +134,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 * 2 / 5";
         var parser = getParser(in);
         var ctx = parser.çarpmaDenklemi();
-        MultiplicativeExpr mult = (MultiplicativeExpr) visitor.visitÇarpmaDenklemi(ctx);
+        MultiplicativeExpr mult = visitor.visitÇarpmaDenklemi(ctx);
         // Expect two operations: first "*" then "/" using direct field access.
         Assertions.assertEquals(2, mult.ops.size());
         Assertions.assertEquals("*", mult.ops.get(0).operator);
@@ -147,7 +147,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 + 2";
         var parser = getParser(in);
         var ctx = parser.toplamaDenklemi();
-        AdditiveExpr additive = (AdditiveExpr) visitor.visitToplamaDenklemi(ctx);
+        AdditiveExpr additive = visitor.visitToplamaDenklemi(ctx);
         // Expect one operation with operator "+" using direct field access.
         Assertions.assertEquals(1, additive.ops.size());
         Assertions.assertEquals("+", additive.ops.get(0).operator);
@@ -158,7 +158,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 - 5";
         var parser = getParser(in);
         var ctx = parser.toplamaDenklemi();
-        AdditiveExpr additive = (AdditiveExpr) visitor.visitToplamaDenklemi(ctx);
+        AdditiveExpr additive = visitor.visitToplamaDenklemi(ctx);
         // Expect one operation with operator "-" using direct field access.
         Assertions.assertEquals(1, additive.ops.size());
         Assertions.assertEquals("-", additive.ops.get(0).operator);
@@ -169,7 +169,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 + 2 - 3";
         var parser = getParser(in);
         var ctx = parser.toplamaDenklemi();
-        AdditiveExpr additive = (AdditiveExpr) visitor.visitToplamaDenklemi(ctx);
+        AdditiveExpr additive = visitor.visitToplamaDenklemi(ctx);
         // Expect two operations: first "+" then "-" using direct field access.
         Assertions.assertEquals(2, additive.ops.size());
         Assertions.assertEquals("+", additive.ops.get(0).operator);
@@ -182,7 +182,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 < 20";
         var parser = getParser(in);
         var ctx = parser.karşılaştırmaDenklemi();
-        ComparisonExpr comp = (ComparisonExpr) visitor.visitKarşılaştırmaDenklemi(ctx);
+        ComparisonExpr comp = visitor.visitKarşılaştırmaDenklemi(ctx);
         // Expect one operation with operator "<" using direct field access.
         Assertions.assertEquals(1, comp.ops.size());
         Assertions.assertEquals("<", comp.ops.get(0).operator);
@@ -193,7 +193,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 >= 5";
         var parser = getParser(in);
         var ctx = parser.karşılaştırmaDenklemi();
-        ComparisonExpr comp = (ComparisonExpr) visitor.visitKarşılaştırmaDenklemi(ctx);
+        ComparisonExpr comp = visitor.visitKarşılaştırmaDenklemi(ctx);
         // Expect one operation with operator ">=" using direct field access.
         Assertions.assertEquals(1, comp.ops.size());
         Assertions.assertEquals(">=", comp.ops.get(0).operator);
@@ -204,7 +204,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 < 20 <= 30";
         var parser = getParser(in);
         var ctx = parser.karşılaştırmaDenklemi();
-        ComparisonExpr comp = (ComparisonExpr) visitor.visitKarşılaştırmaDenklemi(ctx);
+        ComparisonExpr comp = visitor.visitKarşılaştırmaDenklemi(ctx);
         // Expect two operations: first "<" then "<=" using direct field access.
         Assertions.assertEquals(2, comp.ops.size());
         Assertions.assertEquals("<", comp.ops.get(0).operator);
@@ -217,7 +217,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10";
         var parser = getParser(in);
         var ctx = parser.eşitlikDenklemi();
-        EqualityExpr eq = (EqualityExpr) visitor.visitEşitlikDenklemi(ctx);
+        EqualityExpr eq = visitor.visitEşitlikDenklemi(ctx);
         // For a single equality expression, there are no operators.
         Assertions.assertEquals(1, eq.ops.size());
         Assertions.assertEquals("==", eq.ops.get(0).operator);
@@ -230,7 +230,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 != 5";
         var parser = getParser(in);
         var ctx = parser.eşitlikDenklemi();
-        EqualityExpr eq = (EqualityExpr) visitor.visitEşitlikDenklemi(ctx);
+        EqualityExpr eq = visitor.visitEşitlikDenklemi(ctx);
         // Expect one operator "!=" using direct field access.
         Assertions.assertEquals(1, eq.ops.size());
         Assertions.assertEquals("!=", eq.ops.get(0).operator);
@@ -243,7 +243,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10 != 5";
         var parser = getParser(in);
         var ctx = parser.eşitlikDenklemi();
-        EqualityExpr eq = (EqualityExpr) visitor.visitEşitlikDenklemi(ctx);
+        EqualityExpr eq = visitor.visitEşitlikDenklemi(ctx);
         // Expect one operator in the chain "!=" using direct field access.
         Assertions.assertEquals(2, eq.ops.size());
         Assertions.assertEquals("==", eq.ops.get(0).operator);
@@ -259,7 +259,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10";
         var parser = getParser(in);
         var ctx = parser.mantıksalVeDenklemi();
-        LogicalAndExpr land = (LogicalAndExpr) visitor.visitMantıksalVeDenklemi(ctx);
+        LogicalAndExpr land = visitor.visitMantıksalVeDenklemi(ctx);
         // For a single equality expression, check that first exists and the rest list is empty.
         Assertions.assertNotNull(land.first);
         Assertions.assertEquals("10 == 10", land.first.toString()); //better than nothing.
@@ -271,7 +271,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10 ve 5 < 6";
         var parser = getParser(in);
         var ctx = parser.mantıksalVeDenklemi();
-        LogicalAndExpr land = (LogicalAndExpr) visitor.visitMantıksalVeDenklemi(ctx);
+        LogicalAndExpr land = visitor.visitMantıksalVeDenklemi(ctx);
         // There should be one additional equality expression in the rest list.
         Assertions.assertEquals("10 == 10", land.first.toString());
         Assertions.assertEquals(1, land.rest.size());
@@ -283,7 +283,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10 ve 5 != 3 ve 1 < 2";
         var parser = getParser(in);
         var ctx = parser.mantıksalVeDenklemi();
-        LogicalAndExpr land = (LogicalAndExpr) visitor.visitMantıksalVeDenklemi(ctx);
+        LogicalAndExpr land = visitor.visitMantıksalVeDenklemi(ctx);
         // Expect two additional equality expressions in the rest list.
         Assertions.assertEquals("10 == 10", land.first.toString());
         Assertions.assertEquals(2, land.rest.size());
@@ -297,7 +297,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10";
         var parser = getParser(in);
         var ctx = parser.denklem();
-        Expr expr = (Expr) visitor.visitDenklem(ctx);
+        Expr expr = visitor.visitDenklem(ctx);
         // The overall expression should have a non-null first logicalAnd expression and no additional expressions.
         Assertions.assertNotNull(expr.first);
         Assertions.assertEquals(0, expr.rest.size());
@@ -308,7 +308,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10 veya 5 != 3";
         var parser = getParser(in);
         var ctx = parser.denklem();
-        Expr expr = (Expr) visitor.visitDenklem(ctx);
+        Expr expr = visitor.visitDenklem(ctx);
         // There should be one additional logicalAnd expression (from the "veya" connector).
         Assertions.assertEquals(1, expr.rest.size());
     }
@@ -318,7 +318,7 @@ public class ExpressionTests extends TestBase {
         var in = "10 == 10 veya 5 != 3 veya 1 < 2";
         var parser = getParser(in);
         var ctx = parser.denklem();
-        Expr expr = (Expr) visitor.visitDenklem(ctx);
+        Expr expr = visitor.visitDenklem(ctx);
         // Check that there are two additional logicalAnd expressions.
         Assertions.assertEquals(2, expr.rest.size());
     }

@@ -72,7 +72,7 @@ public class StatementTests extends TestBase {
         String input = "1 iken { }";
         var parser = getParser(input);
         var ctx = parser.döngüİfadesi();
-        LoopStatement actual = (LoopStatement) visitor.visitDöngüİfadesi(ctx);
+        LoopStatement actual = visitor.visitDöngüİfadesi(ctx);
 
         // Expected condition is the expression wrapping number 1.
         var n = new Primary.Number();
@@ -92,7 +92,7 @@ public class StatementTests extends TestBase {
         String input = "eğer 1 ise { değişken x = 2; }";
         var parser = getParser(input);
         var ctx = parser.eğerİfadesi();
-        IfStatement actual = (IfStatement) visitor.visitEğerİfadesi(ctx);
+        IfStatement actual = visitor.visitEğerİfadesi(ctx);
 
         // Expected condition: number 1 wrapped.
         var n = new Primary.Number();
@@ -103,12 +103,10 @@ public class StatementTests extends TestBase {
         // Expected happyPath: a block with one var declaration statement.
         Block expectedHappy = new Block();
         VarDeclarationStatement expectedVar = new VarDeclarationStatement();
-        AssignmentExpr expectedAssign = new AssignmentExpr();
-        expectedAssign.left = "x";
+        expectedVar.varName = "x";
         var num = new Primary.Number();
         num.number = 2;
-        expectedAssign.right = Primary.wrap(num);
-        expectedVar.value = expectedAssign.right;
+        expectedVar.value = Primary.wrap(num);
         expectedHappy.statements.add(expectedVar);
 
         // Check if the happyPath block has one statement.
@@ -127,7 +125,7 @@ public class StatementTests extends TestBase {
         String input = "eğer 1 ise { değişken x = 2; } değilse { değişken y = 3; }";
         var parser = getParser(input);
         var ctx = parser.eğerİfadesi();
-        IfStatement actual = (IfStatement) visitor.visitEğerİfadesi(ctx);
+        IfStatement actual = visitor.visitEğerİfadesi(ctx);
 
         // Expected condition: 1
         var n = new Primary.Number();
@@ -137,33 +135,29 @@ public class StatementTests extends TestBase {
 
         // Expected happyPath block with var declaration: x = 2
         VarDeclarationStatement expectedHappyVar = new VarDeclarationStatement();
-        AssignmentExpr happyAssign = new AssignmentExpr();
-        happyAssign.left = "x";
+        expectedHappyVar.varName = "x";
         var num2 = new Primary.Number();
         num2.number = 2;
-        happyAssign.right = Primary.wrap(num2);
-        expectedHappyVar.value = happyAssign;
+        expectedHappyVar.value = Primary.wrap(num2);
 
         // Expected sadPath block with var declaration: y = 3
         VarDeclarationStatement expectedSadVar = new VarDeclarationStatement();
-        AssignmentExpr sadAssign = new AssignmentExpr();
-        sadAssign.left = "y";
+        expectedSadVar.varName = "y";
         var num3 = new Primary.Number();
         num3.number = 3;
-        sadAssign.right = Primary.wrap(num3);
-        expectedSadVar.value = sadAssign;
+        expectedSadVar.value = Primary.wrap(num3);
 
         // Check happyPath block
         Assertions.assertFalse(actual.happyPath.statements.isEmpty(), "Happy path block should not be empty.");
         VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
-        Assertions.assertEquals(expectedHappyVar.value, actualHappyVar.value, "Happy path variable name mismatch.");
+        Assertions.assertEquals(expectedHappyVar.varName, actualHappyVar.varName, "Happy path variable name mismatch.");
         Assertions.assertEquals(expectedHappyVar.value.toString(), actualHappyVar.value.toString(), "Happy path assignment mismatch.");
 
         // Check sadPath block
         Assertions.assertNotNull(actual.sadPath, "Sad path block should not be null.");
         Assertions.assertFalse(actual.sadPath.statements.isEmpty(), "Sad path block should not be empty.");
         VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(0);
-        Assertions.assertEquals(expectedSadVar.value, actualSadVar.value, "Sad path variable name mismatch.");
+        Assertions.assertEquals(expectedSadVar.varName, actualSadVar.varName, "Sad path variable name mismatch.");
         Assertions.assertEquals(expectedSadVar.value.toString(), actualSadVar.value.toString(), "Sad path assignment mismatch.");
     }
 
@@ -173,7 +167,7 @@ public class StatementTests extends TestBase {
         String input = "items içindeki her item için { }";
         var parser = getParser(input);
         var ctx = parser.herBiriİfadesi();
-        ForeachStatement actual = (ForeachStatement) visitor.visitHerBiriİfadesi(ctx);
+        ForeachStatement actual = visitor.visitHerBiriİfadesi(ctx);
 
         Assertions.assertEquals("item", actual.elementName, "Foreach element name mismatch.");
         Assertions.assertEquals("items", actual.collectionName, "Foreach collection name mismatch.");
@@ -185,9 +179,9 @@ public class StatementTests extends TestBase {
         String input = "değişken x = 42;";
         var parser = getParser(input);
         var ctx = parser.değişkenTanımı();
-        VarDeclarationStatement actual = (VarDeclarationStatement) visitor.visitDeğişkenTanımı(ctx);
+        VarDeclarationStatement actual = visitor.visitDeğişkenTanımı(ctx);
 
-        Assertions.assertEquals("x", actual.value, "VarDeclaration variable name mismatch.");
+        Assertions.assertEquals("x", actual.varName, "VarDeclaration variable name mismatch.");
         var num = new Primary.Number();
         num.number = 42;
         Assertions.assertEquals(Primary.wrap(num).toString(), actual.value.toString(), "VarDeclaration assignment mismatch.");
@@ -219,9 +213,7 @@ public class StatementTests extends TestBase {
         String input = "x = 42;";
         var parser = getParser(input);
         var ctx = parser.atama();
-        Object result = visitor.visitAtama(ctx);
-        Assertions.assertInstanceOf(AssignmentExpr.class, result, "Result is not an AssignmentExpr.");
-        AssignmentExpr actual = (AssignmentExpr) result;
+        AssignmentExpr actual = visitor.visitAtama(ctx);
 
         Assertions.assertEquals("x", actual.left, "Assignment variable name mismatch.");
         var num = new Primary.Number();
