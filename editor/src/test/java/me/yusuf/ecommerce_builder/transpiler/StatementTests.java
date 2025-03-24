@@ -108,14 +108,14 @@ public class StatementTests extends TestBase {
         var num = new Primary.Number();
         num.number = 2;
         expectedAssign.right = Primary.wrap(num);
-        expectedVar.expr = expectedAssign;
+        expectedVar.value = expectedAssign.right;
         expectedHappy.statements.add(expectedVar);
 
         // Check if the happyPath block has one statement.
         Assertions.assertEquals(expectedHappy.statements.size(), actual.happyPath.statements.size(), "Happy path block statement count mismatch.");
         VarDeclarationStatement actualVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
-        Assertions.assertEquals(expectedVar.expr.left, actualVar.expr.left, "Variable name mismatch in if-statement.");
-        Assertions.assertEquals(expectedVar.expr.right.toString(), actualVar.expr.right.toString(), "Variable assignment mismatch in if-statement.");
+        Assertions.assertEquals(expectedVar.varName, actualVar.varName, "Variable name mismatch in if-statement.");
+        Assertions.assertEquals(expectedVar.value.toString(), actualVar.value.toString(), "Variable assignment mismatch in if-statement.");
         // sadPath should be null.
         Assertions.assertNull(actual.sadPath, "Sad path should be null when not provided.");
     }
@@ -142,7 +142,7 @@ public class StatementTests extends TestBase {
         var num2 = new Primary.Number();
         num2.number = 2;
         happyAssign.right = Primary.wrap(num2);
-        expectedHappyVar.expr = happyAssign;
+        expectedHappyVar.value = happyAssign;
 
         // Expected sadPath block with var declaration: y = 3
         VarDeclarationStatement expectedSadVar = new VarDeclarationStatement();
@@ -151,20 +151,20 @@ public class StatementTests extends TestBase {
         var num3 = new Primary.Number();
         num3.number = 3;
         sadAssign.right = Primary.wrap(num3);
-        expectedSadVar.expr = sadAssign;
+        expectedSadVar.value = sadAssign;
 
         // Check happyPath block
         Assertions.assertFalse(actual.happyPath.statements.isEmpty(), "Happy path block should not be empty.");
         VarDeclarationStatement actualHappyVar = (VarDeclarationStatement) actual.happyPath.statements.get(0);
-        Assertions.assertEquals(expectedHappyVar.expr.left, actualHappyVar.expr.left, "Happy path variable name mismatch.");
-        Assertions.assertEquals(expectedHappyVar.expr.right.toString(), actualHappyVar.expr.right.toString(), "Happy path assignment mismatch.");
+        Assertions.assertEquals(expectedHappyVar.value, actualHappyVar.value, "Happy path variable name mismatch.");
+        Assertions.assertEquals(expectedHappyVar.value.toString(), actualHappyVar.value.toString(), "Happy path assignment mismatch.");
 
         // Check sadPath block
         Assertions.assertNotNull(actual.sadPath, "Sad path block should not be null.");
         Assertions.assertFalse(actual.sadPath.statements.isEmpty(), "Sad path block should not be empty.");
         VarDeclarationStatement actualSadVar = (VarDeclarationStatement) actual.sadPath.statements.get(0);
-        Assertions.assertEquals(expectedSadVar.expr.left, actualSadVar.expr.left, "Sad path variable name mismatch.");
-        Assertions.assertEquals(expectedSadVar.expr.right.toString(), actualSadVar.expr.right.toString(), "Sad path assignment mismatch.");
+        Assertions.assertEquals(expectedSadVar.value, actualSadVar.value, "Sad path variable name mismatch.");
+        Assertions.assertEquals(expectedSadVar.value.toString(), actualSadVar.value.toString(), "Sad path assignment mismatch.");
     }
 
     @Test
@@ -187,10 +187,10 @@ public class StatementTests extends TestBase {
         var ctx = parser.değişkenTanımı();
         VarDeclarationStatement actual = (VarDeclarationStatement) visitor.visitDeğişkenTanımı(ctx);
 
-        Assertions.assertEquals("x", actual.expr.left, "VarDeclaration variable name mismatch.");
+        Assertions.assertEquals("x", actual.value, "VarDeclaration variable name mismatch.");
         var num = new Primary.Number();
         num.number = 42;
-        Assertions.assertEquals(Primary.wrap(num).toString(), actual.expr.right.toString(), "VarDeclaration assignment mismatch.");
+        Assertions.assertEquals(Primary.wrap(num).toString(), actual.value.toString(), "VarDeclaration assignment mismatch.");
     }
 
     @Test

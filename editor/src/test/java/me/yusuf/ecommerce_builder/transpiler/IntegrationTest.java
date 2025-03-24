@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.transpiler;
 
+import me.yusuf.ecommerce_builder.shared.components.EditorContextHolder;
 import me.yusuf.ecommerce_builder.shared.types.PluginSourceAndMetadata;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -21,7 +22,7 @@ public class IntegrationTest {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TurkishPseudoCodeParser parser = new TurkishPseudoCodeParser(tokens);
         PluginDef pluginDef = new ASTBuilderVisitor().visitIşlevTanımı(parser.işlevTanımı());
-        return new CodeGeneratorVisitor().generate(pluginDef);
+        return new CodeGeneratorVisitor().generate(pluginDef, EditorContextHolder.getEditorId());
     }
 
     @Test

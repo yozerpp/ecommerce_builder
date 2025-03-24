@@ -42,7 +42,7 @@ public class CodeGeneratorVisitorTest {
                           "    public void run() {\n" +
                           "    }\n" +
                           "}\n";
-        String result = visitor.visitPluginDef(pd);
+        String result = visitor.visitPluginDef(pd, 0);
         assertEquals(expected, result);
     }
 
@@ -71,7 +71,7 @@ public class CodeGeneratorVisitorTest {
         assign.left = "x";
         // Use a function call expression as the right-hand side.
         assign.right = createSimpleFuncCall("dummyFunc");
-        vds.expr = assign;
+        vds.value = assign;
         String expected = "var x = dummyFunc();";
         String result = visitor.visitVarDeclarationStatement(vds);
         assertEquals(expected, result);
