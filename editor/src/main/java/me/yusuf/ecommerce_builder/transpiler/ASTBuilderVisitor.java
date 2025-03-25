@@ -106,7 +106,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public Statement visitHerBiriİfadesi(TurkishPseudoCodeParser.HerBiriİfadesiContext ctx) {
+    public ForeachStatement visitHerBiriİfadesi(TurkishPseudoCodeParser.HerBiriİfadesiContext ctx) {
         ForeachStatement ret = new ForeachStatement();
         ret.collectionName = ctx.koleksiyonİsmi().getText();
         ret.elementName = ctx.elementİsmi().getText();
@@ -125,7 +125,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public Statement visitDöngüİfadesi(TurkishPseudoCodeParser.DöngüİfadesiContext ctx) {
+    public LoopStatement visitDöngüİfadesi(TurkishPseudoCodeParser.DöngüİfadesiContext ctx) {
         LoopStatement ret = new LoopStatement();
         ret.condition = (Expression) visitKoşul(ctx.koşul());
         ret.block = (Block) visitGövde(ctx.gövde());
@@ -133,7 +133,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public Statement visitEğerİfadesi(TurkishPseudoCodeParser.EğerİfadesiContext ctx) {
+    public IfStatement visitEğerİfadesi(TurkishPseudoCodeParser.EğerİfadesiContext ctx) {
         IfStatement ret = new IfStatement();
         ret.condition = (Expression) visitKoşul(ctx.koşul());
         ret.happyPath = (Block) visitGövde(ctx.gövde(0));
@@ -144,12 +144,12 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitKoşul(TurkishPseudoCodeParser.KoşulContext ctx) {
+    public Expr visitKoşul(TurkishPseudoCodeParser.KoşulContext ctx) {
         return visitDenklem(ctx.denklem());
     }
 
     @Override
-    public ASTNode visitGövde(TurkishPseudoCodeParser.GövdeContext ctx) {
+    public Block visitGövde(TurkishPseudoCodeParser.GövdeContext ctx) {
         Block block = new Block();
         for (var ifadeCtx : ctx.ifade()) {
             block.statements.add((Statement) visitIfade(ifadeCtx));
@@ -158,9 +158,10 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public Statement visitDeğişkenTanımı(TurkishPseudoCodeParser.DeğişkenTanımıContext ctx) {
+    public VarDeclarationStatement visitDeğişkenTanımı(TurkishPseudoCodeParser.DeğişkenTanımıContext ctx) {
         VarDeclarationStatement ret = new VarDeclarationStatement();
-        ret.expr = (Expression) visitIlkelDeğişken(ctx.ilkelDeğişken());
+        ret.varName = ctx.ilkelDeğişken().getText();
+        ret.value = visitDenklem(ctx.denklem());
         return ret;
     }
 
@@ -168,30 +169,30 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     public AssignmentExpr visitAtama(TurkishPseudoCodeParser.AtamaContext ctx) {
         AssignmentExpr ret = new AssignmentExpr();
         ret.left = ctx.değişken().getText();
-        ret.right = (Expression) visitDenklem(ctx.denklem());
+        ret.right = visitDenklem(ctx.denklem());
         return ret;
     }
 
     @Override
-    public ASTNode visitIlkelDeğişken(TurkishPseudoCodeParser.IlkelDeğişkenContext ctx) {
+    public Primary.Identifier visitIlkelDeğişken(TurkishPseudoCodeParser.IlkelDeğişkenContext ctx) {
         Primary.Identifier ret = new Primary.Identifier();
         ret.identifier = ctx.getText();
         return ret;
     }
 
     @Override
-    public ASTNode visitDönmeİfadesi(TurkishPseudoCodeParser.DönmeİfadesiContext ctx) {
+    public ReturnStatement visitDönmeİfadesi(TurkishPseudoCodeParser.DönmeİfadesiContext ctx) {
         ReturnStatement ret = new ReturnStatement();
-        ret.expr = (Expression) visitDenklem(ctx.denklem());
+        ret.value = visitDenklem(ctx.denklem());
         return ret;
     }
 
     @Override
-    public Expression visitDenklem(TurkishPseudoCodeParser.DenklemContext ctx) {
-        LogicalAndExpr first = (LogicalAndExpr) visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(0));
+    public Expr visitDenklem(TurkishPseudoCodeParser.DenklemContext ctx) {
+        LogicalAndExpr first = visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(0));
         List<LogicalAndExpr> rest = new ArrayList<>();
         for (int i = 1; i < ctx.mantıksalVeDenklemi().size(); i++) {
-            rest.add((LogicalAndExpr) visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(i)));
+            rest.add( visitMantıksalVeDenklemi(ctx.mantıksalVeDenklemi(i)));
         }
         return new Expr(first, rest);
     }
@@ -278,7 +279,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     public UnaryExpr visitTekliDenklem(TurkishPseudoCodeParser.TekliDenklemContext ctx) {
         if (ctx.eksiİşareti() != null) {
             String operator = ctx.eksiİşareti().getText();
-            Expression operand = (Expression) visitTekliDenklem(ctx.tekliDenklem());
+            Expression operand = visitTekliDenklem(ctx.tekliDenklem());
             return new UnaryExpr(operator, operand);
         } else {
             return (UnaryExpr) visitDeğilİfadesi(ctx.değilİfadesi());
@@ -291,7 +292,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitDeğilİfadesi(TurkishPseudoCodeParser.DeğilİfadesiContext ctx) {
+    public Expression visitDeğilİfadesi(TurkishPseudoCodeParser.DeğilİfadesiContext ctx) {
         Expression expr = (Expression) visitDeğer(ctx.değer());
         if (ctx.DEĞİL() != null) {
             return new PostfixExpr(expr, true);
