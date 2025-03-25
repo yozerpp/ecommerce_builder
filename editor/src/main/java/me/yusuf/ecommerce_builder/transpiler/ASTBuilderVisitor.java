@@ -13,13 +13,15 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     @Override
     public PluginDef visitIşlevTanımı(TurkishPseudoCodeParser.IşlevTanımıContext ctx) {
         PluginDef ret = new PluginDef();
-        ret.hookedMethod = ctx.işlevİsmi().getText();
-        if (ctx.hataİfadesi() != null) {
-            ret.hookedException = ctx.hataİfadesi().hataİsmi().getText();
+        // If the işlevİsmi() is not present, try to use hataİfadesi() or sonraİfadesi()
+        if (ctx.işlevİsmi() != null) {
+            ret.hookedMethod = ctx.işlevİsmi().getText();
+        } else if (ctx.hataİfadesi() != null) {
+            ret.hookedMethod = ctx.hataİfadesi().hataİsmi().getText();
         } else if (ctx.sonraİfadesi() != null) {
-            ret.hookedException = ctx.sonraİfadesi().getText();
+            ret.hookedMethod = ctx.sonraİfadesi().getText();
         } else {
-            ret.hookedException = null;
+            ret.hookedMethod = "";
         }
         ret.block = (Block) visitGövde(ctx.gövde());
         ret.name = ctx.eylemİsmi().getText();
@@ -282,7 +284,12 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
             Expression operand = visitTekliDenklem(ctx.tekliDenklem());
             return new UnaryExpr(operator, operand);
         } else {
-            return (UnaryExpr) visitDeğilİfadesi(ctx.değilİfadesi());
+            Expression expr = (Expression) visitDeğilİfadesi(ctx.değilİfadesi());
+            if (expr instanceof UnaryExpr) {
+                return (UnaryExpr) expr;
+            } else {
+                return new UnaryExpr(null, expr);
+            }
         }
     }
 
