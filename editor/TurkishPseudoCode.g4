@@ -1,17 +1,18 @@
 grammar TurkishPseudoCode;
 işlevTanımı: varlıkİsmi eylemİsmi (hataİfadesi| sonraİfadesi) YAP işlevİsmi gövde;
 varlıkİsmi: İSİM;
-eylemİsmi: İSİM+;
+eylemİsmi: değişken;
 işlevİsmi: İSİM;
-hataİfadesi: BULUNMA_EKİ hataİsmi HATASINDA;
-sonraİfadesi: AYRILMA_EKİ SONRA;
+hataİfadesi: BULUNMA_EKI hataİsmi HATASINDA;
+sonraİfadesi: AYRILMA_EKI SONRA;
 hataDenklemi: hataİsmi HATASINDA;
-hataİsmi: İSİM+;
+hataİsmi: değişken;
 ifade: döngüİfadesi
          | eğerİfadesi
          | herBiriİfadesi
          | değişkenTanımı
          | denklemİfadesi
+         | dönmeİfadesi
          | gövde;
 fonksiyonÇağrımı: değişken '(' (denklem (',' denklem)* )? ')';
 denklemİfadesi: (fonksiyonÇağrımı | atama) ';';
@@ -24,7 +25,7 @@ eğerİfadesi: EĞER koşul İSE gövde (DEĞİLSE gövde)?;
 koşul: denklem;
 gövde: '{' ifade* '}';
 
-değişkenTanımı: DEĞ ilkelDeğişken ';';
+değişkenTanımı: DEĞ ilkelDeğişken ('=' denklem)? ';';
 
 atama: değişken '=' denklem;
 
@@ -81,11 +82,11 @@ DEĞ: 'değ';
 HER: 'her';
 İÇİN: 'için';
 SONRA: 'sonrasında';
-BULUNMA_EKİ: '\'' 't' 'a'
+BULUNMA_EKI: '\'' 't' 'a'
                | '\'' 't' 'e'
                | '\'' 'd' 'a'
                | '\'' 'd' 'e';
-AYRILMA_EKİ: '\'' 't' 'a' 'n'
+AYRILMA_EKI: '\'' 't' 'a' 'n'
                | '\'' 't' 'e' 'n'
                | '\'' 'd' 'a' 'n'
                | '\'' 'd' 'e' 'n';
