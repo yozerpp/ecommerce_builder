@@ -82,10 +82,11 @@ DEĞ: 'değ';
 HER: 'her';
 İÇİN: 'için';
 SONRA: 'sonrasında';
-BULUNMA_EKI: '\'ta' | '\'te' | '\'da' | '\'de';
-AYRILMA_EKI: '\'tan' | '\'ten' | '\'dan' | '\'den';
 
-SAHİPLİK_EKİ: '\'nın' | '\'nin' | '\'nün' | '\'nun' | '\'ın' | '\'in' | '\'un' | '\'ün';
+// Updated EK rules with proper escaping and grouping
+BULUNMA_EKI: '\''('ta' | 'te' | 'da' | 'de');
+AYRILMA_EKI: '\''('tan' | 'ten' | 'dan' | 'den');
+SAHİPLİK_EKİ: '\''('nın' | 'nin' | 'nün' | 'nun' | 'ın' | 'in' | 'un' | 'ün');
 
 SAYI: [0-9]+ ( '.' [0-9]+ )?;
 YAZI: '"' .*? '"' | '\'' .*? '\'';
