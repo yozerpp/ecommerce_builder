@@ -13,6 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,13 +24,15 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import java.lang.reflect.Method;
+import java.util.List;
+
 @OpenAPIDefinition(info = @Info(title = "ecommerce", version = "1.0"))
 @EnableWebMvc
 @EnableMethodSecurity
 @EnableJpaRepositories(basePackages = "me.yusuf.ecommerce.domain")
 @SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce", "me.yusuf.ecommerce.controller", "me.yusuf.ecommerce.engine"})
-public class EcommerceApplication implements WebMvcConfigurer{
+public class EcommerceApplication implements org.springframework.web.servlet.config.annotation.WebMvcConfigurer{
     public EcommerceApplication(PageInterceptor pageInterceptor, UserAuthService userAuthService) {
         this.pageInterceptor = pageInterceptor;
         this.userAuthService = userAuthService;
@@ -45,7 +49,7 @@ public class EcommerceApplication implements WebMvcConfigurer{
     }
     @Bean
     FilterRegistrationBean<EditorContextHolder> editorContextHolder(){
-        var ret =new FilterRegistrationBean<>(new EditorContextHolder());
+        var ret = new FilterRegistrationBean<>(new EditorContextHolder());
         ret.setOrder(1);
         ret.addUrlPatterns("/engine/*");
         ret.setAsyncSupported(true);
@@ -56,6 +60,39 @@ public class EcommerceApplication implements WebMvcConfigurer{
     ObjectMapper objectMapper(){
         return new ClassMapper();
     }
+    
+    @Bean
+    public JdbcCustomConversions jdbcCustomConversions() {
+        List<Converter<?, ?>> converters = List.of(
+            new Converter<Method, String>() {
+                @Override
+                public String convert(Method method) {
+                    if(method == null) return null;
+                    return method.getDeclaringClass().getName() + "#" + method.getName();
+                }
+            },
+            new Converter<String, Method>() {
+                @Override
+                public Method convert(String source) {
+                    if(source == null || !source.contains("#")) return null;
+                    String[] parts = source.split("#");
+                    try {
+                        Class<?> cls = Class.forName(parts[0]);
+                        for (Method m : cls.getDeclaredMethods()) {
+                            if (m.getName().equals(parts[1])) {
+                                return m;
+                            }
+                        }
+                    } catch (ClassNotFoundException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                    return null;
+                }
+            }
+        );
+        return new JdbcCustomConversions(converters);
+    }
+    
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(pageInterceptor).addPathPatterns("/**").excludePathPatterns("/img/**","/css/**","/css/style.css","/static/**","/*/api/**","/api/**");
