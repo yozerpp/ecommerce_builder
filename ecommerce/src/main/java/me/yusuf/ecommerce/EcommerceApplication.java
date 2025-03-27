@@ -1,16 +1,22 @@
 package me.yusuf.ecommerce;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import me.yusuf.ecommerce.controller.PageInterceptor;
 import me.yusuf.ecommerce.security.UserAuthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import me.yusuf.ecommerce_builder.shared.components.EditorContextHolder;
+import me.yusuf.ecommerce.engine.MethodMetadataRegistry;
+import me.yusuf.ecommerce_builder.shared.types.ClassMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -23,10 +29,33 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableJpaRepositories(basePackages = "me.yusuf.ecommerce.domain")
 @SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce", "me.yusuf.ecommerce.controller", "me.yusuf.ecommerce.engine"})
 public class EcommerceApplication implements WebMvcConfigurer{
+    public EcommerceApplication(PageInterceptor pageInterceptor, UserAuthService userAuthService) {
+        this.pageInterceptor = pageInterceptor;
+        this.userAuthService = userAuthService;
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(EcommerceApplication.class, args);
     }
-    @Autowired PageInterceptor pageInterceptor;
+    final PageInterceptor pageInterceptor;
+    @Bean
+    @Scope("singleton")
+    public MethodMetadataRegistry methodMetadataRegistry() {
+        return new MethodMetadataRegistry("me.yusuf.ecommerce.service");
+    }
+    @Bean
+    FilterRegistrationBean<EditorContextHolder> editorContextHolder(){
+        var ret =new FilterRegistrationBean<>(new EditorContextHolder());
+        ret.setOrder(1);
+        ret.addUrlPatterns("/engine/*");
+        ret.setAsyncSupported(true);
+        return ret;
+    }
+    @Bean
+    @Scope("singleton")
+    ObjectMapper objectMapper(){
+        return new ClassMapper();
+    }
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(pageInterceptor).addPathPatterns("/**").excludePathPatterns("/img/**","/css/**","/css/style.css","/static/**","/*/api/**","/api/**");
@@ -38,12 +67,11 @@ public class EcommerceApplication implements WebMvcConfigurer{
         registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
     }
 
-    @Autowired
-     public UserAuthService userAuthService;
+    public final UserAuthService userAuthService;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers("/login", "/public/**", "/sign-up","/static/**", "/static/css/styles.css", "/css/**","/image/**").permitAll() // Allow public access to login
                         .anyRequest().permitAll() // Protect other endpoints
