@@ -1,0 +1,2 @@
+#!/bin/bash
+antlr4 -encoding "utf-8" -o "/home/tipil/IdeaProjects/ecommerce_builder/editor/src/main/java/me/yusuf/ecommerce_builder/editor/transpiler/generated" -lib "/home/tipil/IdeaProjects/ecommerce_builder/editor/src/main/resources/grammar" -no-listener -visitor -package "me.yusuf.ecommerce_builder.editor.transpiler.generated" /home/tipil/IdeaProjects/ecommerce_builder/editor/TurkishPseudoCode.g4

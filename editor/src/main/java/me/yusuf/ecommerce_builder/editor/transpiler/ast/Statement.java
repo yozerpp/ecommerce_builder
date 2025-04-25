@@ -1,0 +1,5 @@
+package me.yusuf.ecommerce_builder.editor.transpiler.ast;
+
+public interface Statement extends ASTNode {
+
+}

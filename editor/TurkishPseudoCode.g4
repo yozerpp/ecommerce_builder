@@ -46,7 +46,7 @@ toplamaÇıkarmaİşareti: ARTI | EKSİ;
 tekliDenklem: eksiİşareti tekliDenklem | değilİfadesi;
 eksiİşareti: EKSİ ;
 değilİfadesi: değer ( DEĞİL )?;
-değişken: İSİM (SAHİPLİK_EKİ İSİM)*;
+değişken: İSİM ('.' İSİM)*;
 sabitDeğer : SAYI | YAZI;
 değer:  sabitDeğer
        | değişken

@@ -1,6 +1,8 @@
 FROM openjdk:23-jdk-slim
 LABEL authors="yozerpp"
-WORKDIR /app
-COPY target/*.jar /app/app.jar
+WORKDIR /work
+COPY target/*.jar /work/app.jar
+
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+EXPOSE 5005
+ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005","-jar", "/work/app.jar"]
