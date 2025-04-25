@@ -17,10 +17,12 @@ spec:
     spec:
       containers:
         - name: editor
-          image: yusufozer1/editor:latest
+          image: yusufozer1/ecommerce_builder-editor:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+              protocol: TCP
+            - containerPort: 5005
               protocol: TCP
       restartPolicy: Always
 ---
@@ -35,4 +37,9 @@ spec:
       - protocol: TCP
         port: 80
         targetPort: 8080
+        name: external
+      - protocol: TCP
+        port: 5005
+        nodePort: 30006
+        name: debug
     type: NodePort

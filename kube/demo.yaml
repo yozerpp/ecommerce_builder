@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ecommerce
+  labels:
+    app: ecommerce
+spec:
+  replicas: 1
+  serviceName: demo-service
+  selector:
+    matchLabels:
+      app: ecommerce
+  template:
+    metadata:
+      name: ecommerce
+      labels:
+        app: ecommerce
+    spec:
+      containers:
+        - name: demo
+          image: yusufozer1/ecommerce_builder-demo:latest
+          volumeMounts:
+            - mountPath: "$HOME/.kube/config"
+              name: kubeconfig
+          env:
+            - name: DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: DATASOURCE_URL
+                  name: config
+            - name: DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: database-credentials
+            - name: DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: database-credentials
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 30080
+              protocol: TCP
+            - containerPort: 30051
+              protocol: TCP
+            - protocol: TCP
+              containerPort: 30055
+      restartPolicy: Always
+      volumes:
+        - name: kubeconfig
+          hostPath:
+            path: /mnt/kube/cluster-config.yaml
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service
+spec:
+  selector:
+    app: ecommerce
+    statefulset.kubernetes.io/pod-name: ecommerce-0
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 30051
+      name: internal
+      nodePort: 30051
+    - protocol: TCP
+      port: 30080
+      name: external
+      nodePort: 30080
+    - protocol: TCP
+      port: 30055
+      name: debug
+      nodePort: 30055
