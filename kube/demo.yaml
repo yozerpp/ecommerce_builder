@@ -38,7 +38,7 @@ spec:
                 secretKeyRef:
                   key: password
                   name: database-credentials
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 30080
               protocol: TCP
