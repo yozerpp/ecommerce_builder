@@ -3,5 +3,4 @@ kind: ConfigMap
 metadata:
   name: config
 data:
-  DATABASE_NAME: "ecommerce"
-  DATASOURCE_URL: "jdbc:postgresql://ecommercedb:5432/ecommerce"
+  DATASOURCE_URL: "jdbc:postgresql://ecommercedb:5432"
