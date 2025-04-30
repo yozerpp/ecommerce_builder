@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.editor.compiler;
 
+import me.yusuf.ecommerce_builder.shared.components.EditorContextHolder;
 import me.yusuf.ecommerce_builder.shared.types.ClassFileObject;
 
 import javax.tools.*;
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.util.*;
 
 public interface DynamicCompiler {
-    String PLUGIN_PACKAGES = "me.yusuf.ecommerce.engine.method";
+    String PLUGIN_PACKAGES = "me.yusuf.ecommerce_builder.demo.engine.method";
 // TODO: run imports
     static ClassFileObject compile(String className, String sourceCode) {
         //TODO: add editorId as a prefix to this class.
@@ -26,7 +27,7 @@ public interface DynamicCompiler {
             }
         };
 
-        InMemoryJavaFileObject sourceObject = new InMemoryJavaFileObject(PLUGIN_PACKAGES + '.' + className, sourceCode);
+        InMemoryJavaFileObject sourceObject = new InMemoryJavaFileObject(PLUGIN_PACKAGES + '.' + className+"Plugin_"+ EditorContextHolder.getEditorId(), sourceCode);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null,
                 List.of(sourceObject));
         boolean success = task.call();
