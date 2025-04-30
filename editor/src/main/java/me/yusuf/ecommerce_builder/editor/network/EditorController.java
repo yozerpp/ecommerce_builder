@@ -1,10 +1,7 @@
 package me.yusuf.ecommerce_builder.editor.network;
 
 import org.apache.coyote.BadRequestException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -14,7 +11,7 @@ public class EditorController {
         this.codeGeneratorService = codeGeneratorService;
     }
     @PostMapping("/plugin")//TODO: error reporting
-     public void createPlugin(@RequestParam String source) throws BadRequestException {
+     public void createPlugin(@RequestBody String source) throws BadRequestException {
         codeGeneratorService.sendToApp(codeGeneratorService.generate(source));
     }
 }
