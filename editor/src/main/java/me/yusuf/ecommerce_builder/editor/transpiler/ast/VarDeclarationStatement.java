@@ -1,8 +1,12 @@
 package me.yusuf.ecommerce_builder.editor.transpiler.ast;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expression;
 
-public class VarDeclarationStatement implements Statement{
-    public String varName;
-    public Expression value;
+@Getter
+@Setter
+public class VarDeclarationStatement implements Statement {
+    private String varName;
+    private Expression value;
 }

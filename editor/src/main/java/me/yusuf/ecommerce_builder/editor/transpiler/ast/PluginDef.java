@@ -1,8 +1,13 @@
 package me.yusuf.ecommerce_builder.editor.transpiler.ast;
 
-public class PluginDef implements ASTNode{
-    public String hookedMethod;
-    public String hookedException;
-    public Block block;
-    public String name;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class PluginDef implements ASTNode {
+    private String hookedMethod;
+    private String hookedException;
+    private Block block;
+    private String name;
 }
