@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-db
+data:
+  # kv format
+  init.sql: |
+    create database ecommerce owner tipil;
+    create database editor owner tipil;
