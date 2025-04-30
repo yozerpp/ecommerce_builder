@@ -52,7 +52,7 @@ spec:
       serviceAccountName: engine-watcher
       containers:
         - name: demo
-          image: yusufozer1/ecommerce_builder-demo:latest
+          image: host.minikube.internal:5000/ecommerce_builder-demo:latest
           volumeMounts:
             - mountPath: "$HOME/.kube/config"
               name: kubeconfig
@@ -74,12 +74,10 @@ spec:
                   name: database-credentials
           imagePullPolicy: Always
           ports:
-            - containerPort: 30080
-              protocol: TCP
-            - containerPort: 30051
+            - containerPort: 8080
               protocol: TCP
             - protocol: TCP
-              containerPort: 30055
+              containerPort: 5005
       restartPolicy: Always
       volumes:
         - name: kubeconfig
@@ -98,14 +96,12 @@ spec:
   type: NodePort
   ports:
     - protocol: TCP
-      port: 30051
-      name: internal
-      nodePort: 30051
+      port: 5005
+      targetPort: 5005
+      name: debug
+      nodePort: 30005
     - protocol: TCP
-      port: 30080
+      port: 8080
+      targetPort: 8080
       name: external
       nodePort: 30080
-    - protocol: TCP
-      port: 30055
-      name: debug
-      nodePort: 30055

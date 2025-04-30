@@ -17,8 +17,24 @@ spec:
     spec:
       containers:
         - name: editor
-          image: yusufozer1/ecommerce_builder-editor:latest
-          imagePullPolicy: IfNotPresent
+          image: host.minikube.internal:5000/ecommerce_builder-editor:latest
+          env:
+            - name: DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: DATASOURCE_URL
+                  name: config
+            - name: DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: database-credentials
+            - name: DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: database-credentials
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -35,11 +51,13 @@ spec:
         app: editor
     ports:
       - protocol: TCP
-        port: 80
+        port: 8080
         targetPort: 8080
+        nodePort: 30081
         name: external
       - protocol: TCP
         port: 5005
+        targetPort: 5005
         nodePort: 30006
         name: debug
     type: NodePort
