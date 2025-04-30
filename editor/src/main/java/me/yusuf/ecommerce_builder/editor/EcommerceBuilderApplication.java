@@ -9,9 +9,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Map;
 
 @SpringBootApplication
+@Configuration
 public class EcommerceBuilderApplication {
 
     public static void main(String[] args) {
@@ -31,6 +38,16 @@ public class EcommerceBuilderApplication {
         return filter;
     }
     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+//                        .requestMatchers("/login", "/public/**", "/sign-up","/static/**", "/static/css/styles.css", "/css/**","/image/**").permitAll() // Allow public access to login
+                                .anyRequest().permitAll() // Protect other endpoints
+                );
+        return http.build();
+    }
+    @Bean
     @Scope("singleton")
     ASTBuilderVisitor astBuilderVisitor(){
         return new ASTBuilderVisitor();
@@ -38,7 +55,7 @@ public class EcommerceBuilderApplication {
     @Bean
     @Scope("singleton")
     CodeGeneratorVisitor codeGeneratorVisitor(){
-        return new CodeGeneratorVisitor();
+        return new CodeGeneratorVisitor(Map.of("yazdır", "System.out.println"));
     }
 //    @Bean(name = "methodMetadataRegistry")
 //    @Scope("singleton")
