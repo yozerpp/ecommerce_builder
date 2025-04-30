@@ -1,4 +1,2 @@
 #!/bin/bash
-docker login -u yusufozer1 -p $DOCKER_PASSWORD
-docker build -t yusufozer1/$1 $2
-docker logout
+docker build -t localhost:5000/ecommerce_builder-$1:latest $2

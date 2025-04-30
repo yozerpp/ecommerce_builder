@@ -90,23 +90,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <id>docker_push</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>deploy</phase>
-                        <configuration>
-                            <executable>docker_push.sh</executable>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
