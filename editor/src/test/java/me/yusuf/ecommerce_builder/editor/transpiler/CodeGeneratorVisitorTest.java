@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.CodeGeneratorVisitor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.Block;
@@ -22,55 +24,61 @@ import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expression;
 
 public class CodeGeneratorVisitorTest {
 
+    private static CodeGeneratorVisitor visitor;
+    @BeforeAll
+    static void init(){
+        visitor = new CodeGeneratorVisitor(Map.of());
+    }
     // Helper: create a simple FunctionCallExpr with no arguments.
     private FunctionCallExpr createSimpleFuncCall(String name) {
         FunctionCallExpr fce = new FunctionCallExpr();
-        fce.functionName = name;
-        fce.args = new Expression[0];
+        fce.setFunctionName( name);
+        fce.setArgs( new Expression[0]);
         return fce;
     }
 
     @Test
     public void testVisitPluginDef() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         PluginDef pd = new PluginDef();
-        pd.name = "Test";
-        pd.hookedMethod = "dummyMethod";
+        pd.setName ("Test");
+        pd.setHookedMethod("dummyMethod");
         // Create an empty block.
-        pd.block = new Block();
-        String expected = "public class 0_TestPlugin implements Runnable {\n" +
-                          "    @Override\n" +
-                          "    public void run() {\n" +
-                          "    }\n" +
-                          "}\n";
+        pd.setBlock(new Block());
+        String expected = """
+                public class TestPlugin_0 implements Runnable {
+                    @Override
+                    public void run() {
+                    }
+                }
+                """;
         String result = visitor.visitPluginDef(pd, 0);
         assertEquals(expected, result);
     }
 
     @Test
     public void testVisitBlock() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         Block block = new Block();
         // Add a statement: an if statement.
         IfStatement ifStmt = new IfStatement();
         // For condition, use a function call "cond" with no args.
-        ifStmt.condition = createSimpleFuncCall("cond");
+        ifStmt.setCondition( createSimpleFuncCall("cond"));
         // Create an empty happyPath block.
-        ifStmt.happyPath = new Block();
-        block.statements.add(ifStmt);
-        String expected = "if(cond()) {\n" +
-                          "}\n";
+        ifStmt.setBlock(new Block());
+        block.getStatements().add(ifStmt);
+        String expected = """
+                if(cond()) {
+                }
+                """;
         String result = visitor.visitBlock(block);
         assertEquals(expected, result);
     }
 
     @Test
     public void testVisitVarDeclarationStatement() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         VarDeclarationStatement vds = new VarDeclarationStatement();
-        vds.varName = "x";
+        vds.setVarName("x");
         // Use a function call expression as the right-hand side.
-        vds.value = createSimpleFuncCall("dummyFunc");
+        vds.setValue(createSimpleFuncCall("dummyFunc"));
         String expected = "var x = dummyFunc();";
         String result = visitor.visitVarDeclarationStatement(vds);
         assertEquals(expected, result);
@@ -78,11 +86,10 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitAssignmentExpr() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         AssignmentExpr asn = new AssignmentExpr();
-        asn.left = "y";
+        asn.setLeft( "y");
         // For right-hand side, use a FunctionCallExpr.
-        asn.right = createSimpleFuncCall("func");
+        asn.setRight( createSimpleFuncCall("func"));
         String expected = "y = func()";
         String result = visitor.visitAssignmentExpr(asn);
         assertEquals(expected, result);
@@ -90,10 +97,9 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitFunctionCallExpr() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         FunctionCallExpr fce = new FunctionCallExpr();
-        fce.functionName = "g";
-        fce.args = new Expression[0];
+        fce.setFunctionName("g");
+        fce.setArgs(new Expression[0]);
         String expected = "g()";
         String result = visitor.visitFunctionCallExpr(fce);
         assertEquals(expected, result);
@@ -101,13 +107,12 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitIfStatement() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         IfStatement ifs = new IfStatement();
         // Condition: function call "cond"
-        ifs.condition = createSimpleFuncCall("cond");
+        ifs.setCondition(createSimpleFuncCall("cond"));
         // happyPath: empty block.
         Block happy = new Block();
-        ifs.happyPath = happy;
+        ifs.setBlock(happy);
         // No sadPath.
         String expected = "if(cond()) {\n" +
                           "}";
@@ -117,12 +122,11 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitLoopStatement() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         LoopStatement ls = new LoopStatement();
         // Condition: function call "whileCond"
-        ls.condition = createSimpleFuncCall("whileCond");
+        ls.setCondition( createSimpleFuncCall("whileCond"));
         // Block: empty
-        ls.block = new Block();
+        ls.setBlock( new Block());
         String expected = "while(whileCond()) {\n" +
                           "}";
         String result = visitor.visitLoopStatement(ls);
@@ -131,11 +135,10 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitForeachStatement() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         ForeachStatement fe = new ForeachStatement();
-        fe.elementName = "e";
-        fe.collectionName = "coll";
-        fe.block = new Block();
+        fe.setElementName( "e");
+        fe.setCollectionName( "coll");
+        fe.setBlock(new Block());
         String expected = "for(var e : coll) {\n" +
                 "}";
         String result = visitor.visitForeachStatement(fe);
@@ -144,7 +147,6 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitUnaryExpr() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         // Test with "değil" operator
         UnaryExpr ue = new UnaryExpr("değil", createSimpleFuncCall("dummy"));
         // visitUnaryExpr should convert "değil" to "!" and wrap the result of visit on operand.
@@ -161,7 +163,6 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testVisitPostfixExpr() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         // Create a PostfixExpr with primary as a function call "p" and hasNot = true.
         PostfixExpr pe = new PostfixExpr(createSimpleFuncCall("p"), true);
         // Expected: visitExpression(primary) returns "p();" and then adds "!".
@@ -172,7 +173,6 @@ public class CodeGeneratorVisitorTest {
 
     @Test
     public void testGetMethodArguementTypes() {
-        CodeGeneratorVisitor visitor = new CodeGeneratorVisitor();
         // Construct a dummy source string with a run method declaration.
         // For example: "public void run(java.lang.String arg, java.lang.Integer num) {"
         String source = "public void run(java.lang.String arg, java.lang.Integer num) {";

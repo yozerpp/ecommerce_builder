@@ -6,7 +6,7 @@ import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expression;
 
 @Getter
 @Setter
-public class LoopStatement implements Statement {
+public class LoopStatement implements BlockStatement {
     private Expression condition;
     private Block block;
 }

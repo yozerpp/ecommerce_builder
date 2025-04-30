@@ -2,6 +2,7 @@ package me.yusuf.ecommerce_builder.editor.transpiler;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.*;
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.*;
@@ -11,71 +12,75 @@ import me.yusuf.utils.StringUtils;
 
 public class CodeGeneratorVisitor {
 
-    public CodeGeneratorVisitor() {}
+    private final Map<String, String> defines;
+    public CodeGeneratorVisitor(Map<String, String> defines) {
+        this.defines = defines;
+    }
 
     public PluginSourceAndMetadata generate(PluginDef pluginDef, int editorId) {
         String code = visitPluginDef(pluginDef,editorId);
         Type[] argTypes = getMethodArguementTypes(code);
-        return new PluginSourceAndMetadata(new PluginSourceAndMetadata.Id(editorId,pluginDef.name, pluginDef.hookedMethod),new PluginMetadata(argTypes),
+        return new PluginSourceAndMetadata(new PluginSourceAndMetadata.Id(editorId,pluginDef.getName(), pluginDef.getHookedMethod()),new PluginMetadata(argTypes),
                 code);
     }
     public String visitPluginDef(PluginDef pd, int editorId) {
-        return "public class " +editorId+ "_" +  pd.name + "Plugin implements Runnable {\n" +
+        return "public class " + pd.getName() + "Plugin_" +editorId+ " implements Runnable {\n" +
                "    @Override\n" +
                "    public void run() {\n" +
-                indent(visitBlock(pd.block),2) +
+                indent(visitBlock(pd.getBlock()),2) +
                 "    }\n"+
                "}\n";
     }
 
     public String visitBlock(Block block) {
         StringBuilder sb = new StringBuilder();
-        for (Statement stmt : block.statements) {
+        for (Statement stmt : block.getStatements()) {
             sb.append(visitStatement(stmt)).append("\n");
         }
         return sb.toString();
     }
 
     public String visitVarDeclarationStatement(VarDeclarationStatement vds) {
-        return "var " + vds.varName + " = " + visitExpression(vds.value) + ";";
+        return "var " + vds.getVarName()+ " = " + visitExpression(vds.getValue()) + ";";
     }
 
     public String visitAssignmentExpr(AssignmentExpr asn) {
-        return asn.left + " = " + visitExpression(asn.right);
+        return asn.getLeft() + " = " + visitExpression(asn.getRight());
     }
 
     public String visitFunctionCallExpr(FunctionCallExpr fce) {
         String args = "";
-        if (fce.args != null && fce.args.length > 0) {
-            String[] argStr = new String[fce.args.length];
-            for (int i = 0; i < fce.args.length; i++) {
-                argStr[i] = visitExpression(fce.args[i]);
+        if (fce.getArgs() != null && fce.getArgs().length > 0) {
+            String[] argStr = new String[fce.getArgs().length];
+            for (int i = 0; i < fce.getArgs().length; i++) {
+                argStr[i] = visitExpression(fce.getArgs()[i]);
             }
             args = String.join(", ", argStr);
         }
-        return fce.functionName + "(" + args + ")";
+        String fname = defines.containsKey(fce.getFunctionName())?defines.get(fce.getFunctionName()):fce.getFunctionName();
+        return fname + "(" + args + ")";
     }
 
     public String visitIfStatement(IfStatement ifs) {
         StringBuilder sb = new StringBuilder();
-        sb.append("if(").append(visitExpression(ifs.condition)).append(") {\n");
-        sb.append(indent(visitBlock(ifs.happyPath)));
+        sb.append("if(").append(visitExpression(ifs.getCondition())).append(") {\n");
+        sb.append(indent(visitBlock(ifs.getBlock())));
         sb.append("}");
-        if (ifs.sadPath != null) {
-            sb.append(" else {\n").append(indent(visitBlock(ifs.sadPath)));
+        if (ifs.getSadPath() != null) {
+            sb.append(" else {\n").append(indent(visitBlock(ifs.getSadPath())));
             sb.append("}");
         }
         return sb.toString();
     }
 
     public String visitLoopStatement(LoopStatement ls) {
-        return "while(" + visitExpression(ls.condition) + ") {\n" +
-               indent(visitBlock(ls.block)) + "}";
+        return "while(" + visitExpression(ls.getCondition()) + ") {\n" +
+               indent(visitBlock(ls.getBlock())) + "}";
     }
 
     public String visitForeachStatement(ForeachStatement fe) {
-        return "for(var " + fe.elementName + " : " + fe.collectionName + ") {\n" +
-                indent(visitBlock(fe.block)) + "}";
+        return "for(var " + fe.getElementName()+ " : " + fe.getCollectionName() + ") {\n" +
+                indent(visitBlock(fe.getBlock())) + "}";
     }
 
     public String visitUnaryExpr(UnaryExpr ue) {

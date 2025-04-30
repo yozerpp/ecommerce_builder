@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PluginDef implements ASTNode {
+public class PluginDef implements BlockStatement {
     private String hookedMethod;
     private String hookedException;
     private Block block;
