@@ -1,6 +1,6 @@
 package me.yusuf.ecommerce_builder.shared.types;
 
-public record PluginSourceAndMetadata(Id id, PluginMetadata metadata, String source) {
+public record PluginSourceAndMetadata(Plugin.Id id, PluginMetadata metadata, String source) implements Plugin{
 
     @Override
     public boolean equals(Object object) {
