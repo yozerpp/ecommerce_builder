@@ -14,8 +14,7 @@ public interface Plugin {
     public record Id(
             int editorId,
              String name,
-             @Convert(converter = JDBCMethodConverter.class)
-             Method hookedMethod){
+             String hookedMethod){
         @Override
         public boolean equals(Object object) {
             if (object == null || getClass() != object.getClass()) return false;

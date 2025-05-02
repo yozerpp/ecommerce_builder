@@ -1,6 +1,7 @@
 package me.yusuf.ecommerce_builder.demo.engine;
 
 import me.yusuf.ecommerce_builder.shared.types.Plugin;
+import me.yusuf.ecommerce_builder.shared.types.PluginClassFile;
 import me.yusuf.ecommerce_builder.shared.types.PluginMethod;
 import me.yusuf.ecommerce_builder.shared.types.PluginMetadata;
 import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
@@ -44,17 +45,20 @@ public class PluginRegistry {
         if (!methodSignatureMatch(after, pluginMethod.getGenericParameterTypes())) {
             throw new IncompatibleMethodSignatureException(after.getGenericReturnType(), pluginMethod.getGenericParameterTypes());
         }
-        var pMethod = new PluginMethod(new Plugin.Id(userId, name, after),
+        var pMethod = new PluginMethod(new Plugin.Id(userId, name, methodToString(after)),
                 new PluginMetadata(pluginMethod.getGenericParameterTypes()),
                 pluginMethod);
         plugins.add(pMethod);
+    }
+    public String methodToString(Method method){
+        return method.getDeclaringClass().getName() + '.' + method.getName() + '(' + Arrays.stream(method.getGenericParameterTypes()).map(Type::getTypeName).collect(Collectors.joining(",")) + ')';
     }
     public void registerPlugin(int userId, String name, String afterkey, Method pluginMethod) throws NotFoundException, IncompatibleMethodSignatureException {
         Method method = getMethodForKey(afterkey);
         registerPlugin(userId, name, method, pluginMethod);
     }
-    public void unregisterPlugin(int userId, String name, String methodKey ) throws NotFoundException {
-        unregisterPlugin(new Plugin.Id(userId, name, getMethodForKey(methodKey)));
+    public void unregisterPlugin(int userId, String name, String methodString ) throws NotFoundException {
+        unregisterPlugin(new Plugin.Id(userId, name, methodString));
     }
     public void unregisterPlugin(Plugin.Id id ) {
         plugins.remove(new PluginMethod(id,null,null ));
@@ -66,8 +70,14 @@ public class PluginRegistry {
         var method = getMethodForKey(afterKey);
         return getPluginsAfterMethod(userId, method);
     }
-    public PluginMethod[] getPluginsAfterMethod(int userId, Method afterKey) {
-        return plugins.stream().filter(p->p.id().editorId() == userId && p.id().hookedMethod().equals(afterKey)).sorted(Comparator.comparing(p->p.id().name())).toArray(PluginMethod[]::new);
+    public PluginMethod[] getPluginsAfterMethod(int userId, Method afterKey)  {
+        return plugins.stream().filter(p-> {
+            try {
+                return p.id().editorId() == userId && getMethodForKey(p.id().hookedMethod()).equals(afterKey);
+            } catch (NotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }).sorted(Comparator.comparing(p->p.id().name())).toArray(PluginMethod[]::new);
     }
     public synchronized void partition(int newCount){
         var count = repository.count();
