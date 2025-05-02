@@ -16,8 +16,8 @@ ifade: döngüİfadesi
          | gövde;
 fonksiyonÇağrımı: değişken '(' (denklem (',' denklem)* )? ')';
 denklemİfadesi: (fonksiyonÇağrımı | atama) ';';
-
-herBiriİfadesi: koleksiyonİsmi İÇİNDEKİ HER elementİsmi İÇİN gövde;
+ilkelDeğişken: İSİM;
+herBiriİfadesi: denklem İÇİNDEKİ HER elementİsmi İÇİN gövde;
 koleksiyonİsmi: İSİM;
 elementİsmi: İSİM;
 döngüİfadesi: koşul IKEN gövde;
@@ -29,7 +29,7 @@ değişkenTanımı: DEĞ ilkelDeğişken ('=' denklem)? ';';
 
 atama: değişken '=' denklem;
 
-ilkelDeğişken: İSİM;
+
 dönmeİfadesi: DÖNDÜR denklem;
 denklem: mantıksalVeDenklemi ( VEYA mantıksalVeDenklemi )*;
 
@@ -43,10 +43,12 @@ toplamaDenklemi: çarpmaDenklemi ( toplamaÇıkarmaİşareti çarpmaDenklemi )*;
 toplamaÇıkarmaİşareti: ARTI | EKSİ;
 çarpmaDenklemi: tekliDenklem ( çarpmaBölmeİşareti tekliDenklem )*;
 çarpmaBölmeİşareti: ÇARPIM | BÖLÜ;
-tekliDenklem: eksiİşareti tekliDenklem | değilİfadesi;
+tekliDenklem: eksiİşareti? değilİfadesi; //unaryExpr
 eksiİşareti: EKSİ ;
-değilİfadesi: değer ( DEĞİL )?;
-değişken: İSİM ('.' İSİM)*;
+değilİfadesi: değer ( DEĞİL )?; //postfixExpr
+üyeErişimiDeğişken: İSİM ('.' İSİM)+;
+değişken: ilkelDeğişken |
+            üyeErişimiDeğişken;
 sabitDeğer : SAYI | YAZI;
 değer:  sabitDeğer
        | değişken

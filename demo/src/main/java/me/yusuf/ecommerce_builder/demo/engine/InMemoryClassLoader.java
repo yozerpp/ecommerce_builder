@@ -1,54 +1,55 @@
 package me.yusuf.ecommerce_builder.demo.engine;
 
-import me.yusuf.ecommerce_builder.shared.types.ClassFileObject;
+import me.yusuf.ecommerce_builder.shared.types.plugin.ClassFileObject;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Scope("singleton")
 public class InMemoryClassLoader extends ClassLoader {
+    //pollution
     private final Map<String, ClassFileObject> compiledClasses;
-    private Set<Class<?>> loadedClasses = new HashSet<>();
+    private final Map<String, Class<?>> loadedClasses = new ConcurrentHashMap<>();
     public InMemoryClassLoader(){
         this(null, Thread.currentThread().getContextClassLoader());
     }
     public InMemoryClassLoader(Map<String, ClassFileObject> compiledClasses, ClassLoader parent) {
         super(parent);
-        this.compiledClasses = compiledClasses!=null?compiledClasses:new HashMap<>();
+        this.compiledClasses = compiledClasses!=null?compiledClasses:new ConcurrentHashMap<>();
     }
     public InMemoryClassLoader(Map<String, ClassFileObject> compiledClasses) {
         this(compiledClasses, Thread.currentThread().getContextClassLoader());
     }
-    protected synchronized void clear(){
-        loadedClasses.clear();
+    public void clear(){
+        loadedClasses.clear();compiledClasses.clear();
     }
-    protected synchronized void remove(int startIndex, int endIndex){
-        endIndex = endIndex==0?loadedClasses.size():endIndex;
-        loadedClasses = loadedClasses.stream().skip(startIndex).limit(endIndex).collect(Collectors.toUnmodifiableSet());
+    public void remove(String name){
+        loadedClasses.remove(name);
+        compiledClasses.remove(name);
     }
-    protected synchronized Class<?> addClass(ClassFileObject compiledClass) throws ClassNotFoundException {
+    public void load(ClassFileObject cob){
+        compiledClasses.put(cob.getClassName(),cob);
+    }
+    public Class<?> addClass(ClassFileObject compiledClass) throws ClassNotFoundException {
+        Class<?> cls = loadedClasses.get(compiledClass.getClassName());
+        if (cls!= null) return cls;
         var bytes = compiledClass.getClassBytes();
-        var cls = defineClass(compiledClass.getClassName(), bytes, 0, bytes.length);
-        loadedClasses.add(cls);
+        cls = defineClass(compiledClass.getClassName(), bytes, 0, bytes.length);
+        loadedClasses.put(cls.getName(), cls);
         return cls;
     }
     @Override
-    protected synchronized Class<?> findClass(String name) throws ClassNotFoundException {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        var cls = loadedClasses.get(name);
+        if (cls!=null) return cls;
         ClassFileObject fileObject = compiledClasses.get(name);
-        var cls = loadedClasses.stream().filter(loadedClass -> loadedClass.getName().equals(name)).findFirst();
-        if (cls.isPresent()) {
-            return cls.get();
-        }
-        else if (fileObject != null) {
+        if (fileObject != null) {
             byte[] bytes = fileObject.getClassBytes();
             var claz = defineClass(name, bytes, 0, bytes.length);
-            loadedClasses.add(claz);
+            loadedClasses.put(claz.getName(), claz);
             return claz;
         }
         return super.findClass(name);

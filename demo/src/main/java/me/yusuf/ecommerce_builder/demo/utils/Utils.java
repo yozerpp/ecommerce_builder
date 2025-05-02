@@ -4,18 +4,27 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.lang.Nullable;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class Utils {
+    private static final Map<String, Class<?>[]> cacheOfClasses = new HashMap<>();
+    public static Class<?> extractEntityClassFromRepository(Class<?> r){
+        var ptype = Arrays.stream(r.getGenericInterfaces())
+                .filter(c->c.getTypeName().contains("Repository") && c instanceof ParameterizedType && ((ParameterizedType) c).getActualTypeArguments().length==2)
+                .findAny().map(ParameterizedType.class::cast).orElseThrow(()->new RuntimeException("Repository doesn't implement javax.persistance repository classes."));
+        return (Class<?>) ptype.getActualTypeArguments()[0];
+    }
+
+
     public static String firstLetterToUpperCase(String in){
         var ar = in.toCharArray();
 

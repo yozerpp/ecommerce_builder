@@ -6,16 +6,30 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import me.yusuf.ecommerce_builder.shared.types.ClassFileObject;
-
+import me.yusuf.ecommerce_builder.shared.types.plugin.ClassFileObject;
+import me.yusuf.ecommerce_builder.shared.types.annotation.MethodInfo;
+import me.yusuf.utils.ReflectionUtils;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
 public class ClassMapper extends ObjectMapper {
+    protected static class MethodInfoDeserializer extends JsonDeserializer<MethodInfo>{
+
+        @Override
+        public MethodInfo deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+            var mapper = (ObjectMapper)p.getCodec();
+            var tree= mapper.readTree(p);
+            var uFN = tree.get("userFriendlyName");
+            var oE=tree.get("operatedEntites");
+            return new MethodInfo.Impl(uFN!=null? uFN.asToken().asString():null,
+                    oE!=null?mapper.treeToValue(oE,Class[].class):null);
+        }
+    }
     protected static class TypeSerializer extends JsonSerializer<Type> {
         @Override
         public void serialize(Type type, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -25,9 +39,24 @@ public class ClassMapper extends ObjectMapper {
     protected static class TypeDeserializer extends JsonDeserializer<Type> {
         @Override
         public Type deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-            var t = jsonParser.getText();
             try {
-                return Class.forName(t);
+                return ReflectionUtils.typeForName(jsonParser.getText());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    protected static class ParameterizedTypeSerializer extends JsonSerializer<ParameterizedType>{
+        @Override
+        public void serialize(ParameterizedType value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(ReflectionUtils.typeToString(value));
+        }
+    }
+    protected static class ParameterizedTypeDeserializer extends JsonDeserializer<ParameterizedType>{
+        @Override
+        public ParameterizedType deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            try {
+                return (ParameterizedType) ReflectionUtils.typeForName(p.getText());
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -98,6 +127,9 @@ public class ClassMapper extends ObjectMapper {
         module.addDeserializer(Method.class, new MethodDeserializer());
         module.addSerializer(ClassFileObject.class, new InMemoryClassFileObjectSerializer());
         module.addDeserializer(ClassFileObject.class, new InMemoryClassFileObjectDeserializer());
+        module.addDeserializer(MethodInfo.class, new MethodInfoDeserializer());
+        module.addSerializer(ParameterizedType.class, new ParameterizedTypeSerializer());
+        module.addDeserializer(ParameterizedType.class, new ParameterizedTypeDeserializer());
         return module;
     }
     private void registerModule(){

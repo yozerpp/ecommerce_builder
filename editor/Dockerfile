@@ -1,4 +1,4 @@
-FROM openjdk:23-jdk
+FROM openjdk:24-jdk
 LABEL authors="yozerpp"
 WORKDIR /work
 COPY target/*.jar /work/app.jar

@@ -12,7 +12,7 @@ function forward-ports(){
   done
 }
 if [[ -z "$1" ]]; then
-  echo "usage: $0 <up/down>"
+  echo "usage: $0 (up|down|start|stop)+"
   exit 1
 fi
 while (($#>0))
@@ -39,6 +39,7 @@ kubectl delete -f kube/init-db.yaml
 for p in $(ps aux | egrep "kubectl port-forward" | egrep -v grep| awk '{print $2}'); do
   sudo kill $p
 done;
+echo "stopped port-forwarding"
 fi
 shift
 done

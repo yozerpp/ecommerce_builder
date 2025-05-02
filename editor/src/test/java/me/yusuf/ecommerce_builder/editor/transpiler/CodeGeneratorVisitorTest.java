@@ -4,30 +4,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.lang.reflect.Type;
-import java.util.Map;
 
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.CodeGeneratorVisitor;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.Primary;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.Block;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.VarDeclarationStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.AssignmentExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.FunctionCallExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.IfStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.LoopStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.ForeachStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.UnaryExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.PostfixExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expression;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.Block;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.VarDeclarationStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.AssignmentExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.FunctionCallExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.IfStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.LoopStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.ForeachStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.PluginDef;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.UnaryExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.PostfixExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.Expression;
 
 public class CodeGeneratorVisitorTest {
 
     private static CodeGeneratorVisitor visitor;
     @BeforeAll
     static void init(){
-        visitor = new CodeGeneratorVisitor(Map.of());
+//        visitor = new CodeGeneratorVisitor();
     }
     // Helper: create a simple FunctionCallExpr with no arguments.
     private FunctionCallExpr createSimpleFuncCall(String name) {
@@ -36,7 +36,9 @@ public class CodeGeneratorVisitorTest {
         fce.setArgs( new Expression[0]);
         return fce;
     }
-
+    private PostfixExpr createPostfixExpr(boolean hasNot){
+        return new PostfixExpr(new Primary.Identifier("dummy",null),hasNot);
+    }
     @Test
     public void testVisitPluginDef() {
         PluginDef pd = new PluginDef();
@@ -45,12 +47,12 @@ public class CodeGeneratorVisitorTest {
         // Create an empty block.
         pd.setBlock(new Block());
         String expected = """
-                public class TestPlugin_0 {
+                public class TestPlugin_0_v1 {
                     public static void run() {
                     }
                 }
                 """;
-        String result = visitor.visitPluginDef(pd, 0);
+        String result = visitor.visitPluginDef(pd,new Type[0],0, 1);
         assertEquals(expected, result);
     }
 
@@ -136,7 +138,7 @@ public class CodeGeneratorVisitorTest {
     public void testVisitForeachStatement() {
         ForeachStatement fe = new ForeachStatement();
         fe.setElementName( "e");
-        fe.setCollectionName( "coll");
+        fe.setCollection(new Primary.Identifier("coll"));
         fe.setBlock(new Block());
         String expected = "for(var e : coll) {\n" +
                 "}";
@@ -147,15 +149,15 @@ public class CodeGeneratorVisitorTest {
     @Test
     public void testVisitUnaryExpr() {
         // Test with "değil" operator
-        UnaryExpr ue = new UnaryExpr("değil", createSimpleFuncCall("dummy"));
+        UnaryExpr ue = new UnaryExpr("+", createPostfixExpr(true));
         // visitUnaryExpr should convert "değil" to "!" and wrap the result of visit on operand.
-        String expected = "(!dummy())";
+        String expected = "+!dummy";
         String result = visitor.visitUnaryExpr(ue);
         assertEquals(expected, result);
 
         // Test with "-" operator.
-        UnaryExpr ue2 = new UnaryExpr("-", createSimpleFuncCall("dummy2"));
-        expected = "(-dummy2())";
+        UnaryExpr ue2 = new UnaryExpr("-", createPostfixExpr(true));
+        expected = "-!dummy";
         result = visitor.visitUnaryExpr(ue2);
         assertEquals(expected, result);
     }
@@ -165,14 +167,14 @@ public class CodeGeneratorVisitorTest {
         // Create a PostfixExpr with primary as a function call "p" and hasNot = true.
         PostfixExpr pe = new PostfixExpr(createSimpleFuncCall("p"), true);
         // Expected: visitExpression(primary) returns "p();" and then adds "!".
-        String expected = "p()!";
+        String expected = "!p()";
         String result = visitor.visitPostfixExpr(pe);
         assertEquals(expected, result);
     }
 
     @Test
     public void testGetMethodArguementTypes() {
-        // Construct a dummy source string with a run method declaration.
+        // Construct a dummy source string with a run handle declaration.
         // For example: "public void run(java.lang.String arg, java.lang.Integer num) {"
         String source = "public void run(java.lang.String arg, java.lang.Integer num) {";
         Type[] expected;

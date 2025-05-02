@@ -56,7 +56,6 @@ metadata:
 spec:
   selector:
     app: ecommerce-db
-  clusterIP: None
   ports:
     - port: 5432
       targetPort: 5432

@@ -1,16 +1,17 @@
 package me.yusuf.ecommerce_builder.editor.transpiler;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.Block;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.AssignmentExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.FunctionCallExpr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.ForeachStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.IfStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.LoopStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.VarDeclarationStatement;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expr;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Expression;
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.Primary;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ASTBuilderVisitor;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.Block;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.PluginDef;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.AssignmentExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.FunctionCallExpr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.ForeachStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.IfStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.LoopStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.VarDeclarationStatement;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.Expr;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.Expression;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.Primary;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -170,7 +171,7 @@ public class StatementTests extends TestBase {
         ForeachStatement actual = visitor.visitHerBiriİfadesi(ctx);
 
         Assertions.assertEquals("item", actual.getElementName(), "Foreach element name mismatch.");
-        Assertions.assertEquals("items", actual.getCollectionName(), "Foreach collection name mismatch.");
+        Assertions.assertEquals("items", actual.getCollection().toString(), "Foreach collection name mismatch.");
     }
 
     @Test

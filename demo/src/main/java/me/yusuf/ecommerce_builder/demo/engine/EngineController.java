@@ -1,9 +1,9 @@
 package me.yusuf.ecommerce_builder.demo.engine;
 
-import me.yusuf.ecommerce_builder.shared.types.ClassFileObject;
-import me.yusuf.ecommerce_builder.shared.types.MethodMetadata;
-import me.yusuf.ecommerce_builder.shared.types.PluginClassFile;
-import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple2;
+import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
+import me.yusuf.ecommerce_builder.shared.types.plugin.MethodMetadata;
+import me.yusuf.ecommerce_builder.shared.types.plugin.Plugin;
+import me.yusuf.ecommerce_builder.shared.types.plugin.PluginDto;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.token.Sha512DigestUtils;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -30,15 +29,20 @@ public class EngineController {
         if (ret.isEmpty()) return ResponseEntity.notFound().build(); 
         return ResponseEntity.ok(ret);
     }
-    public ResponseEntity<Map<String, List<Tuple2<String, MethodMetadata>>>> getMetadata(){
+    private ResponseEntity<Map<String, Map<String, MethodMetadata>>> getMetadata(){
         var ret = engineService.getMethods();
         if (ret.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(ret);
     }
     @PostMapping(value = "/plugin")
-    public void addPlugin(@RequestBody PluginClassFile.Dto pluginClassFile/*added Objects name needs to have editorId as prefix*/
+    public void addPlugin(@RequestBody PluginDto pluginClassFile/*added Objects name needs to have editorId as prefix*/
     ,@RequestHeader("Engine-Key") String engineKey) {
         if (!engineKey.equals(EngineController.engineKey)) throw HttpClientErrorException.Unauthorized.create(HttpStatusCode.valueOf(401),"Invalid Engine Key.",null,null,null);
-        engineService.addPlugin(new PluginClassFile(pluginClassFile));
+        engineService.addPlugin(new Plugin(pluginClassFile));
     }
+    @PostMapping(value = "/field")
+    public void addField(@RequestParam int editorId,@RequestBody FieldRequest reqBody){
+        engineService.replaceEntities(reqBody.entitySources, reqBody.pluginSources, editorId);
+    }
+    public record FieldRequest(EntitySource[] entitySources, PluginDto[] pluginSources){ }
 }

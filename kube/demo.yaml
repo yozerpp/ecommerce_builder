@@ -57,11 +57,16 @@ spec:
             - mountPath: "$HOME/.kube/config"
               name: kubeconfig
           env:
-            - name: DATASOURCE_URL
+            - name: DEMO_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
-                  key: DATASOURCE_URL
+                  key: DEMO_DATASOURCE_URL
                   name: config
+            - name: EDITOR_DATASOURCE_URL
+              valueFrom:
+                  configMapKeyRef:
+                    key: EDITOR_DATASOURCE_URL
+                    name: config
             - name: DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -78,6 +83,10 @@ spec:
               protocol: TCP
             - protocol: TCP
               containerPort: 5005
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: /health/startup
       restartPolicy: Always
       volumes:
         - name: kubeconfig

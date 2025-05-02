@@ -3,4 +3,5 @@ kind: ConfigMap
 metadata:
   name: config
 data:
-  DATASOURCE_URL: "jdbc:postgresql://ecommercedb:5432"
+  DEMO_DATASOURCE_URL: "jdbc:postgresql://ecommercedb.default.svc.cluster.local:5432/ecommerce"
+  EDITOR_DATASOURCE_URL: "jdbc:postgresql://ecommercedb.default.svc.cluster.local:5432/editor"

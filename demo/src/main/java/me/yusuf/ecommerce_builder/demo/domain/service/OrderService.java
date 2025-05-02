@@ -1,0 +1,84 @@
+package me.yusuf.ecommerce_builder.demo.domain.service;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import me.yusuf.ecommerce_builder.shared.types.entity.*;
+import me.yusuf.ecommerce_builder.demo.domain.repository.OrderRepository;
+import me.yusuf.ecommerce_builder.demo.domain.repository.ShipmentRepository;
+import me.yusuf.ecommerce_builder.shared.types.annotation.MethodInfo;
+import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple4;
+import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple5;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Service
+public class OrderService extends ServiceBase
+{
+    ShipmentRepository shipmentRepository;
+    OrderRepository orderRepository;
+    public OrderService(OrderRepository orderRepository, ShipmentRepository shipmentRepository) {
+        this.orderRepository = orderRepository;
+        this.shipmentRepository = shipmentRepository;
+    }
+    
+    @MethodInfo(userFriendlyName = "Sipariş Getir")
+    @PreAuthorize("isAuthenticated()")
+    public List<Order> getOrders(Pageable pageable) {
+        return orderRepository.getOrdersOfCurrentUser(pageable);
+    }
+    
+    @MethodInfo(userFriendlyName = "Sipariş Getir")
+    @PreAuthorize("isAuthenticated()")
+    public @Nullable Order getOrder(int id) {
+        return orderRepository.findById(id);
+    }
+    
+    @MethodInfo(userFriendlyName = "Sipariş Güncelle")
+    @PreAuthorize("isAuthenticated()")
+    public Order updateOrder(@RequestParam int id, @RequestParam Order newOrder) {
+        newOrder.setId(id);
+        orderRepository.save(newOrder);
+        return newOrder;
+    }
+    
+    @MethodInfo(userFriendlyName = "Sipariş Oluştur")
+    @PreAuthorize("!isAnonymous()")
+    public Tuple4<Order, Order, Cart, Payment> createOrder() {
+        var user = getUser();
+        var cart = user.getActiveSessionRef().getCart();
+        var order = new Order();
+        order.setUser(user);
+        order.setCart(cart);
+        var payment = new Payment(); //dummy object, have to replace with a real thing.
+        payment.setOrder(order);
+        payment.setSuccessful(true);
+        order.setPayment(payment);
+        var shipments = cart.getCartItems().stream().map(i -> {
+            Shipment ship = new Shipment();
+            var o = i.getProductOffer();
+            ship.setProduct(o.getProduct());
+            ship.setOrder(order);
+            ship.setSeller(o.getSeller());
+            ship.setCartItemId(i.getId());
+            ship.setCartItem(i);
+            ship.setDeliveryAddress(user.getAddress());
+            order.getShipments().add(ship);
+            return ship;
+        }).toArray(Shipment[]::new);
+        shipmentRepository.saveAll(List.of(shipments));
+        return new Tuple4<>(order, order, cart, payment);
+    }
+    
+    @MethodInfo(userFriendlyName = "Sipariş İptal")
+    @PreAuthorize("isAuthenticated()")
+    public Order cancelOrder(@PathVariable int id){
+        var ret = orderRepository.findById(id);
+        orderRepository.cancelById(id);
+        return ret;
+    }
+}

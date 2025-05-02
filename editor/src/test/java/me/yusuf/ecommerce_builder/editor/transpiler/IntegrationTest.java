@@ -1,39 +1,38 @@
 package me.yusuf.ecommerce_builder.editor.transpiler;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.ASTBuilderVisitor;
-import me.yusuf.ecommerce_builder.editor.transpiler.CodeGeneratorVisitor;
-import me.yusuf.ecommerce_builder.shared.components.EditorContextHolder;
-import me.yusuf.ecommerce_builder.shared.types.PluginSourceAndMetadata;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ASTBuilderVisitor;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.CodeGeneratorVisitor;
+import me.yusuf.ecommerce_builder.shared.components.EditorIdContextHolder;
+import me.yusuf.ecommerce_builder.shared.types.plugin.PluginDto;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.ast.PluginDef;
-import me.yusuf.ecommerce_builder.editor.transpiler.generated.TurkishPseudoCodeLexer;
-import me.yusuf.ecommerce_builder.editor.transpiler.generated.TurkishPseudoCodeParser;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.PluginDef;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.generated.TurkishPseudoCodeLexer;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.generated.TurkishPseudoCodeParser;
 
-import java.util.Map;
+import java.lang.reflect.Type;
 
 public class IntegrationTest {
 
     private static CodeGeneratorVisitor visitor;
     @BeforeAll
     static void setUp(){
-        visitor = new CodeGeneratorVisitor(Map.of());
+        visitor = new CodeGeneratorVisitor();
     }
-    // Helper method to perform the integration:
+    // Helper handle to perform the integration:
     // Pseudo-code --> AST --> Generated Code.
-    private PluginSourceAndMetadata generatePluginFromSource(String source) {
+    private PluginDto generatePluginFromSource(String source) {
         CharStream charStream = CharStreams.fromString(source);
         TurkishPseudoCodeLexer lexer = new TurkishPseudoCodeLexer(charStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TurkishPseudoCodeParser parser = new TurkishPseudoCodeParser(tokens);
         PluginDef pluginDef = new ASTBuilderVisitor().visitIşlevTanımı(parser.işlevTanımı());
-        return visitor.generate(pluginDef, EditorContextHolder.getEditorId());
+        return visitor.generate(pluginDef,new Type[0], EditorIdContextHolder.getEditorId(),1);
     }
 
     @Test
@@ -43,16 +42,16 @@ public class IntegrationTest {
             "    değ x = 5;" +
             "    yazdır(x);" +
             "}";
-        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+        var  var = generatePluginFromSource(pseudoCode);
 
         String expected =
-            "public class " + "SimplePlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "SimplePlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        var x = 5;\n" +
             "        yazdır(x);\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
 
     @Test
@@ -73,10 +72,10 @@ public class IntegrationTest {
             "         yazdır(item);" +
             "    }" +
             "}";
-        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+        var var = generatePluginFromSource(pseudoCode);
 
         String expected =
-            "public class " + "ComplexPlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "ComplexPlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        var a = 10;\n" +
             "        var b = 20;\n" +
@@ -93,7 +92,7 @@ public class IntegrationTest {
             "        }\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
     
     @Test
@@ -110,9 +109,9 @@ public class IntegrationTest {
             "         yazdır(\"not less\");" +
             "    }" +
             "}";
-        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+        var var = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class " + "NestedPlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "NestedPlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        var x = 7;\n" +
             "        if(x < 10) {\n" +
@@ -125,7 +124,7 @@ public class IntegrationTest {
             "        }\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
     
     @Test
@@ -135,15 +134,15 @@ public class IntegrationTest {
             "    değ sum = 1 + 2 - 3 * 4 / 2;" +
             "    yazdır(sum);" +
             "}";
-        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+        var var = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class " + "ArithmeticPlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "ArithmeticPlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        var sum = 1 + 2 - 3 * 4 / 2;\n" +
             "        yazdır(sum);\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
     
     @Test
@@ -152,14 +151,14 @@ public class IntegrationTest {
             "SEPET me.yusuf.ecommerce_builder.transpiler.IntegrationTest.SAMPLE.something'den sonrasında yap NoArgs {" +
             "    testFunction();" +
             "}";
-                PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+                var var = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class " + "NoArgsPlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "NoArgsPlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        testFunction();\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
     
     @Test
@@ -168,14 +167,14 @@ public class IntegrationTest {
             "SEPET me.yusuf.ecommerce_builder.transpiler.IntegrationTest.SAMPLE.something'den sonrasında yap MultiArgs {" +
             "    testFunction(10, 20 + 5, \"hello\");" +
             "}";
-        PluginSourceAndMetadata pluginSourceAndMetadata = generatePluginFromSource(pseudoCode);
+        var var = generatePluginFromSource(pseudoCode);
         String expected =
-            "public class " + "MultiArgsPlugin_"+EditorContextHolder.getEditorId() +" {\n" +
+            "public class " + "MultiArgsPlugin_"+ EditorIdContextHolder.getEditorId() +"_v1 {\n" +
             "    public static void run() {\n" +
             "        testFunction(10, 20 + 5, \"hello\");\n" +
             "    }\n" +
             "}\n";
-        assertEquals(expected, pluginSourceAndMetadata.source());
+        assertEquals(expected, var.getSource().getCharEncoded());
     }
     public static class SAMPLE{
         void something(){

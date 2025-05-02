@@ -1,24 +1,27 @@
 package me.yusuf.ecommerce_builder.demo;
 
 import com.github.javafaker.Faker;
-import me.yusuf.ecommerce_builder.demo.domain.cart.Cart;
-import me.yusuf.ecommerce_builder.demo.domain.cart.CartItem;
-import me.yusuf.ecommerce_builder.demo.domain.category.Category;
-import me.yusuf.ecommerce_builder.demo.domain.coupon.Coupon;
-import me.yusuf.ecommerce_builder.demo.domain.order.Order;
-import me.yusuf.ecommerce_builder.demo.domain.payment.Payment;
-import me.yusuf.ecommerce_builder.demo.domain.product.Product;
-import me.yusuf.ecommerce_builder.demo.domain.product.ProductOffer;
-import me.yusuf.ecommerce_builder.demo.domain.role.Role;
-import me.yusuf.ecommerce_builder.demo.domain.seller.Seller;
-import me.yusuf.ecommerce_builder.demo.domain.session.Session;
-import me.yusuf.ecommerce_builder.demo.domain.shipment.Shipment;
-import me.yusuf.ecommerce_builder.demo.domain.tag.Tag;
-import me.yusuf.ecommerce_builder.demo.domain.user.User;
-import me.yusuf.ecommerce_builder.demo.domain.z_embeddable.Address;
-import me.yusuf.ecommerce_builder.demo.domain.z_embeddable.PhoneNumber;
+import jakarta.persistence.*;
+import me.yusuf.ecommerce_builder.shared.types.entity.Cart;
+import me.yusuf.ecommerce_builder.shared.types.entity.CartItem;
+import me.yusuf.ecommerce_builder.shared.types.entity.Category;
+import me.yusuf.ecommerce_builder.shared.types.entity.Coupon;
+import me.yusuf.ecommerce_builder.shared.types.entity.Order;
+import me.yusuf.ecommerce_builder.shared.types.entity.Payment;
+import me.yusuf.ecommerce_builder.shared.types.entity.Product;
+import me.yusuf.ecommerce_builder.shared.types.entity.ProductOffer;
+import me.yusuf.ecommerce_builder.shared.types.entity.Role;
+import me.yusuf.ecommerce_builder.shared.types.entity.Seller;
+import me.yusuf.ecommerce_builder.shared.types.entity.Session;
+import me.yusuf.ecommerce_builder.shared.types.entity.Shipment;
+import me.yusuf.ecommerce_builder.shared.types.entity.Tag;
+import me.yusuf.ecommerce_builder.shared.types.entity.User;
+import me.yusuf.ecommerce_builder.shared.types.entity.embeddable.Address;
+import me.yusuf.ecommerce_builder.shared.types.entity.embeddable.PhoneNumber;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -28,97 +31,154 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Component
 public class EcommerceDatabaseInitializer {
     static private final Faker faker = new Faker(Locale.forLanguageTag("tr-TR"));
-    private final DummyManager entityManager;
-    private final Map<Class<?>, List<Object>> saved = new java.util.HashMap<>();
-    public EcommerceDatabaseInitializer(DummyManager entityManager) {
-        this.entityManager = entityManager;
+    @PersistenceContext(unitName = "demoEntityManagerFactory", synchronization = SynchronizationType.SYNCHRONIZED)
+    EntityManager entityManager;
+
+    public EcommerceDatabaseInitializer() {
     }
     void initializeDatabase() {
+        entityManager.setFlushMode(FlushModeType.AUTO);
         doRole();
-        var sessionsAndCarts = doSessionAndCart();
-        var carts = sessionsAndCarts.stream().map(Map.Entry::getValue).toList();
-        var sessions = sessionsAndCarts.stream().map(Map.Entry::getKey).toList();
-        System.out.println("Sessions: " + sessions.size());
+        entityManager.flush();
         var categories = doCategory();
         System.out.println("Categories: " + categories.size());
+
         var tags = doTags();
+        entityManager.flush();
         System.out.println("Tags: " + tags.size());
+        var carts = doCarts();
+        entityManager.flush();
         System.out.println("Carts: " + carts.size());
+        var sessions = doSessions(carts);
+        entityManager.flush();
+        System.out.println("Sessions: " + sessions.size());
+        entityManager.flush();
         var users = doUser(sessions);
+        entityManager.flush();
         System.out.println("Users: " + users.size());
         var sellers = doSeller(users);
+        entityManager.flush();
         System.out.println("Sellers: " + sellers.size());
-        var coupons=  doCoupons(sellers);
-        System.out.println("Coupons: " + coupons.size());
-        var products = doProduct(sellers.size(),categories,tags);
+        var products = doProduct(sellers.size(), categories, tags);
+        entityManager.flush();
         System.out.println("Products: " + products.size());
-        var offers =  doProductOffer(products,sellers);
+        var offers = doProductOffer(products, sellers);
+        entityManager.flush();
         System.out.println("Offers: " + offers.size());
-        var items =  doCartItem(carts, offers);
+        var coupons = doCoupons(sellers);
+        entityManager.flush();
+        System.out.println("Coupons: " + coupons.size());
+        var items = doCartItem(carts, offers);
+        entityManager.flush();
         System.out.println("Cart Items: " + items.size());
         var orders = doOrder(users);
+        entityManager.flush();
         System.out.println("Orders: " + orders.size());
     }
     void save(Object o){
         entityManager.persist(o);
     }
-    List<Map.Entry<Session, Cart>> doSessionAndCart(){
-       return IntStream.range(0, NUM_SESSION).parallel().mapToObj(i -> {
+    @Transactional(transactionManager = "demoTransactionManager")
+    List<Cart> doCarts(){
+
+        var result = IntStream.range(0, NUM_SESSION).sequential().mapToObj(i -> {
             Cart cart = new Cart();
+            cart.setTotal(0.0);
+            cart.setItem_count(0);
+            cart.setOrdered(false);
             save(cart);
+            return cart;
+        }).toList();
+        return result;
+    }
+
+    @Transactional(transactionManager = "demoTransactionManager")
+
+    List<Session> doSessions(List<Cart> carts){
+
+        var result = IntStream.range(0, carts.size()).sequential().mapToObj(i -> {
+            Cart cart = carts.get(i);
             Session session = new Session();
             session.setId(java.util.UUID.randomUUID().toString());
             session.setCartId(cart.getId());
             session.setCart(cart);
             save(session);
-           return Map.entry(session, cart);
+            return session;
         }).toList();
+        return result;
     }
+    private final Map<String, Role> roleCache = new HashMap<>();
+    @Transactional(transactionManager = "demoTransactionManager")
+
     void doRole(){
         try{
-            entityManager.persist(new Role("ROLE_ADMIN","admin"));
-            entityManager.persist(new Role("ROLE_USER","user"));
-            entityManager.persist(new Role("ROLE_SELLER","seller"));
-            entityManager.persist(new Role("ROLE_STAFF","staff"));
+            Role adminRole = new Role("ROLE_ADMIN","admin");
+            Role userRole = new Role("ROLE_USER","user");
+            Role sellerRole = new Role("ROLE_SELLER","seller");
+            Role staffRole = new Role("ROLE_STAFF","staff");
+            entityManager.persist(adminRole);
+            entityManager.persist(userRole);
+            entityManager.persist(sellerRole);
+            entityManager.persist(staffRole);
+                // Cache the roles for reuse
+            roleCache.put("ROLE_ADMIN", adminRole);
+            roleCache.put("ROLE_USER", userRole);
+            roleCache.put("ROLE_SELLER", sellerRole);
+            roleCache.put("ROLE_STAFF", staffRole);
         } catch (Exception e) {
+            // If roles already exist, we still need to populate the cache
+            roleCache.put("ROLE_ADMIN", new Role("ROLE_ADMIN","admin"));
+            roleCache.put("ROLE_USER", new Role("ROLE_USER","user"));
+            roleCache.put("ROLE_SELLER", new Role("ROLE_SELLER","seller"));
+            roleCache.put("ROLE_STAFF", new Role("ROLE_STAFF","staff"));
         }
-    }
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<User> doUser(final List<Session> sessions){
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         try(var log = Files.newOutputStream(Path.of("./user_logs.txt"));var logger = new PrintWriter(log)) {
-           return IntStream.range(0, NUM_USER).parallel().mapToObj(i ->{
+            return IntStream.range(0, NUM_USER).sequential().mapToObj(i ->{
                 var user = new User();
                 user.setFirstName(faker.name().firstName());
                 user.setLastName(faker.name().lastName());
-                user.setUsername(java.util.UUID.randomUUID() + "@" + faker.internet().domainName());
+                user.setUsername("user" + i + "@" + faker.internet().domainName());
                 user.setPassword(encoder.encode(faker.internet().password()));
                 user.setAddress(fakeAddress());
                 var session = sessions.get(i);
                 user.setActiveSession(session.getId());
                 user.setActiveSessionRef(session);
-                user.getAuthorities().add(new Role("ROLE_USER", null));
                 user.setPhoneNumber(fakePhoneNumber());
                 user.setEnabled(true);
+                user.setEmailVerified(false);
+                user.setPhoneVerified(false);
                 user.setProfileImage(fakeImage());
                 try {
                     save(user);
+                    
+                    // Use the cached role instead of creating a new one
+                    Role userRole = roleCache.get("ROLE_USER");
+                    user.getAuthorities().add(userRole);
+                    entityManager.merge(user);
                 } catch (Exception e) {
-                    e.printStackTrace(logger);
+                    e.printStackTrace();
+                    return null;
                 }
                 return user;
-            }).toList();
+            }).filter(Objects::nonNull).toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<Seller> doSeller(final List<User> users)  {
+
         try (var log = Files.newOutputStream(Path.of("./seller_log.txt")); var logger = new PrintWriter(log)){
-          return IntStream.range(0, users.size() / 10).parallel().mapToObj(i ->{
+          var result = IntStream.range(0, users.size() / 10).sequential().mapToObj(i ->{
                 var user = users.get(i*10);
                 var seller = new Seller();
                 seller.setShopName(faker.company().name());
@@ -127,39 +187,57 @@ public class EcommerceDatabaseInitializer {
                 seller.setUser(user);
                 try{
                     save(seller);
+                    
+                    // Add seller role to the user
+                    Role sellerRole = roleCache.get("ROLE_SELLER");
+                    user.getAuthorities().add(sellerRole);
+                    entityManager.merge(user);
                 } catch (Exception e) {
-                    e.printStackTrace(logger);
+                    e.printStackTrace();
+                    return null;
                 }
                 return  seller;
-            }).toList();
+            }).filter(Objects::nonNull).toList();
+                return result;
         } catch(IOException e){
             throw new RuntimeException(e);
         }
     }
-    void addCategories(List<Category> categories,Category parent, int level){
-        if(level == 0 ) {
-            categories.add(parent);
-            return;
-        }
-        for (int i=0 ; i < 4 ; i++){
+//    void addCategories(List<Category> categories,Category parent, int level){
+//        if(level == 0 ) {
+//            categories.add(parent);
+//            return;
+//        }
+//        for (int i=0 ; i < 4 ; i++){
+////            var category = new Category();
+////            category.setName(faker.commerce().productName());
+////            category.setParentCategory(parent);
+////            if(parent!=null)
+////                category.setParentId(parent.getId());
+////            category.setDescription(faker.lorem().characters(0,255));
+////            entityManager.persist(category);
+//            addCategories(categories,category, level-1);
+//        }
+//    }    @Transactional(transactionManager = "demoTransactionManager")
+
+@Transactional(transactionManager = "demoTransactionManager")
+List<Category> doCategory(){
+        var ret = new ArrayList<Category>();
+
+        for (int i=0; i <20; i++) {
             var category = new Category();
             category.setName(faker.commerce().productName());
-            category.setParentCategory(parent);
-            if(parent!=null)
-                category.setParentId(parent.getId());
-            category.setDescription(faker.lorem().characters(0,255));
+            category.setDescription(faker.lorem().characters(0, 255));
             entityManager.persist(category);
-            addCategories(categories,category, level-1);
+            ret.add(category);
         }
-    }
-     List<Category> doCategory(){
-        var ret = new ArrayList<Category>();
-        for (int i=0; i <5; i++)
-            addCategories(ret,null,4);
         return ret;
-    }
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<Tag> doTags(){
-        return IntStream.range(0, NUM_TAGS).parallel().mapToObj(i ->{
+
+        var ret = IntStream.range(0, NUM_TAGS).sequential().mapToObj(i ->{
+
             var tag = new Tag();
             tag.setName(faker.internet().uuid().substring(0,32));
             try {
@@ -167,10 +245,12 @@ public class EcommerceDatabaseInitializer {
             } catch (Exception e) {e.printStackTrace();return null;}
             return  tag;
         }).filter(Objects::nonNull).toList();
-    }
+        return ret;
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<Product> doProduct(final int sellerSize, final List<Category> categories,List<Tag> tags)  {
         try(var log = Files.newOutputStream(Paths.get("products_log.txt")); var logger = new PrintWriter(log)) {
-           return IntStream.range(0, sellerSize * 10).parallel().mapToObj(i -> {
+           var ret = IntStream.range(0, sellerSize * 10).sequential().mapToObj(i -> {
                 var product = new Product();
                 product.setName(faker.commerce().productName());
                 product.setDescription(faker.lorem().paragraph());
@@ -183,43 +263,52 @@ public class EcommerceDatabaseInitializer {
                 try {
                     save(product);
                 } catch (Exception e) {
-                    e.printStackTrace(logger);
+                    e.printStackTrace();
                     return null;
                 }
                 return product;
             }).filter(Objects::nonNull).toList();
+              return ret;
         } catch (IOException e){
             throw new RuntimeException(e);
         }
 
-    }
-    List<ProductOffer> doProductOffer(final List<Product> products, final List<Seller> sellers)  {
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
+    List<ProductOffer> doProductOffer(final List<Product> products, final List<Seller> sellers) {
         try(var log = Files.newOutputStream(Path.of("./productOffer_log.txt")); var logger = new PrintWriter(log)) {
-          return IntStream.range(0, sellers.size() * products.size() / 10).parallel().mapToObj(j -> {
-                int i= j / sellers.size();
+            var ret = IntStream.range(0, sellers.size() * products.size() / 10).sequential().mapToObj(j -> {
+                int i = j / sellers.size();
                 j = j % sellers.size();
                 var offer = new ProductOffer();
-                offer.setProduct(products.get(i * 10));
-                offer.setSeller(sellers.get(j));
+                var product = products.get(i * 10);
+                var seller = sellers.get(j);
+                
+                offer.setProduct(product);
+                offer.setSeller(seller);
                 offer.setDiscount((float) faker.number().randomDouble(2, 0, 1));
-                offer.setRegularPrice(faker.random().nextInt(100));
+                offer.setRegularPrice(faker.random().nextInt(100) + 1); 
                 offer.setDescription(faker.lorem().paragraph());
-                offer.setStock(faker.random().nextInt(1000));
-                offer.setId(new ProductOffer.ProductOfferId(offer.getProduct().getId(), offer.getSeller().getUserId()));
+                offer.setStock(faker.random().nextInt(1000) + 1);
+                offer.setInStock(offer.getStock() > 0);
+                offer.setId(new ProductOffer.ProductOfferId(product.getId(), seller.getUserId()));
+                
                 try {
                     save(offer);
                 } catch (Exception e) {
-                    e.printStackTrace(logger);
+                    e.printStackTrace();
                     return null;
                 }
                 return offer;
             }).filter(Objects::nonNull).toList();
+            return ret;
         } catch (IOException e){
             throw new RuntimeException(e);
         }
-    }
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<Coupon> doCoupons(final  List<Seller> sellers)  {
-        return IntStream.range(0, sellers.size()*2).parallel().mapToObj(i ->{
+        return IntStream.range(0, sellers.size()*2).sequential().mapToObj(i ->{
             var coupon = new Coupon();
             var seller = sellers.get(i / 2);
             coupon.setSeller(seller);
@@ -234,61 +323,95 @@ public class EcommerceDatabaseInitializer {
             save(coupon);
             return coupon;
         }).toList();
-    }
-    List<CartItem> doCartItem(final List<Cart> carts, final List<ProductOffer> offers)  {
-       return IntStream.range(0, offers.size() / 1000 * carts.size()).parallel().mapToObj(i -> {
-            int j = i / (offers.size()/ 1000);
-            i = i % (offers.size() / 1000);
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
+    List<CartItem> doCartItem(final List<Cart> carts, final List<ProductOffer> offers) {
+        return IntStream.range(0, Math.min(offers.size() / 10, carts.size() * 5)).sequential().mapToObj(i -> {
+            int cartIndex = i % carts.size();
+            int offerIndex = (i / carts.size()) % (offers.size() / 10);
+            
             var item = new CartItem();
-            var cart = carts.get(j);
-            var offer = offers.get(i * 10);
-            item.setQuantity(faker.random().nextInt(10));
+            var cart = carts.get(cartIndex);
+            var offer = offers.get(offerIndex * 10);
+            
+            item.setQuantity(faker.random().nextInt(1, 10));
             item.setCart(cart);
             item.setProductOffer(offer);
             item.setId(new CartItem.CartItemId(offer.getId(), cart.getId()));
+            
             try {
                 save(item);
+                
+                cart.getCartItems().add(item);
+                cart.setTotal(cart.getTotal() + item.getTotalPrice());
+                cart.setItem_count(cart.getItem_count() + 1);
+                save(cart);
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
-           cart.getCartItems().add(item);
-           cart.setTotal(cart.getTotal() + item.getTotalPrice());
             return item;
         }).filter(Objects::nonNull).toList();
-    }
+    }    @Transactional(transactionManager = "demoTransactionManager")
+
     List<Order> doOrder(final List<User> users)  {
-       return users.stream().limit((long)(users.size()*.7)).parallel().map(user ->{
+
+        var result = users.stream().limit((long)(users.size()*.7)).sequential().map(user ->{
+            // Re-fetch user to ensure activeSessionRef is loaded
+            User managedUser = entityManager.find(User.class, user.getId());
+            if (managedUser.getActiveSessionRef() == null) {
+                return null;
+            }
+            var cart = managedUser.getActiveSessionRef().getCart();
+            if (cart.getCartItems().isEmpty()) {
+                return null; 
+            }
+            
+            
+            cart.setOrdered(true);
+            entityManager.merge(cart);
+            
             var order = new Order();
-            order.setUser(user);
-            order.setCart(order.getUser().getActiveSessionRef().getCart());
-            order.setUserId(order.getUser().getId());
-            order.setCartId(order.getCart().getId());
+            order.setUserId(managedUser.getId());
+            order.setUser(managedUser);
+            order.setCart(cart);
+            order.setCartId(cart.getId());
             order.setStatus(Order.OrderStatus.AWAITING_SHIPPING);
-            order.setTotal(order.getCart().getTotal());
-            entityManager.persist(order);
-           var p = new Payment(null,true,order.getId(),System.currentTimeMillis(),order, Payment.PaymentType.CREDIT_CARD);
-           entityManager.persist(p);
-           order.setPayment(p);
-           order.setPaymentId(order.getPayment().getId());
-           order.setShipments(order.getCart().getCartItems().stream().map(ci->{
+            order.setTotal(cart.getTotal());
+            save(order);
+            
+            
+            var payment = new Payment();
+            payment.setSuccessful(true);
+            payment.setOrderId(order.getId());
+            payment.setOrder(order);
+            payment.setLastPaymentAttempt(System.currentTimeMillis());
+            payment.setType(Payment.PaymentType.CREDIT_CARD);
+            save(payment);
+            
+            
+            order.setPaymentId(payment.getId());
+            entityManager.merge(order);
+            
+            
+            cart.getCartItems().forEach(ci -> {
                var shipment = new Shipment();
-               shipment.setCartItem(ci);
+               shipment.setOrderId(order.getId());
                shipment.setOrder(order);
                shipment.setSeller(ci.getProductOffer().getSeller());
-               shipment.setOrderId(order.getId());
                shipment.setSellerId(ci.getProductOffer().getSeller().getUserId());
+               shipment.setProductId(ci.getProductOffer().getProduct().getId());
                shipment.setProduct(ci.getProductOffer().getProduct());
                shipment.setShipDate(LocalDate.now());
                shipment.setDeliveryStatusSeller(Shipment.DeliveryStatus.PENDING);
                shipment.setCartItemId(ci.getId());
-               shipment.setProduct(ci.getProductOffer().getProduct());
-               shipment.setProductId(ci.getProductOffer().getProduct().getId());
-               shipment.setDeliveryAddress(order.getUser().getAddress());
-               entityManager.persist(shipment);
-               return shipment;
-           }).collect(Collectors.toSet()));
+               shipment.setDeliveryAddress(managedUser.getAddress());
+               save(shipment);
+            });
+            
             return order;
-        }).toList();
+        }).filter(Objects::nonNull).toList();
+        return result;
     }
     static int imageFileCounter = 0;
     private static byte[] fakeImage(){
@@ -314,13 +437,19 @@ public class EcommerceDatabaseInitializer {
         return null;
     }
     private PhoneNumber fakePhoneNumber(){
-        return new PhoneNumber(faker.phoneNumber().subscriberNumber(),faker.phoneNumber().cellPhone());
+        return new PhoneNumber("+90", faker.phoneNumber().subscriberNumber(10));
     }
     private Address fakeAddress(){
-        return new Address(faker.address().streetAddress(),faker.address().city(),faker.address().state(),faker.address().zipCode(),faker.address().country());
+        return new Address(
+            faker.address().streetAddress(),
+            faker.address().city(),
+            faker.address().state(),
+            faker.address().zipCode(),
+            "TR" 
+        );
     }
     private static final int NUM_TAGS = 1000;
-    private static final int NUM_USER = 1000;
+    private static final int NUM_USER = 100;
     private static final int NUM_SESSION = (int) ( NUM_USER * 1.5) + 1;
     private static final int NUM_ORDER = (int)(NUM_USER * .7);
 }

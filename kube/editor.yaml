@@ -19,10 +19,15 @@ spec:
         - name: editor
           image: host.minikube.internal:5000/ecommerce_builder-editor:latest
           env:
+            - name: DEMO_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_DATASOURCE_URL
+                  name: config
             - name: DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
-                  key: DATASOURCE_URL
+                  key: EDITOR_DATASOURCE_URL
                   name: config
             - name: DATASOURCE_USERNAME
               valueFrom:
@@ -40,6 +45,10 @@ spec:
               protocol: TCP
             - containerPort: 5005
               protocol: TCP
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: /health/startup
       restartPolicy: Always
 ---
 apiVersion: v1

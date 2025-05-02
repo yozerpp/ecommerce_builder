@@ -1,8 +1,9 @@
 package me.yusuf.ecommerce_builder.demo.security;
 
-import me.yusuf.ecommerce_builder.demo.domain.user.User;
-import me.yusuf.ecommerce_builder.demo.domain.user.UserRepository;
+import me.yusuf.ecommerce_builder.shared.types.entity.User;
+import me.yusuf.ecommerce_builder.demo.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -11,52 +12,70 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserAuthService implements UserDetailsManager {
-    UserRepository userRepository;
-    User user;
+
+    private final UserRepository userRepository;
+
     @Autowired
-    public UserAuthService(UserRepository userRepository){
+    public UserAuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
     @Override
     @Transactional
     @jakarta.transaction.Transactional
-    public User loadUserByUsername(String username) throws UsernameNotFoundException {
-        this.user= userRepository.findUserByUsername(username);
-        if(this.user==null)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User u = userRepository.findUserByUsername(username);
+        if (u == null) {
             throw new UsernameNotFoundException("User not found for username:" + username);
-        return this.user;
+        }
+        return new UserPrincipal(u);
     }
 
     @Override
     public void createUser(UserDetails user) {
-        if(User.class.isAssignableFrom(user.getClass()))
+        if (user instanceof UserPrincipal up) {
+            userRepository.save(up.getUser());
+        } else if (user instanceof User) {
             userRepository.save((User) user);
-        else throw new RuntimeException("Unexpected type:" + user.getClass().getName());
+        } else {
+            throw new RuntimeException("Unexpected type: " + user.getClass());
+        }
     }
 
     @Override
     public void updateUser(UserDetails user) {
-        if(User.class.isAssignableFrom(user.getClass()))
+        if (user instanceof UserPrincipal up) {
+            userRepository.save(up.getUser());
+        } else if (user instanceof User) {
             userRepository.save((User) user);
-        else throw new RuntimeException("Unexpected type:" + user.getClass().getName());
+        } else {
+            throw new RuntimeException("Unexpected type: " + user.getClass());
+        }
     }
 
     @Override
     public void deleteUser(String username) {
-        if(this.user.getUsername().equals(username))
-            this.userRepository.deleteCurrentUser();
-        else throw new RuntimeException("Unexpected type:" + user.getClass().getName());
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String loggedIn = auth.getName();
+        if (!loggedIn.equals(username)) {
+            throw new RuntimeException("Cannot delete other user");
+        }
+        UserPrincipal up = (UserPrincipal) auth.getPrincipal();
+        userRepository.delete(up.getUser());
     }
 
     @Override
     public void changePassword(String oldPassword, String newPassword) {
-        if(this.user.getPassword().equals(oldPassword))
-            this.userRepository.updatePasswordOfCurrentUser(newPassword);
-        else throw new RuntimeException("Unexpected type:" + user.getClass().getName());
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal up = (UserPrincipal) auth.getPrincipal();
+        if (!up.getPassword().equals(oldPassword)) {
+            throw new RuntimeException("Bad old password");
+        }
+        userRepository.updatePasswordOfCurrentUser(newPassword);
     }
 
     @Override
     public boolean userExists(String username) {
-        return this.userRepository.existsUserByUsername(username);
+        return userRepository.existsUserByUsername(username);
     }
 }

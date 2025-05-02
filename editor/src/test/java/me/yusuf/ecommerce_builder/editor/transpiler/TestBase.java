@@ -1,7 +1,7 @@
 package me.yusuf.ecommerce_builder.editor.transpiler;
 
-import me.yusuf.ecommerce_builder.editor.transpiler.generated.TurkishPseudoCodeLexer;
-import me.yusuf.ecommerce_builder.editor.transpiler.generated.TurkishPseudoCodeParser;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.generated.TurkishPseudoCodeLexer;
+import me.yusuf.ecommerce_builder.editor.tool.transpiler.generated.TurkishPseudoCodeParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
