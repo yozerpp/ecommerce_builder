@@ -36,9 +36,8 @@ kubectl delete -f kube/demo.yaml
 kubectl delete -f kube/editor.yaml
 kubectl delete -f kube/ecommercedb.yaml
 kubectl delete -f kube/init-db.yaml
-IFS=' '
-for p in $(ps aux | egrep "kubectl port-forward" | egrep -v grep); do
-  sudo kill $(echo $p|awk '{print $2}')
+for p in $(ps aux | egrep "kubectl port-forward" | egrep -v grep| awk '{print $2}'); do
+  sudo kill $p
 done;
 fi
 shift
