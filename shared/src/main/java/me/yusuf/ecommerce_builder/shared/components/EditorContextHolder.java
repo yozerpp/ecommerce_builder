@@ -21,7 +21,7 @@ public class EditorContextHolder extends HttpFilter {
     }
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-        Arrays.stream(req.getCookies()).filter(c->c.getName().equals("editorId")).findFirst().ifPresent(c->editorId.set(Integer.parseInt(c.getValue())));
+        Arrays.stream(req.getCookies()).filter(c->c.getName().equals("EditorId")).findFirst().ifPresent(c->editorId.set(Integer.parseInt(c.getValue())));
         chain.doFilter(req,res);
     }
 }
