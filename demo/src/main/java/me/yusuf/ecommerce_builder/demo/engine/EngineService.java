@@ -9,6 +9,7 @@ import io.kubernetes.client.util.Watch;
 import jakarta.annotation.PreDestroy;
 import me.yusuf.ecommerce_builder.demo.EcommerceApplication;
 import me.yusuf.ecommerce_builder.shared.types.MethodMetadata;
+import me.yusuf.ecommerce_builder.shared.types.PluginClassFile;
 import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple2;
 import org.springframework.stereotype.Service;
 
