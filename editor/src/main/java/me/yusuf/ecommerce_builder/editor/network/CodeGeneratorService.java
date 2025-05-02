@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import me.yusuf.ecommerce_builder.editor.compiler.DynamicCompiler;
 import me.yusuf.ecommerce_builder.editor.helper.Utils;
 import me.yusuf.ecommerce_builder.shared.components.EditorContextHolder;
-import me.yusuf.ecommerce_builder.shared.types.ClassFileObject;
-import me.yusuf.ecommerce_builder.shared.types.MethodMetadata;
-import me.yusuf.ecommerce_builder.shared.types.PluginSourceAndMetadata;
+import me.yusuf.ecommerce_builder.shared.types.*;
 import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple2;
 import me.yusuf.ecommerce_builder.editor.transpiler.ASTBuilderVisitor;
 import me.yusuf.ecommerce_builder.editor.transpiler.CodeGeneratorVisitor;
@@ -16,6 +14,7 @@ import me.yusuf.ecommerce_builder.editor.transpiler.Completer;
 import me.yusuf.ecommerce_builder.editor.transpiler.generated.TurkishPseudoCodeParser;
 import me.yusuf.utils.StringUtils;
 import org.apache.coyote.BadRequestException;
+import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,9 +30,10 @@ public class CodeGeneratorService {
     private static final Map<Integer, String> tokenMaps = getTokenMaps();
     private static final Map<Integer, String> ruleMaps = getRuleMaps();
     private static final HttpClient httpClient = HttpClient.newHttpClient();
-    private static final String demoUrl = "https://demo-service-internal:5001";
+    private static final String demoUrl = "http://demo-service.default.svc.cluster.local:8080";
     private final Completer completer;
     private final CodeGeneratorVisitor generator;
+    private static final String engineKey = Base64.getEncoder().encodeToString(Sha512DigestUtils.sha("Y&5v9+57bEhq"));
     private final ASTBuilderVisitor astBuilder;
     private final ObjectMapper objectMapper;
 
@@ -43,16 +43,20 @@ public class CodeGeneratorService {
         this.generator = generator;
         this.objectMapper = objectMapper;
     }
-    public ClassFileObject generate(String input)  {
+    public PluginClassFile generate(String input)  {
         var plugin = parse(input.trim());
-        return DynamicCompiler.compile(plugin.id().name(),
+        var cf= DynamicCompiler.compile(plugin.id().name(),
                 plugin.source());
+        return new PluginClassFile(plugin.id(),cf,plugin.metadata());
     }
-    public void sendToApp(ClassFileObject classFileObject) throws BadRequestException {
+    public void sendToApp(PluginClassFile pluginClassFile) throws BadRequestException {
         HttpResponse<String> res;
         try {
             res =  httpClient.send(HttpRequest.newBuilder(URI.create(demoUrl + "/engine/plugin"))
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(classFileObject))).build()
+                            .header("Engine-Key",engineKey)
+                            .header("Cookie", "EditorId=0")
+                            .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(pluginClassFile.toDto()))).build()
                     , HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
