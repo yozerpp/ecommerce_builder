@@ -45,9 +45,8 @@ public class CodeGeneratorVisitorTest {
         // Create an empty block.
         pd.setBlock(new Block());
         String expected = """
-                public class TestPlugin_0 implements Runnable {
-                    @Override
-                    public void run() {
+                public class TestPlugin_0 {
+                    public static void run() {
                     }
                 }
                 """;

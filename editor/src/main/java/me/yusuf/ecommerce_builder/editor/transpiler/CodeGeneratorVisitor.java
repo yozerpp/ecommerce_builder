@@ -6,6 +6,7 @@ import java.util.Map;
 
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.*;
 import me.yusuf.ecommerce_builder.editor.transpiler.ast.expression.*;
+import me.yusuf.ecommerce_builder.shared.types.Plugin;
 import me.yusuf.ecommerce_builder.shared.types.PluginSourceAndMetadata;
 import me.yusuf.ecommerce_builder.shared.types.PluginMetadata;
 import me.yusuf.utils.StringUtils;
@@ -20,13 +21,12 @@ public class CodeGeneratorVisitor {
     public PluginSourceAndMetadata generate(PluginDef pluginDef, int editorId) {
         String code = visitPluginDef(pluginDef,editorId);
         Type[] argTypes = getMethodArguementTypes(code);
-        return new PluginSourceAndMetadata(new PluginSourceAndMetadata.Id(editorId,pluginDef.getName(), pluginDef.getHookedMethod()),new PluginMetadata(argTypes),
+        return new PluginSourceAndMetadata(new Plugin.Id(editorId,pluginDef.getName(), pluginDef.getHookedMethod()),new PluginMetadata(argTypes),
                 code);
     }
     public String visitPluginDef(PluginDef pd, int editorId) {
-        return "public class " + pd.getName() + "Plugin_" +editorId+ " implements Runnable {\n" +
-               "    @Override\n" +
-               "    public void run() {\n" +
+        return "public class " + pd.getName() + "Plugin_" +editorId+ " {\n" +
+               "    public static void run() {\n" +
                 indent(visitBlock(pd.getBlock()),2) +
                 "    }\n"+
                "}\n";
