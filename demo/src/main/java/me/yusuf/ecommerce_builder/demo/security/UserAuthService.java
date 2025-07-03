@@ -21,9 +21,7 @@ public class UserAuthService implements UserDetailsManager {
     }
 
     @Override
-    @Transactional
-    @jakarta.transaction.Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserPrincipal loadUserByUsername(String username) throws UsernameNotFoundException {
         User u = userRepository.findUserByUsername(username);
         if (u == null) {
             throw new UsernameNotFoundException("User not found for username:" + username);

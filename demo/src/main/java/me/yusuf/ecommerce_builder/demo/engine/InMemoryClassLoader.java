@@ -26,6 +26,9 @@ public class InMemoryClassLoader extends ClassLoader {
     public void clear(){
         loadedClasses.clear();compiledClasses.clear();
     }
+    public Class<?> forName(String name) throws ClassNotFoundException {
+        return loadedClasses.get(name);
+    }
     public void remove(String name){
         loadedClasses.remove(name);
         compiledClasses.remove(name);

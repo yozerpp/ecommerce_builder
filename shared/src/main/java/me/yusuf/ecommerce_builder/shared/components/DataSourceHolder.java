@@ -41,7 +41,6 @@ public class DataSourceHolder {
 				.username(datasourceUsername).password(datasourcePassword).build();
         if (!exists)
 			try (Connection conn = ret.getConnection()) {
-				// Disable foreign key checks temporarily
 				disableForeignKeyChecks(conn);
 				
 				conn.createStatement().execute("DO $$\n" +
@@ -109,14 +108,42 @@ public class DataSourceHolder {
 	 * Temporarily disable foreign key checks for data import operations
 	 */
 	private void disableForeignKeyChecks(Connection connection) throws SQLException {
-		connection.createStatement().execute("SET session_replication_role = replica;");
+		// Disable all foreign key constraints in the target schema
+		connection.createStatement().execute(
+			"DO $$ " +
+			"DECLARE " +
+			"    r RECORD; " +
+			"BEGIN " +
+			"    FOR r IN (SELECT conname, conrelid::regclass AS table_name " +
+			"              FROM pg_constraint " +
+			"              WHERE contype = 'f' " +
+			"              AND connamespace = (SELECT oid FROM pg_namespace WHERE nspname = current_schema())) " +
+			"    LOOP " +
+			"        EXECUTE 'ALTER TABLE ' || r.table_name || ' DISABLE TRIGGER ALL'; " +
+			"    END LOOP; " +
+			"END $$;"
+		);
 	}
 	
 	/**
 	 * Re-enable foreign key checks after data import operations
 	 */
 	private void enableForeignKeyChecks(Connection connection) throws SQLException {
-		connection.createStatement().execute("SET session_replication_role = DEFAULT;");
+		// Re-enable all foreign key constraints in the target schema
+		connection.createStatement().execute(
+			"DO $$ " +
+			"DECLARE " +
+			"    r RECORD; " +
+			"BEGIN " +
+			"    FOR r IN (SELECT conname, conrelid::regclass AS table_name " +
+			"              FROM pg_constraint " +
+			"              WHERE contype = 'f' " +
+			"              AND connamespace = (SELECT oid FROM pg_namespace WHERE nspname = current_schema())) " +
+			"    LOOP " +
+			"        EXECUTE 'ALTER TABLE ' || r.table_name || ' ENABLE TRIGGER ALL'; " +
+			"    END LOOP; " +
+			"END $$;"
+		);
 	}
 	
 	@Getter

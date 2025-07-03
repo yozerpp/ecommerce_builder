@@ -3,7 +3,6 @@ package me.yusuf.ecommerce_builder.demo.domain.network;
 import me.yusuf.ecommerce_builder.demo.domain.service.ServiceBase;
 import me.yusuf.ecommerce_builder.shared.types.entity.Order;
 import me.yusuf.ecommerce_builder.demo.domain.repository.OrderRepository;
-import me.yusuf.ecommerce_builder.demo.domain.repository.SellerRepository;
 import me.yusuf.ecommerce_builder.shared.types.entity.Shipment;
 import me.yusuf.ecommerce_builder.demo.domain.repository.ShipmentRepository;
 import org.springframework.data.domain.Page;
@@ -22,13 +21,11 @@ import static me.yusuf.ecommerce_builder.demo.domain.network.ControllerBase.base
 @RestController
 @RequestMapping(basePath+"/shipment")
 public class ShipmentController extends ControllerBase {
-    private final SellerRepository sellerRepository;
     private final ShipmentRepository shipmentRepository;
     private final OrderRepository orderRepository;
 
-    public ShipmentController(ShipmentRepository shipmentRepository, SellerRepository sellerRepository, OrderRepository orderRepository) {
+    public ShipmentController(ShipmentRepository shipmentRepository, OrderRepository orderRepository) {
         this.shipmentRepository = shipmentRepository;
-        this.sellerRepository = sellerRepository;
         this.orderRepository = orderRepository;
     }
     

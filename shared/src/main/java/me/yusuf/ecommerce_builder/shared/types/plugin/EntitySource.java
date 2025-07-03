@@ -20,8 +20,7 @@ public class EntitySource extends Versioned {
         Integer editorId,
         @Column(name = "entity_class", nullable = false, updatable = false)
         Class<?> entityClass,
-        @Column(name = "version", nullable = false, insertable = false, updatable = false)
-        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        @Column(name = "version", nullable = false, updatable = false)
         int version
     ) {}
     @EmbeddedId

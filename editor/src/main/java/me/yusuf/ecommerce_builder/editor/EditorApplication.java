@@ -2,13 +2,11 @@ package me.yusuf.ecommerce_builder.editor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import me.yusuf.ecommerce_builder.editor.domain.repository.EditorRepository;
 import me.yusuf.ecommerce_builder.editor.domain.entity.Metamodel;
+import me.yusuf.ecommerce_builder.editor.domain.repository.EditorRepository;
 import me.yusuf.ecommerce_builder.editor.network.EditorContextHolder;
 import me.yusuf.ecommerce_builder.editor.tool.transpiler.SubstitutionVisitor;
-import me.yusuf.ecommerce_builder.shared.components.DataSourceHolder;
 import me.yusuf.ecommerce_builder.shared.components.EditorIdContextHolder;
-import me.yusuf.ecommerce_builder.shared.components.EntityManagerFactoryFactory;
 import me.yusuf.ecommerce_builder.shared.types.conversion.ClassMapper;
 import me.yusuf.ecommerce_builder.editor.tool.transpiler.ASTBuilderVisitor;
 
@@ -58,6 +56,11 @@ public class EditorApplication {
         return filter;
     }
     @Bean
+    @Scope
+    public Map<Class<?>, Metamodel> getDefaultMetamodels() throws IOException {
+        return Metamodel.generate(Arrays.stream(defaultEntityClasses()).filter(c->c.getDeclaringClass()==null).toList(),0);
+    }
+    @Bean
     @Scope("singleton")
     public FilterRegistrationBean<EditorContextHolder> editorContextHodlerFilter(EditorRepository editorRepository){
         var filter = new FilterRegistrationBean<>(new EditorContextHolder(editorRepository));
@@ -72,7 +75,6 @@ public class EditorApplication {
 //    Map<Class<?>, Metamodel> defaultMetamodels(Class<?>[] defaultEntityClasses) {
 //        return Metamodel.generate(Arrays.asList(defaultEntityClasses),0);
 //    }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -102,6 +104,7 @@ public class EditorApplication {
                 Map.entry(new Tuple2<>("KULLANICI", SubstitutionVisitor.SymbolType.Variable), "User"),
                 Map.entry(new Tuple2<>("SATICI", SubstitutionVisitor.SymbolType.Variable), "Seller"),
                 Map.entry(new Tuple2<>("İLAN", SubstitutionVisitor.SymbolType.Variable), "ProductOffer"),
+                Map.entry(new Tuple2<>("SEPETÜRÜNÜ", SubstitutionVisitor.SymbolType.Variable), "CartItem"),
                 Map.entry(new Tuple2<>("ÜRÜN", SubstitutionVisitor.SymbolType.Variable), "Product"),
                 Map.entry(new Tuple2<>("KATEGORİ", SubstitutionVisitor.SymbolType.Variable), "Category"),
                 Map.entry(new Tuple2<>("ÖDEME", SubstitutionVisitor.SymbolType.Variable), "Payment"),

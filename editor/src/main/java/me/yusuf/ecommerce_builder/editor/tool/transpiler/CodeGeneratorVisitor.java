@@ -3,10 +3,12 @@ package me.yusuf.ecommerce_builder.editor.tool.transpiler;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.*;
 import me.yusuf.ecommerce_builder.editor.tool.transpiler.ast.expression.*;
+import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
 import me.yusuf.ecommerce_builder.shared.types.plugin.IPlugin;
 import me.yusuf.ecommerce_builder.shared.types.plugin.PluginDto;
 import me.yusuf.utils.ReflectionUtils;
@@ -35,7 +37,7 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
         return "public class " + pd.getName() + "Plugin_" +editorId+ "_v" + version + " {\n" +
                "    public static void run(" + Arrays.stream(argTypes).map(t->{
                    var splt = t.getTypeName().split("\\.");
-                   return t.getTypeName() + ' ' + StringUtils.firstLetterToLowerCase(splt[splt.length-1]);
+                  return EntitySource.getClassName(splt[splt.length-1],version,editorId) + ' ' + StringUtils.firstLetterToLowerCase(splt[splt.length-1]);
         }).collect(Collectors.joining(","))+") {\n" +
                 indent(visitBlock(pd.getBlock()),2) +
                 "    }\n"+
@@ -55,14 +57,13 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
     }
     @Override
     public String visitAssignmentExpr(AssignmentExpr asn) {
-        var splt = asn.getLeft().split("\\.");
-        if(Arrays.stream(entityClasses).anyMatch(c->StringUtils.firstLetterToLowerCase(c.getSimpleName()).equals(splt[0]))){
-            return splt[0] + '.' + Arrays.stream(splt).skip(1).limit(splt.length-2)
-                    .map(s->"get" + StringUtils.firstLetterToUpperCase(s) + "()").collect(Collectors.joining("."))
-                     + '.' + "set" + StringUtils.firstLetterToUpperCase(splt[splt.length-1]) + "(" + visitExpression(asn.getRight()) + ");";
-        } else return asn.getLeft() + " = " + visitExpression(asn.getRight())+ ";";
+        var id = asn.getLeft();
+        if (id.memberAccess == null) return  id.identifier + " = " + visitExpression(asn.getRight()) + ";";
+        else{
+            String s = visitIdentifier(id,true,true).replaceAll("\\)$","") +  visitExpression(asn.getRight()) + ");";
+            return s;
+        }
     }
-
     @Override
     public String visitFunctionCallExpr(FunctionCallExpr fce) {
         String args = "";
@@ -205,7 +206,7 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
     @Override
     public String visitPrimary(Primary p) {
         return switch (p){
-            case Primary.Identifier id -> visitIdentifier(id, true);
+            case Primary.Identifier id -> visitIdentifier(id, true,false);
             case Primary.StringLiteral literal -> visitStringLiteral(literal);
             case Primary.Number n-> visitNumber(n);
             case null -> throw new IllegalArgumentException("Primary cannot be null");
@@ -213,8 +214,8 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
         };
     }
 
-    public String visitIdentifier(Primary.Identifier id, boolean root) {
-            return id.identifier + (root ? "" : "()") + (id.memberAccess!=null ? ".get" + StringUtils.firstLetterToUpperCase(visitIdentifier(id.memberAccess, false)):"");
+    public String visitIdentifier(Primary.Identifier id, boolean root,boolean isSetter) {
+            return id.identifier + (root ? "" : "()") + (id.memberAccess != null ? (isSetter && id.memberAccess.memberAccess == null ?".set":".get") + StringUtils.firstLetterToUpperCase(visitIdentifier(id.memberAccess, false,isSetter)):"");
     }
 
     @Override

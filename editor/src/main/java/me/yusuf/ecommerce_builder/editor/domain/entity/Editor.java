@@ -38,11 +38,12 @@ public class Editor extends Versioned {
     @GeneratedColumn("first_name || ' ' || middle_name || ' ' || last_name")
     @Column(name = "full_name", updatable = false, insertable = false)
     private String fullName;
+    @OneToMany(mappedBy = "editor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Metamodel> metamodels = new ArrayList<>();
 //    @ColumnDefault("ARRAY[]::text[]")
 //    @Column(name="modified_classes", nullable=false)
 //    @ElementCollection(targetClass = Class.class, fetch = FetchType.EAGER)
 //    @Convert(converter = JpaTypeConverter.class)
 //    private Set<Class<?>> modifiedClasses = new HashSet<>();
-//    @OneToMany(mappedBy = "editor", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-//    private List<Metamodel> metamodels = new ArrayList<>();
+
 }

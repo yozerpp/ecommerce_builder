@@ -26,11 +26,9 @@ public class EngineStartupListener implements ApplicationListener<ApplicationSta
     //TODO: Should have loaded these lazily
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        if(Arrays.stream(event.getApplicationContext().getEnvironment().getActiveProfiles())
-                .anyMatch(profile -> profile.equals("test"))) return;
-        var plugins = pluginRepository.findAllBy(PluginDto.class);
-        pluginRegistry.registerAllPlugins(plugins.stream().map(Plugin::new).toList());
         var entitySources = entitySourceRepository.findAllBy();
         entityRegistry.registerAll(entitySources);
+        var plugins = pluginRepository.findAllBy(PluginDto.class);
+        pluginRegistry.registerAllPlugins(plugins.stream().map(Plugin::new).toList());
     }
 }

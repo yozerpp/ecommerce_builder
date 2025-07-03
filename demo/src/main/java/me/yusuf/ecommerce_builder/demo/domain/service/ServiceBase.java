@@ -2,6 +2,7 @@ package me.yusuf.ecommerce_builder.demo.domain.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import me.yusuf.ecommerce_builder.demo.security.UserPrincipal;
 import me.yusuf.ecommerce_builder.shared.types.entity.Session;
 import me.yusuf.ecommerce_builder.demo.domain.network.filter.SessionHolder;
 import me.yusuf.ecommerce_builder.shared.types.entity.User;
@@ -13,8 +14,8 @@ public abstract class ServiceBase {
     protected EntityManager _entityManager;
     public static @Nullable User getUser(){
         var p = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(p instanceof User u)return u;
-        return null;
+        if (p instanceof UserPrincipal up) return up.getUser();
+        else return null;
     }
     public static Session getSession(){
         var user = getUser();

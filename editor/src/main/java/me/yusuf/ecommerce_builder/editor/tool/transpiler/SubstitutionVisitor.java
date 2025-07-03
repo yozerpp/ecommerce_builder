@@ -35,6 +35,13 @@ public class SubstitutionVisitor implements ASTModifierVisitor{
     }
 
     @Override
+    public Object visitAssignmentExpr(AssignmentExpr asn) {
+        visitIdentifier(asn.getLeft(), true);
+        visitExpression(asn.getRight());
+        return null;
+    }
+
+    @Override
     public Object visitFunctionCallExpr(FunctionCallExpr fce) {
         var key = new Tuple2<>(fce.getFunctionName(),SymbolType.Function);
         if (subs.containsKey(key))

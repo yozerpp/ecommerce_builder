@@ -1,5 +1,5 @@
 grammar TurkishPseudoCode;
-işlevTanımı: varlıkİsmi eylemİsmi (hataİfadesi| sonraİfadesi) YAP işlevİsmi gövde;
+işlevTanımı: varlıkİsmi eylemİsmi ( sonraİfadesi) YAP işlevİsmi gövde;
 varlıkİsmi: İSİM;
 eylemİsmi: değişken;
 işlevİsmi: İSİM;

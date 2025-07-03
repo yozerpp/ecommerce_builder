@@ -167,7 +167,7 @@ public class ASTBuilderVisitor extends TurkishPseudoCodeBaseVisitor<ASTNode> {
     @Override
     public AssignmentExpr visitAtama(TurkishPseudoCodeParser.AtamaContext ctx) {
         AssignmentExpr ret = new AssignmentExpr();
-        ret.setLeft( ctx.değişken().getText());
+        ret.setLeft( visitDeğişken(ctx.değişken()));
         ret.setRight(visitDenklem(ctx.denklem()));
         return ret;
     }

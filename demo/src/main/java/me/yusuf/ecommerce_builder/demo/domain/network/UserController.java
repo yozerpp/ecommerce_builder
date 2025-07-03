@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.demo.domain.network;
 
+import me.yusuf.ecommerce_builder.demo.domain.service.ServiceBase;
 import me.yusuf.ecommerce_builder.shared.types.dto.RegistrationForm;
 import me.yusuf.ecommerce_builder.shared.types.entity.User;
 import me.yusuf.ecommerce_builder.demo.domain.repository.UserRepository;
@@ -27,7 +28,7 @@ public class UserController extends ControllerBase {
     @PreAuthorize("!isAnonymous()")
     @GetMapping
     public Map<String, Object> userPage(){
-        var user = userService.getCurrentUser();
+        var user = ServiceBase.getUser();
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
         response.put("orders", user.getOrders());

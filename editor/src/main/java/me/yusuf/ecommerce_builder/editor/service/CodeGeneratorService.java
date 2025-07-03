@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import me.yusuf.ecommerce_builder.editor.EditorApplication;
 import me.yusuf.ecommerce_builder.editor.helper.Importer;
+import me.yusuf.ecommerce_builder.shared.components.repository.EntitySourceRepository;
 import me.yusuf.ecommerce_builder.shared.types.plugin.*;
 import me.yusuf.ecommerce_builder.shared.components.repository.PluginRepository;
 import me.yusuf.ecommerce_builder.editor.tool.compiler.DynamicCompiler;
@@ -38,9 +39,11 @@ public class CodeGeneratorService {
     private final ObjectMapper objectMapper;
     private final SubstitutionVisitor.Factory substitutionVisitorFactory;
     private final Importer importer;
-    public CodeGeneratorService(PluginRepository pluginRepository,Importer importer, CodeGeneratorVisitor generator, ASTBuilderVisitor astBuilder
+    private EntitySourceRepository entitySourceRepository;
+    public CodeGeneratorService(PluginRepository pluginRepository, EntitySourceRepository entitySourceRepository, Importer importer, CodeGeneratorVisitor generator, ASTBuilderVisitor astBuilder
             , ObjectMapper objectMapper, SubstitutionVisitor.Factory substitutionVisitorFactory) {
         this.pluginRepository = pluginRepository;
+        this.entitySourceRepository = entitySourceRepository;
         this.astBuilder = astBuilder;
         this.generator = generator;
         this.importer = importer;
@@ -60,11 +63,11 @@ public class CodeGeneratorService {
         var argTypes = substituteAndValidate(ast);
         var javaCode = transpile(ast, editorId,argTypes);
         javaCode.getMetadata().setArgumentTypes(argTypes);
-        var pluginClassFile = linkAndCompile(javaCode, editorId);
-        sendToApp(pluginClassFile, editorId);
-        var s = javaCode.getSource();
-        s.setPseudoCode(input);
-        s.setByteEncoded(pluginClassFile.classFile().getClassBytes());
+
+        var pluginClassFile = recompile(javaCode,getImports(javaCode,editorId), Arrays.asList(entitySourceRepository.findById_EditorId(editorId, Pageable.unpaged()).toArray(EntitySource[]::new)));
+        javaCode.getSource().setByteEncoded(pluginClassFile.getClassBytes());
+        sendToApp(javaCode, editorId);
+         javaCode.getSource().setPseudoCode(input);
         pluginRepository.save(javaCode);
     }
     public PluginDto[] recompilePlugins(int editorId, List<EntitySource> newEntityClasses){
@@ -136,11 +139,11 @@ public class CodeGeneratorService {
         }).toArray(Type[]::new);
     }
 
-    public void sendToApp(Plugin plugin, int editorId) throws BadRequestException {
+    public void sendToApp(PluginDto plugin, int editorId) throws BadRequestException {
         HttpResponse<String> res;
         try {
             res =  demoClient.send("plugin","POST",
-                    HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(Plugin.toDto(plugin))),
+                    HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(plugin)),
                     HttpResponse.BodyHandlers.ofString(),
                     new Tuple2[]{new Tuple2<>("Engine-Key",engineKey),
                             new Tuple2<>("Cookie", "EditorId=" + editorId),

@@ -3,6 +3,7 @@ package me.yusuf.ecommerce_builder.editor.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
+import me.yusuf.ecommerce_builder.editor.domain.entity.Metamodel;
 import me.yusuf.ecommerce_builder.editor.helper.ReferenceManager;
 import me.yusuf.ecommerce_builder.shared.components.repository.PluginRepository;
 import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
@@ -38,9 +39,11 @@ public class EntityModifierService {
     private final CodeGeneratorService codeGeneratorService;
     private final PluginRepository pluginRepository;
     private final EntityManager entityManager;
-    public EntityModifierService(Class<?>[] defaultEntityClasses,EntityManager entityManager, FieldModificationRepository fieldModificationRepository, EntitySourceRepository entitySourceRepository, ObjectMapper objectMapper, CodeGeneratorService codeGeneratorService, PluginRepository pluginRepository){
+    private final Map<Class<?>, Metamodel> defaultMetamodels;
+    public EntityModifierService(Map<Class<?>, Metamodel> defaultMetamodels, Class<?>[] defaultEntityClasses, EntityManager entityManager, FieldModificationRepository fieldModificationRepository, EntitySourceRepository entitySourceRepository, ObjectMapper objectMapper, CodeGeneratorService codeGeneratorService, PluginRepository pluginRepository){
         this.objectMapper = objectMapper;
         this.entityManager = entityManager;
+        this.defaultMetamodels = defaultMetamodels;
         this.defaultEntityClasses = defaultEntityClasses;
         this.fieldModificationRepository = fieldModificationRepository;
         this.entitySourceRepository = entitySourceRepository;
@@ -57,7 +60,7 @@ public class EntityModifierService {
                 .filter(c->sources.stream().noneMatch(s->s.getId().entityClass().getName().equals(c.getName())) && c.getDeclaringClass()==null)
                 .map(c-> new EntitySource(new EntitySource.Id(editorId,c,0), false,getStaticClassSource(c),null))
                 .toList());
-        var linkedSources = new ArrayList<>(sources.stream().map(s->{
+        var linkedSources = new ArrayList<>(sources.stream().filter(s->!s.isMember()).map(s->{
             Class<?> entityClass =s.getId().entityClass();
             EntitySource es = getSource(entityClass, editorId, version);
             String versionedName = entityClass.getSimpleName() + "_v" + newVersion;
@@ -142,7 +145,8 @@ public class EntityModifierService {
     }
 
     private EntitySource getSource(Class<?> entityClass, int editorId, Integer version) {
-        return (version==null||version.equals(0))?
+        return
+                (version==null||version.equals(0))?
                 new EntitySource(new EntitySource.Id(editorId,entityClass,0),false,getStaticClassSource(entityClass),null)
                 :entitySourceRepository.findById(new EntitySource.Id(editorId,entityClass,version));
 
@@ -158,7 +162,7 @@ public class EntityModifierService {
 //        if (fieldDto.type() instanceof Class<?> cls && !cls.isPrimitive()){
 //            source = addTypeImport(source, cls);
 //        }
-        return source.substring(0, source.lastIndexOf("}")) + "\n\t" + createFieldDecl(fieldDto) + ";\n"+  createGetterAndSetter(fieldDto) +"}";
+        return source.substring(0, source.lastIndexOf("}")) + "\n\t" +(fieldDto.defaultValue()!=null?"@org.hibernate.annotations.ColumnDefault(\"" + fieldDto.defaultValue() +"\")\n":"")+ createFieldDecl(fieldDto) + ";\n"+  createGetterAndSetter(fieldDto) +"}";
     }
 //    private static String addTypeImport(String source, Class<?> cls){
 //        Pattern conflictingClassName = Pattern.compile("import\\s+(\\w+\\.)+" + cls.getSimpleName() + "\\s*;", Pattern.MULTILINE | Pattern.DOTALL);

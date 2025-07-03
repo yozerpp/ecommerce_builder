@@ -1,22 +1,15 @@
 package me.yusuf.ecommerce_builder.demo.domain.service;
 
-import jakarta.persistence.EntityManager;
-import me.yusuf.ecommerce_builder.shared.types.dto.LoginForm;
 import me.yusuf.ecommerce_builder.shared.types.dto.RegistrationForm;
 import me.yusuf.ecommerce_builder.shared.types.entity.User;
 import me.yusuf.ecommerce_builder.demo.domain.repository.UserRepository;
 import me.yusuf.ecommerce_builder.demo.security.UserAuthService;
-import me.yusuf.ecommerce_builder.demo.security.UserPrincipal;
-import me.yusuf.ecommerce_builder.demo.utils.Utils;
 import me.yusuf.ecommerce_builder.shared.types.annotation.MethodInfo;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.LoginException;
-import java.util.Map;
 
 @Service
 public class UserService extends ServiceBase {
@@ -30,19 +23,6 @@ public class UserService extends ServiceBase {
         this.userAuthService = userAuthService;
     }
 
-    @MethodInfo(userFriendlyName = "Kullanıcı Getir")
-    @PreAuthorize("!isAnonymous()")
-    public User getCurrentUser() {
-        UserPrincipal up = (UserPrincipal)
-            SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return up.getUser();
-    }
-
-    @MethodInfo(userFriendlyName = "Giriş Form")
-    public Map<String, Map.Entry<String, Boolean>> getLoginForm(Model model) {
-        return Utils.propertyMap(LoginForm.class);
-    }
-
     @MethodInfo(userFriendlyName = "Giriş Yap")
     @PreAuthorize("isAnonymous()")
     public User login(@RequestParam String username,
@@ -51,7 +31,7 @@ public class UserService extends ServiceBase {
         if (!userAuthService.userExists(username)) {
             throw new LoginException("You have entered invalid username or password");
         }
-        user = (User) userAuthService.loadUserByUsername(username);
+        user = userAuthService.loadUserByUsername(username).getUser();
         if (!user.isEnabled()) {
             throw new LoginException("Your account is disabled, please contact administration to re-enable it before logging in");
         }
@@ -64,12 +44,6 @@ public class UserService extends ServiceBase {
     @MethodInfo(userFriendlyName = "Kullanıcı Güncelle")
     public User updateUser(@RequestBody User user) {
         return userRepository.save(user);
-    }
-
-    @MethodInfo(userFriendlyName = "Kayıt Form")
-    @PreAuthorize("isAnonymous()")
-    public Map<String, Map.Entry<String, Boolean>> getSignUpForm() {
-        return Utils.propertyMap(RegistrationForm.class);
     }
 
     @MethodInfo(userFriendlyName = "Kayıt Ol")

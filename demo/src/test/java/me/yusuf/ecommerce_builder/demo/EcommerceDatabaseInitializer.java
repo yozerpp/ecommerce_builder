@@ -36,54 +36,43 @@ import java.util.stream.IntStream;
 @Component
 public class EcommerceDatabaseInitializer {
     static private final Faker faker = new Faker(Locale.forLanguageTag("tr-TR"));
-    @PersistenceContext(unitName = "demoEntityManagerFactory", synchronization = SynchronizationType.SYNCHRONIZED)
+    @PersistenceContext(unitName = "demoEntityManagerFactory")
     EntityManager entityManager;
 
     public EcommerceDatabaseInitializer() {
     }
+    @Transactional(transactionManager = "demoTransactionManager")
     void initializeDatabase() {
         entityManager.setFlushMode(FlushModeType.AUTO);
         doRole();
-        entityManager.flush();
         var categories = doCategory();
         System.out.println("Categories: " + categories.size());
 
         var tags = doTags();
-        entityManager.flush();
         System.out.println("Tags: " + tags.size());
         var carts = doCarts();
-        entityManager.flush();
         System.out.println("Carts: " + carts.size());
         var sessions = doSessions(carts);
-        entityManager.flush();
         System.out.println("Sessions: " + sessions.size());
-        entityManager.flush();
         var users = doUser(sessions);
-        entityManager.flush();
         System.out.println("Users: " + users.size());
         var sellers = doSeller(users);
-        entityManager.flush();
         System.out.println("Sellers: " + sellers.size());
         var products = doProduct(sellers.size(), categories, tags);
-        entityManager.flush();
         System.out.println("Products: " + products.size());
         var offers = doProductOffer(products, sellers);
-        entityManager.flush();
         System.out.println("Offers: " + offers.size());
         var coupons = doCoupons(sellers);
-        entityManager.flush();
         System.out.println("Coupons: " + coupons.size());
         var items = doCartItem(carts, offers);
-        entityManager.flush();
         System.out.println("Cart Items: " + items.size());
         var orders = doOrder(users);
-        entityManager.flush();
         System.out.println("Orders: " + orders.size());
     }
     void save(Object o){
         entityManager.persist(o);
     }
-    @Transactional(transactionManager = "demoTransactionManager")
+    
     List<Cart> doCarts(){
 
         var result = IntStream.range(0, NUM_SESSION).sequential().mapToObj(i -> {
@@ -97,7 +86,7 @@ public class EcommerceDatabaseInitializer {
         return result;
     }
 
-    @Transactional(transactionManager = "demoTransactionManager")
+    
 
     List<Session> doSessions(List<Cart> carts){
 
@@ -113,7 +102,7 @@ public class EcommerceDatabaseInitializer {
         return result;
     }
     private final Map<String, Role> roleCache = new HashMap<>();
-    @Transactional(transactionManager = "demoTransactionManager")
+    
 
     void doRole(){
         try{
@@ -137,7 +126,7 @@ public class EcommerceDatabaseInitializer {
             roleCache.put("ROLE_SELLER", new Role("ROLE_SELLER","seller"));
             roleCache.put("ROLE_STAFF", new Role("ROLE_STAFF","staff"));
         }
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<User> doUser(final List<Session> sessions){
         PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -173,7 +162,7 @@ public class EcommerceDatabaseInitializer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<Seller> doSeller(final List<User> users)  {
 
@@ -218,9 +207,9 @@ public class EcommerceDatabaseInitializer {
 ////            entityManager.persist(category);
 //            addCategories(categories,category, level-1);
 //        }
-//    }    @Transactional(transactionManager = "demoTransactionManager")
+//    }    
 
-@Transactional(transactionManager = "demoTransactionManager")
+
 List<Category> doCategory(){
         var ret = new ArrayList<Category>();
 
@@ -232,7 +221,7 @@ List<Category> doCategory(){
             ret.add(category);
         }
         return ret;
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<Tag> doTags(){
 
@@ -246,7 +235,7 @@ List<Category> doCategory(){
             return  tag;
         }).filter(Objects::nonNull).toList();
         return ret;
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<Product> doProduct(final int sellerSize, final List<Category> categories,List<Tag> tags)  {
         try(var log = Files.newOutputStream(Paths.get("products_log.txt")); var logger = new PrintWriter(log)) {
@@ -273,7 +262,7 @@ List<Category> doCategory(){
             throw new RuntimeException(e);
         }
 
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<ProductOffer> doProductOffer(final List<Product> products, final List<Seller> sellers) {
         try(var log = Files.newOutputStream(Path.of("./productOffer_log.txt")); var logger = new PrintWriter(log)) {
@@ -305,7 +294,7 @@ List<Category> doCategory(){
         } catch (IOException e){
             throw new RuntimeException(e);
         }
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<Coupon> doCoupons(final  List<Seller> sellers)  {
         return IntStream.range(0, sellers.size()*2).sequential().mapToObj(i ->{
@@ -323,7 +312,7 @@ List<Category> doCategory(){
             save(coupon);
             return coupon;
         }).toList();
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<CartItem> doCartItem(final List<Cart> carts, final List<ProductOffer> offers) {
         return IntStream.range(0, Math.min(offers.size() / 10, carts.size() * 5)).sequential().mapToObj(i -> {
@@ -352,7 +341,7 @@ List<Category> doCategory(){
             }
             return item;
         }).filter(Objects::nonNull).toList();
-    }    @Transactional(transactionManager = "demoTransactionManager")
+    }    
 
     List<Order> doOrder(final List<User> users)  {
 
