@@ -34,7 +34,7 @@ public class SchemaManager {
         var metadata = getMetadata(serviceRegistry,allClassNames);
         SchemaMigrator migrator;
         if ((migrator = instances.get(editorId)) == null){
-            migrator = serviceRegistry.getService(SchemaManagementTool.class).getSchemaMigrator(null);
+            migrator = serviceRegistry.getService(SchemaManagementTool.class).getSchemaMigrator();
             instances.put(editorId, migrator);
         }
         migrator.doMigration(metadata, new ExecutionOptions() {
@@ -51,7 +51,7 @@ public class SchemaManager {
                     public ExceptionHandler getExceptionHandler() {
                         return e -> {
                             System.out.println(e.getMessage());
-                            e.printStackTrace();
+                            e.printStackTrace(System.out);
                         };
                     }
                 }, ContributableMatcher.ALL,
