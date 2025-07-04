@@ -7,6 +7,7 @@ import me.yusuf.ecommerce_builder.shared.types.entity.embeddable.Versioned;
 import org.springframework.lang.NonNull;
 
 @Entity(name = "Notification")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Getter
 @Setter
 @NoArgsConstructor

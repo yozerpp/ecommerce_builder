@@ -15,6 +15,7 @@ import java.util.Set;
 
 @Table(name = "sellers")
 @Entity(name = "Seller")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Getter
 @Setter
 @NoArgsConstructor
