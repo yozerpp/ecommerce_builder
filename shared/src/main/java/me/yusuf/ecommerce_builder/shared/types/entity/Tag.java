@@ -12,6 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tags")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

@@ -17,6 +17,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "products")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

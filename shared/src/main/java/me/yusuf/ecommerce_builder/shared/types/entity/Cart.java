@@ -13,6 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "carts")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

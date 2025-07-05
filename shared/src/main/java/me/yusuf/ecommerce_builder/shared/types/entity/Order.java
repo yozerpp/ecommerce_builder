@@ -13,6 +13,7 @@ import me.yusuf.ecommerce_builder.shared.types.entity.embeddable.Versioned;
 
 @Entity
 @Table(name = "orders")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

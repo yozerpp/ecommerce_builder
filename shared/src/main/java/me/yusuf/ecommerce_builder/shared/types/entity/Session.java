@@ -14,6 +14,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "sessions")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

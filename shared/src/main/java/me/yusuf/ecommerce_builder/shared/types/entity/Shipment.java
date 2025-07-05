@@ -12,6 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "shipments")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

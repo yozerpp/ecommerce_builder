@@ -15,6 +15,7 @@ import java.util.Set;
 
 @Table(name = "sellers")
 @Entity(name = "Seller")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

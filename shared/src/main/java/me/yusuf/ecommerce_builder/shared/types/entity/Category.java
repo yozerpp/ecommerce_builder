@@ -13,6 +13,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "categories")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @NoArgsConstructor

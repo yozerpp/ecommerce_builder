@@ -12,6 +12,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor@NoArgsConstructor
 @Entity(name = "CartItem")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class CartItem {
     @Embeddable
     @Getter
