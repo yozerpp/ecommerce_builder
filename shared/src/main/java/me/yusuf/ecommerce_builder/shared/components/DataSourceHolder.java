@@ -39,7 +39,7 @@ public class DataSourceHolder {
 		var ret = builder.url( datasourceUrl + "?currentSchema=demo" + editorId)
 				.driverClassName("org.postgresql.Driver")
 				.username(datasourceUsername).password(datasourcePassword).build();
-        if (!exists)
+		if (!exists)
 			try (Connection conn = ret.getConnection()) {
 				disableForeignKeyChecks(conn);
 				
@@ -66,35 +66,8 @@ public class DataSourceHolder {
 						"        RAISE NOTICE 'Creating table: %', sql;\n" +
 						"        EXECUTE sql;\n" +
 						"    END LOOP;\n" +
-						"\n" +
-						"    -- Then, copy data\n" +
-						"    FOR tbl IN\n" +
-						"        SELECT table_name\n" +
-						"        FROM information_schema.tables\n" +
-						"        WHERE table_schema = source_schema\n" +
-						"          AND table_type = 'BASE TABLE'\n" +
-						"    LOOP\n" +
-						"        -- Get non-generated columns for this table\n" +
-						"        SELECT string_agg(column_name, ', ' ORDER BY ordinal_position)\n" +
-						"        INTO sql\n" +
-						"        FROM information_schema.columns\n" +
-						"        WHERE table_schema = source_schema\n" +
-						"          AND table_name = tbl.table_name\n" +
-						"          AND is_generated = 'NEVER';\n" +
-						"\n" +
-						"        -- Build INSERT statement with explicit column list\n" +
-						"        sql := format(\n" +
-						"            'INSERT INTO %I.%I (%s) SELECT %s FROM %I.%I',\n" +
-						"            target_schema, tbl.table_name, sql, sql,\n" +
-						"            source_schema, tbl.table_name\n" +
-						"        );\n" +
-						"        RAISE NOTICE 'Copying data: %', sql;\n" +
-						"        EXECUTE sql;\n" +
-						"    END LOOP;\n" +
 						"END\n" +
 						"$$;");
-				
-				// Re-enable foreign key checks
 				enableForeignKeyChecks(conn);
 			} catch (SQLException e) {
 				throw new RuntimeException(e);

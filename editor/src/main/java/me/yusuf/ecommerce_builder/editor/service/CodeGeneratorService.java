@@ -40,8 +40,10 @@ public class CodeGeneratorService {
     private final SubstitutionVisitor.Factory substitutionVisitorFactory;
     private final Importer importer;
     private EntitySourceRepository entitySourceRepository;
-    public CodeGeneratorService(PluginRepository pluginRepository, EntitySourceRepository entitySourceRepository, Importer importer, CodeGeneratorVisitor generator, ASTBuilderVisitor astBuilder
+    private final Class<?>[] defaultEntityClasses;
+    public CodeGeneratorService(PluginRepository pluginRepository, Class<?>[] defaultEntityClasses, EntitySourceRepository entitySourceRepository, Importer importer, CodeGeneratorVisitor generator, ASTBuilderVisitor astBuilder
             , ObjectMapper objectMapper, SubstitutionVisitor.Factory substitutionVisitorFactory) {
+        this.defaultEntityClasses = defaultEntityClasses;
         this.pluginRepository = pluginRepository;
         this.entitySourceRepository = entitySourceRepository;
         this.astBuilder = astBuilder;
@@ -63,8 +65,7 @@ public class CodeGeneratorService {
         var argTypes = substituteAndValidate(ast);
         var javaCode = transpile(ast, editorId,argTypes);
         javaCode.getMetadata().setArgumentTypes(argTypes);
-
-        var pluginClassFile = recompile(javaCode,getImports(javaCode,editorId), Arrays.asList(entitySourceRepository.findById_EditorId(editorId, Pageable.unpaged()).toArray(EntitySource[]::new)));
+        var pluginClassFile = compile(javaCode,getImports(javaCode,editorId), Arrays.asList(entitySourceRepository.findById_EditorId(editorId, Pageable.unpaged()).toArray(EntitySource[]::new)));
         javaCode.getSource().setByteEncoded(pluginClassFile.getClassBytes());
         sendToApp(javaCode, editorId);
          javaCode.getSource().setPseudoCode(input);
@@ -80,23 +81,18 @@ public class CodeGeneratorService {
             String imports = Arrays.stream(plugin.getMetadata().argTypes())
                     .map(t-> "import " + EntitySource.getClassName(t.getTypeName().replaceAll("(\\w+\\.)+",""),newEntityClasses.getFirst().getId().version(),editorId) + ";\n")
                     .reduce("", String::concat);
-            var cob = recompile(plugin,imports,newEntityClasses);
+            var cob = compile(plugin,imports,newEntityClasses);
             plugin.getSource().setByteEncoded( cob.getClassBytes());
         }
         return userPlugins.toArray(PluginDto[]::new);
-    }
-
-    private Plugin linkAndCompile(PluginDto source, int editorId){
-        var importBlock = getImports(source, editorId);
-        return compile(source, importBlock);
     }
 
     private String getImports(PluginDto source, int editorId) {
         return importer.getImports(editorId, Arrays.stream(source.getMetadata().argTypes()).map(t -> (Class<?>) t).toArray(Class[]::new));
     }
 
-    private ClassFileObject recompile(PluginDto plugin, String importBlock, List<EntitySource> entitySources){
-        final var sources = new ArrayList<DynamicCompiler.SourceFile>(entitySources.size() + 1);
+    private ClassFileObject compile(PluginDto plugin, String importBlock, List<EntitySource> entitySources){
+        final var sources = new ArrayList<DynamicCompiler.SourceFile>(entitySources.size()*2 + 1);
         sources.add(new DynamicCompiler.SourceFile(plugin.getClassName(),
                 "package "+ IPlugin.PLUGIN_PACKAGE_PREFIX + ";\n" +
                         importBlock +
@@ -105,22 +101,15 @@ public class CodeGeneratorService {
         entitySources.stream()
                 .map(es-> new DynamicCompiler.SourceFile(EntitySource.getClassName(es),es.getCharEncoded()))
                 .forEach(sources::add);
+        Arrays.stream(defaultEntityClasses).filter(c->c.getDeclaringClass()==null)
+                .map(c->new DynamicCompiler.SourceFile(c.getName(),Utils.getStaticClassSource(c)))
+                .forEach(sources::add);
         var cobs = DynamicCompiler.compile(sources.toArray(DynamicCompiler.SourceFile[]::new));
         return cobs.stream()
                 .filter(c->c.getClassName().replaceAll("_.*","").equals(plugin.getClassName().replaceAll("_.*","")))
                 .findAny().orElseThrow();
+    }
 
-    }
-    private Plugin compile(PluginDto plugin, String importBlock) {
-        var cf= DynamicCompiler.compile( new DynamicCompiler.SourceFile[]{ new DynamicCompiler.SourceFile(
-                plugin.getClassName(),
-                "package "+ IPlugin.PLUGIN_PACKAGE_PREFIX + ";\n" +
-                        importBlock +
-                        plugin.getSource().getCharEncoded()
-        )
-        }).getFirst();
-        return new Plugin(plugin.getId(),cf,plugin.getMetadata());
-    }
     public PluginDto transpile(final PluginDef ast, int editorId, Type[] argTypes){
         var ver = pluginRepository.getLastVersion(editorId,ast.getName(),ast.getHookedMethod());
         var splt = ast.getHookedMethod().split("\\.");

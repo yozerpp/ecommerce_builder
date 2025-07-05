@@ -17,8 +17,11 @@ public interface EntitySourceRepository extends Repository<EntitySource, EntityS
     @Nullable
     EntitySource findById(EntitySource.Id id);
     List<EntitySource> findById_EditorId(Integer idEditorId, Pageable pageable);
+    @Query("SELECT es FROM EntitySource es WHERE es.id.editorId=:editorId AND es.id.version = ( SELECT MAX(es1.id.version) FROM EntitySource es1)")
+    List<EntitySource> findLatestVersions(Integer editorId);
     @Query("SELECT es FROM EntitySource es WHERE es.id.editorId=:editorId AND es.id.entityClass=:entityClass ORDER BY es.id.version DESC LIMIT 1")
     @Nullable
+
     EntitySource findLatestForEditorAndClass(Integer editorId, Class<?> entityClass);
     @Query("SELECT es.id.version FROM EntitySource es WHERE es.id.editorId=:editorId ORDER BY es.id.version DESC LIMIT 1")
     @Nullable

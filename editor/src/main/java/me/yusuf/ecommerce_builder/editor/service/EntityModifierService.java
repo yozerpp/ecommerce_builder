@@ -2,9 +2,12 @@ package me.yusuf.ecommerce_builder.editor.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
 import me.yusuf.ecommerce_builder.editor.domain.entity.Metamodel;
 import me.yusuf.ecommerce_builder.editor.helper.ReferenceManager;
+import me.yusuf.ecommerce_builder.editor.helper.Utils;
 import me.yusuf.ecommerce_builder.shared.components.repository.PluginRepository;
 import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
 import me.yusuf.ecommerce_builder.editor.domain.entity.FieldModification;
@@ -22,9 +25,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * enemy of the humans and computers alike...
@@ -51,56 +53,32 @@ public class EntityModifierService {
         this.pluginRepository = pluginRepository;
     }
     public void addFields(FieldDto[] fieldDtos, int editorId) {
-        final String packageName = EntitySource.DYNAMIC_PACKAGE_PREFIX + editorId;
-        @Nullable final Integer version = entitySourceRepository.findLatestVersionForEditor(editorId);
+        final Integer version = entitySourceRepository.findLatestVersionForEditor(editorId);
         final int newVersion = version==null?1:version+1;
         final var refUpdater = new ReferenceManager(defaultEntityClasses, editorId, version==null?0:version);
-        var sources = entitySourceRepository.findById_EditorId(editorId, Pageable.unpaged());
+        var sources = entitySourceRepository.findLatestVersions(editorId);
         sources.addAll(Arrays.stream(defaultEntityClasses)
                 .filter(c->sources.stream().noneMatch(s->s.getId().entityClass().getName().equals(c.getName())) && c.getDeclaringClass()==null)
-                .map(c-> new EntitySource(new EntitySource.Id(editorId,c,0), false,getStaticClassSource(c),null))
+                .map(c-> new EntitySource(new EntitySource.Id(editorId,c,0), false, Utils.getStaticClassSource(c),null))
                 .toList());
         var linkedSources = new ArrayList<>(sources.stream().filter(s->!s.isMember()).map(s->{
             Class<?> entityClass =s.getId().entityClass();
-            EntitySource es = getSource(entityClass, editorId, version);
-            String versionedName = entityClass.getSimpleName() + "_v" + newVersion;
-            String oldClassSimpleName = entityClass.getSimpleName() +(es.getId().version()!=0?"_v" + es.getId().version():"");
+            EntitySource es = getSource(entityClass, editorId, newVersion);
             String source = es.getCharEncoded();
-            source = source.replaceFirst("package [\\w.]+;", "package " + packageName + ';');
             String[] finalSource = {source};
             var o =Arrays.stream(fieldDtos).filter(f->f.declaringClass().isAssignableFrom(entityClass)).findAny().map(f->addFieldDefinition(finalSource[0],f));
             if (o.isPresent()) source = o.get();
-            source = source.replaceAll("\\b(" + oldClassSimpleName + ")\\b", versionedName);
             es.setCharEncoded( refUpdater.update(source, entityClass.getName()));
             es.setId(new EntitySource.Id(editorId,entityClass,newVersion));
             return es;
         }).toList());
-        var cobs = DynamicCompiler.compile(linkedSources.stream().map(s->new DynamicCompiler.SourceFile(EntitySource.getClassName(s),s.getCharEncoded())).toArray(DynamicCompiler.SourceFile[]::new));
-        var memberClassSources = cobs.stream().filter(cob->{
-            var o = linkedSources.stream().filter(s->
-                    s.getId().entityClass().getSimpleName().equals(
-                            cob.getClassName().replaceAll("(\\w+\\.)+","").replaceAll("_v\\d+",""))
-            ).findAny();
-            if (o.isPresent()) {
-                o.get().setByteEncoded(cob.getClassBytes());
-                return false;
-            }else return true;
-        }).map(cob-> {
-            try {
-                return new EntitySource(
-                        new EntitySource.Id(
-                                editorId,
-                                Class.forName(cob.getClassName()
-                                        .replaceAll("(\\w+\\.)+",EntitySource.STATIC_PACKAGE_PREFIX+'.')
-                                        .replaceAll("_v\\d+\\$","\\$")), newVersion),
-                        true,
-                        null, cob.getClassBytes()
-                );
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
-        linkedSources.addAll(memberClassSources);
+        var compilerInput = linkedSources.stream().map(s->new DynamicCompiler.SourceFile(EntitySource.getClassName(s),s.getCharEncoded())).collect(Collectors.toList());
+        Collections.addAll(compilerInput, Arrays.stream(defaultEntityClasses).filter(d->d.getDeclaringClass()==null).map(c->new DynamicCompiler.SourceFile(c.getName(), Utils.getStaticClassSource(c).replaceFirst("@Entity(\\(.*\\))?","@MappedSuperclass"))).toArray(DynamicCompiler.SourceFile[]::new));
+        var cobs = DynamicCompiler.compile(compilerInput.toArray(DynamicCompiler.SourceFile[]::new));
+        cobs.stream().filter(cob->cob.getClassName().matches("^.*\\.\\w+_v\\d+$")).forEach(cob->{
+            linkedSources.stream().filter(s->s.getId().entityClass().getSimpleName().equals(cob.getClassName().replaceAll("(\\w+\\.)+","").replaceFirst("_v\\d+$","")))
+                    .findAny().get().setByteEncoded(cob.getClassBytes());
+        });
         var recompiledPlugins = codeGeneratorService.recompilePlugins(editorId, linkedSources);
         try {
             sendToDemo(editorId, linkedSources, recompiledPlugins);
@@ -143,26 +121,38 @@ public class EntityModifierService {
             throw new RuntimeException("Engine failed to register classes. Response body: " + res.body());
         }
     }
-
     private EntitySource getSource(Class<?> entityClass, int editorId, Integer version) {
-        return
-                (version==null||version.equals(0))?
-                new EntitySource(new EntitySource.Id(editorId,entityClass,0),false,getStaticClassSource(entityClass),null)
-                :entitySourceRepository.findById(new EntitySource.Id(editorId,entityClass,version));
+        return new EntitySource(new EntitySource.Id(editorId,entityClass,version!=null?version:0),false,"""
+                package %s;
+                import lombok.*;
+                import jakarta.persistence.*;
+                @Getter@Setter@NoArgsConstructor
+                @Entity(name="%s")
+                public class %s extends %s{
+                }
+                """.formatted(
+                        EntitySource.DYNAMIC_PACKAGE_PREFIX + editorId,
+                entityClass.getSimpleName() + "_v" + (version!=null?version:0),
+//                "demo" + editorId,
+                entityClass.getSimpleName() + "_v" + (version!=null?version:0),
+                entityClass.getName())
+        ,null);
+        //        return (version==null||version.equals(0))?
+//                new EntitySource(new EntitySource.Id(editorId,entityClass,0),false,getStaticClassSource(entityClass),null)
+//                :entitySourceRepository.findById(new EntitySource.Id(editorId,entityClass,version));
+//
+    }
 
-    }
-    private static String getStaticClassSource(Class<?> cls) {
-        try(var classIs = Thread.currentThread().getContextClassLoader().getResourceAsStream("source/" +cls.getName().replace('.','/')+ ".java")) {
-            return Charset.defaultCharset().decode(ByteBuffer.wrap( classIs.readAllBytes())).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
     private static String addFieldDefinition(String source, FieldDto fieldDto){
 //        if (fieldDto.type() instanceof Class<?> cls && !cls.isPrimitive()){
 //            source = addTypeImport(source, cls);
 //        }
-        return source.substring(0, source.lastIndexOf("}")) + "\n\t" +(fieldDto.defaultValue()!=null?"@org.hibernate.annotations.ColumnDefault(\"" + fieldDto.defaultValue() +"\")\n":"")+ createFieldDecl(fieldDto) + ";\n"+  createGetterAndSetter(fieldDto) +"}";
+        return source.substring(0, source.lastIndexOf("}")) + "\n\t" +
+                "@Column(name=\"" + StringUtils.toSnakeCase(fieldDto.name()) + "\", updatable=" + (fieldDto.isUpdatable()?"true":"false") +
+                    ", nullable=" + (fieldDto.isNullable()?"true":"false") + ", unique=" + (fieldDto.isUnique()?"true":"false") + ")\n" +
+                (fieldDto.defaultValue()!=null?"@org.hibernate.annotations.ColumnDefault(\"" + fieldDto.defaultValue() +"\")\n":"")+
+                createFieldDecl(fieldDto) + ";\n"+
+                "}";
     }
 //    private static String addTypeImport(String source, Class<?> cls){
 //        Pattern conflictingClassName = Pattern.compile("import\\s+(\\w+\\.)+" + cls.getSimpleName() + "\\s*;", Pattern.MULTILINE | Pattern.DOTALL);

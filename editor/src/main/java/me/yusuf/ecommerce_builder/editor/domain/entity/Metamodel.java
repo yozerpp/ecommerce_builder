@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import me.yusuf.ecommerce_builder.shared.types.conversion.JpaClassConverter;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 @Entity
 @Getter
@@ -65,18 +66,31 @@ public class Metamodel {
             ret= new Metamodel(
                     new Id(editorId, cls),
                     0,
-                    null,
-                    Arrays.stream(cls.getDeclaredFields()).map(f->{
+                    null,null);
+            classesDone.put(cls, ret);
+            ret.setRelations(Arrays.stream(cls.getDeclaredFields()).map(f->{
                         Relation.Type type;
-                        if(f.isAnnotationPresent(OneToOne.class)) type = Relation.Type.ONE_TO_ONE;
-                        else if (f.isAnnotationPresent(OneToMany.class)) type= Relation.Type.ONE_TO_MANY;
-                        else if (f.isAnnotationPresent(ManyToOne.class)) type =  Relation.Type.MANY_TO_ONE;
-                        else if (f.isAnnotationPresent(ManyToMany.class)) type= Relation.Type.MANY_TO_MANY;
+                        Class<?> target;
+                        if(f.isAnnotationPresent(OneToOne.class)) {
+                            type = Relation.Type.ONE_TO_ONE;
+                            target = f.getType();
+                        }
+                        else if (f.isAnnotationPresent(OneToMany.class)) {
+                            type= Relation.Type.ONE_TO_MANY;
+                            target = (Class<?>) ((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
+                        }
+                        else if (f.isAnnotationPresent(ManyToOne.class)) {
+                            type =  Relation.Type.MANY_TO_ONE;
+                            target = f.getType();
+                        }
+                        else if (f.isAnnotationPresent(ManyToMany.class)) {
+                            type= Relation.Type.MANY_TO_MANY;
+                            target = (Class<?>) ((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
+                        }
                         else return null;
-                        return new Relation(type, build(f.getType()));
+                        return new Relation(type, build(target));
                     }).filter(Objects::nonNull).toList()
             );
-            classesDone.put(cls, ret);
             return ret;
         }
     }

@@ -1,6 +1,7 @@
 package me.yusuf.ecommerce_builder.demo.engine.plugin;
 
 import me.yusuf.ecommerce_builder.demo.engine.InMemoryClassLoader;
+import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
 import me.yusuf.ecommerce_builder.shared.types.plugin.IPlugin;
 import me.yusuf.ecommerce_builder.shared.types.plugin.Plugin;
 import me.yusuf.ecommerce_builder.shared.types.plugin.PluginHandle;
@@ -27,7 +28,13 @@ public class PluginRegistry {
     public void registerPlugin(Plugin plugin){
         try {
             var cls = classLoader.addClass(plugin.classFile());
-            var method = cls.getDeclaredMethod("run", Arrays.stream(plugin.getMetadata().argTypes()).map(t->(Class<?>)t).toArray(Class<?>[]::new));
+            var method = cls.getDeclaredMethod("run", Arrays.stream(plugin.getMetadata().argTypes()).map(t->{
+                try{
+                    return Class.forName(EntitySource.getClassName(t.getTypeName().replaceAll("(\\w+\\.)+",""),plugin.getId().getVersion(),plugin.getId().getEditorId()));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toArray(Class<?>[]::new));
             var pMethod = new PluginHandle(plugin.id(), plugin.metadata(), method);
             plugins.add(pMethod);
         } catch (ClassNotFoundException | NoSuchMethodException e) {

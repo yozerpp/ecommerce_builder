@@ -25,7 +25,7 @@ public class ClassFileObject extends SimpleJavaFileObject implements Serializabl
         outputStream.reset();outputStream.writeBytes(bytes);
     }
     public ClassFileObject(String className, Kind kind) {
-        super(URI.create("string:///" + className.replace('.', '/') + kind.extension), kind);
+        super(URI.create("dynamic:///" + className.replace('.', '/') + kind.extension), kind);
         this.className = className;
     }
     public ClassFileObject(String className, byte[] bytes){

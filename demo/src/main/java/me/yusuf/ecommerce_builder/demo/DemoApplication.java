@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import me.yusuf.ecommerce_builder.demo.domain.network.filter.SessionHolder;
 import me.yusuf.ecommerce_builder.demo.domain.repository.CartRepository;
 import me.yusuf.ecommerce_builder.demo.domain.repository.SessionRepository;
+import me.yusuf.ecommerce_builder.demo.engine.InMemoryClassLoader;
 import me.yusuf.ecommerce_builder.shared.components.DataSourceHolder;
 import me.yusuf.ecommerce_builder.demo.domain.network.PageInterceptor;
 import me.yusuf.ecommerce_builder.demo.security.UserAuthService;
@@ -34,8 +35,14 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.List;
 
 @OpenAPIDefinition(info = @Info(title = "ecommerce", version = "1.0"))
@@ -52,7 +59,6 @@ public class DemoApplication implements org.springframework.web.servlet.config.a
         this.userAuthService = userAuthService;
         this.demoDatasourceConfig = demoDatasourceConfig;
     }
-
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
