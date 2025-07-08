@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import me.yusuf.ecommerce_builder.editor.EditorApplication;
 import me.yusuf.ecommerce_builder.editor.helper.Importer;
+import me.yusuf.ecommerce_builder.editor.helper.ReferenceManager;
 import me.yusuf.ecommerce_builder.shared.components.repository.EntitySourceRepository;
 import me.yusuf.ecommerce_builder.shared.types.plugin.*;
 import me.yusuf.ecommerce_builder.shared.components.repository.PluginRepository;
@@ -63,20 +64,28 @@ public class CodeGeneratorService {
     public void createPlugin(String input, int editorId) throws BadRequestException {
         var ast = parse(input);
         var argTypes = substituteAndValidate(ast);
-        var javaCode = transpile(ast, editorId,argTypes);
+        var entitySources=entitySourceRepository.findLatestVersions(editorId);
+        if (entitySources.isEmpty()) entitySources = Arrays.stream(defaultEntityClasses).filter(c->c.getDeclaringClass()==null).map(c->
+                new EntitySource(
+                        new EntitySource.Id(editorId,c,0),
+                        false,
+                        Utils.getStaticClassSource(c),null
+                        )).toList();
+        var javaCode = transpile(ast, editorId,argTypes,entitySources.getFirst().getId().version());
         javaCode.getMetadata().setArgumentTypes(argTypes);
-        var pluginClassFile = compile(javaCode,getImports(javaCode,editorId), Arrays.asList(entitySourceRepository.findById_EditorId(editorId, Pageable.unpaged()).toArray(EntitySource[]::new)));
+        var pluginClassFile = compile(javaCode,getImports(javaCode,editorId),entitySources);
         javaCode.getSource().setByteEncoded(pluginClassFile.getClassBytes());
         sendToApp(javaCode, editorId);
          javaCode.getSource().setPseudoCode(input);
         pluginRepository.save(javaCode);
     }
-    public PluginDto[] recompilePlugins(int editorId, List<EntitySource> newEntityClasses){
+    public PluginDto[] recompilePlugins(int editorId, List<EntitySource> newEntityClasses, ReferenceManager referenceManager){
         var userPlugins= pluginRepository.findById_EditorId(editorId, Pageable.unpaged(),PluginDto.class);
         for (var plugin:userPlugins){
             var newId = new IPlugin.Id(editorId,plugin.getId().getName(),plugin.getId().getHookedMethod(), plugin.getId().getVersion() + 1);
             plugin.setId(newId);
             var nameReplacedSource = plugin.getSource().getCharEncoded().replaceFirst("public\\s+class\\s+\\w+_\\d+_v\\d+", "public class " + newId.getName() +"Plugin"+ "_" + editorId + "_v" + newId.getVersion());
+            nameReplacedSource= referenceManager.update(nameReplacedSource,null);
             plugin.getSource().setCharEncoded(nameReplacedSource);
             String imports = Arrays.stream(plugin.getMetadata().argTypes())
                     .map(t-> "import " + EntitySource.getClassName(t.getTypeName().replaceAll("(\\w+\\.)+",""),newEntityClasses.getFirst().getId().version(),editorId) + ";\n")
@@ -110,10 +119,10 @@ public class CodeGeneratorService {
                 .findAny().orElseThrow();
     }
 
-    public PluginDto transpile(final PluginDef ast, int editorId, Type[] argTypes){
+    public PluginDto transpile(final PluginDef ast, int editorId, Type[] argTypes,int entityVersion){
         var ver = pluginRepository.getLastVersion(editorId,ast.getName(),ast.getHookedMethod());
         var splt = ast.getHookedMethod().split("\\.");
-        return generator.generate(ast,argTypes,EditorIdContextHolder.getEditorId(),ver!=null?ver+1:1 );
+        return generator.generate(ast,argTypes,EditorIdContextHolder.getEditorId(),ver!=null?ver+1:1,entityVersion);
     }
 
      private Type[] substituteAndValidate(PluginDef ast) throws IllegalStateException{

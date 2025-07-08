@@ -4,6 +4,7 @@ import me.yusuf.ecommerce_builder.shared.types.plugin.ClassFileObject;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,8 +27,15 @@ public class InMemoryClassLoader extends ClassLoader {
     public void clear(){
         loadedClasses.clear();compiledClasses.clear();
     }
-    public Class<?> forName(String name) {
-        return loadedClasses.get(name);
+    public Class<?> forName(String versionedName) throws ClassNotFoundException{
+        var ret = loadedClasses.get(versionedName);
+        if (ret == null) throw new ClassNotFoundException(versionedName);
+        return ret;
+    }
+    public Class<?> latestForVersionlessName(String versionlessName) throws ClassNotFoundException {
+        return loadedClasses.entrySet().stream().filter(e->e.getKey().matches(versionlessName + "_v\\d+$"))
+                .max(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().replaceAll("(\\w+\\.)+.*_v", ""))))
+                .orElseThrow(()->new ClassNotFoundException("Class not found for versionless name: " + versionlessName)).getValue();
     }
     public void remove(String name){
         loadedClasses.remove(name);

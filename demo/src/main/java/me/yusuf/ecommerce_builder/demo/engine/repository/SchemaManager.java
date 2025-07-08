@@ -30,17 +30,20 @@ public class SchemaManager {
     private static final Map<Integer, SchemaMigrator> instances = new HashMap<>();
     private final DataSourceHolder datasourceHolder;
     private final InMemoryClassLoader classLoader;
-    private SchemaManager(DataSourceHolder datasourceHolder, InMemoryClassLoader classLoader) {
+    private final EntityManagerFactory entityManagerFactory;
+    private SchemaManager(DataSourceHolder datasourceHolder, InMemoryClassLoader classLoader, EntityManagerFactory entityManagerFactory) {
         this.datasourceHolder = datasourceHolder;
         this.classLoader = classLoader;
+        this.entityManagerFactory = entityManagerFactory;
     }
     public void update(Collection<? extends Class<?>> allClassNames, int editorId){
-        var serviceRegistry = getServiceRegistry(datasourceHolder.get(editorId),editorId, classLoader);
+        var serviceRegistry = getServiceRegistry(datasourceHolder.get(editorId),editorId,classLoader);
+//        var serviceRegistry = getServiceRegistry(datasourceHolder.get(editorId),editorId, classLoader);
         var metadata = getMetadata(serviceRegistry,classLoader,allClassNames,editorId);
         SchemaMigrator migrator;
         if ((migrator = instances.get(editorId)) == null){
             migrator = serviceRegistry.getService(SchemaManagementTool.class).getSchemaMigrator(Map.of(
-                    SchemaToolingSettings.JAKARTA_HBM2DDL_DATABASE_ACTION, Action.SPEC_ACTION_DROP_AND_CREATE
+                    SchemaToolingSettings.JAKARTA_HBM2DDL_DATABASE_ACTION, Action.ACTION_UPDATE
             ));
             instances.put(editorId, migrator);
         }
@@ -76,8 +79,8 @@ public class SchemaManager {
     }
     private static StandardServiceRegistry getServiceRegistry(DataSource dataSource,int editorId, ClassLoader classLoader) {
         return new StandardServiceRegistryBuilder()
-                .applySetting(AvailableSettings.HBM2DDL_AUTO, Action.SPEC_ACTION_DROP_AND_CREATE)
-                .applySetting(AvailableSettings.JAKARTA_HBM2DDL_DATABASE_ACTION, Action.SPEC_ACTION_DROP_AND_CREATE)
+                .applySetting(AvailableSettings.HBM2DDL_AUTO, Action.ACTION_UPDATE)
+                .applySetting(AvailableSettings.JAKARTA_HBM2DDL_DATABASE_ACTION, Action.ACTION_UPDATE)
                 .applySetting(AvailableSettings.DIALECT, "org.hibernate.dialect.PostgreSQLDialect")
                 .applySetting(AvailableSettings.DATASOURCE, dataSource)
                 .applySetting(AvailableSettings.CLASSLOADERS ,List.of(classLoader))

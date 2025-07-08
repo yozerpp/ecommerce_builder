@@ -17,22 +17,23 @@ public class ReferenceManager {
         this.defaultEntityClasses = defaultEntityClasses;
         this.editorId = editorId;
         this.newVersion = oldVersion + 1;
-        final String packageName = EntitySource.DYNAMIC_PACKAGE_PREFIX + editorId;
+        final String packageNameRegex = (EntitySource.DYNAMIC_PACKAGE_PREFIX + editorId).replace(".","\\.");
         this.patternsMap = Arrays.stream(defaultEntityClasses).filter(c->c.getDeclaringClass()==null).collect(Collectors.toMap(c->EntitySource.getClassName(c.getSimpleName(),newVersion,editorId), c -> {
             String oldVersionedName = oldVersion != 0 ? c.getSimpleName() + "_v" + oldVersion : c.getSimpleName();
-            return new Tuple2<>( c.getName(),new Patterns(Pattern.compile("^\\bimport\\s+" + packageName + "\\." + oldVersionedName + "\\s*;", Pattern.MULTILINE | Pattern.DOTALL),
-                    Pattern.compile("\\b" + packageName + "\\." + oldVersionedName + "\\b"),
+            return new Tuple2<>( c.getName(),new Patterns(Pattern.compile("^\\bimport\\s+" + packageNameRegex + "\\." + oldVersionedName + "\\s*;", Pattern.MULTILINE | Pattern.DOTALL),
+                    Pattern.compile("\\b" + packageNameRegex + "\\." + oldVersionedName + "\\b"),
                     Pattern.compile("\\b" + oldVersionedName + "\\b")
             )
         );
         }));
     }
-    public String update(String source, String defaultClassName){
+    public String update(String source, String currentClassName){
         for (var clasAndPats: patternsMap.entrySet()) {
             var defaultClass = clasAndPats.getValue()._1();
-            if (defaultClass.equals(defaultClassName))continue;
             var pats = clasAndPats.getValue()._2();
-            var className = clasAndPats.getKey();
+            var className = defaultClass.equals(currentClassName)?
+                    currentClassName.replaceAll("(\\w+\\.)+","") + "_v" + newVersion //only simple name for the current class.
+                    : clasAndPats.getKey();
             source = pats.importPat.matcher(source).replaceFirst("import " + className + ";\n");
             source = pats.fqrPat.matcher(source).replaceAll(className);
             source = pats.entityPat.matcher(source).replaceAll(className );

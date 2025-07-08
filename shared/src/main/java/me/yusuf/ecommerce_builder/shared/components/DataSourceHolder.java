@@ -39,39 +39,38 @@ public class DataSourceHolder {
 		var ret = builder.url( datasourceUrl + "?currentSchema=demo" + editorId)
 				.driverClassName("org.postgresql.Driver")
 				.username(datasourceUsername).password(datasourcePassword).build();
-		if (!exists)
-			try (Connection conn = ret.getConnection()) {
-				disableForeignKeyChecks(conn);
-				
-				conn.createStatement().execute("DO $$\n" +
-						"DECLARE\n" +
-						"    source_schema text := 'public';\n" +
-						"    target_schema text := 'demo"+editorId+"';\n" +
-						"    tbl record;\n" +
-						"    sql text;\n" +
-						"BEGIN\n" +
-						"    -- First, copy table structures\n" +
-						"    FOR tbl IN\n" +
-						"        SELECT table_name\n" +
-						"        FROM information_schema.tables\n" +
-						"        WHERE table_schema = source_schema\n" +
-						"          AND table_type = 'BASE TABLE'\n" +
-						"    LOOP\n" +
-						"        -- Create table with same structure\n" +
-						"        sql := format(\n" +
-						"            'CREATE TABLE %I.%I (LIKE %I.%I INCLUDING ALL)',\n" +
-						"            target_schema, tbl.table_name,\n" +
-						"            source_schema, tbl.table_name\n" +
-						"        );\n" +
-						"        RAISE NOTICE 'Creating table: %', sql;\n" +
-						"        EXECUTE sql;\n" +
-						"    END LOOP;\n" +
-						"END\n" +
-						"$$;");
-				enableForeignKeyChecks(conn);
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+//		if (!exists)
+//			try (Connection conn = ret.getConnection()) {
+//				disableForeignKeyChecks(conn);
+//				conn.createStatement().execute("DO $$\n" +
+//						"DECLARE\n" +
+//						"    source_schema text := 'public';\n" +
+//						"    target_schema text := 'demo"+editorId+"';\n" +
+//						"    tbl record;\n" +
+//						"    sql text;\n" +
+//						"BEGIN\n" +
+//						"    -- First, copy table structures\n" +
+//						"    FOR tbl IN\n" +
+//						"        SELECT table_name\n" +
+//						"        FROM information_schema.tables\n" +
+//						"        WHERE table_schema = source_schema\n" +
+//						"          AND table_type = 'BASE TABLE'\n" +
+//						"    LOOP\n" +
+//						"        -- Create table with same structure\n" +
+//						"        sql := format(\n" +
+//						"            'CREATE TABLE %I.%I (LIKE %I.%I INCLUDING ALL)',\n" +
+//						"            target_schema, tbl.table_name,\n" +
+//						"            source_schema, tbl.table_name\n" +
+//						"        );\n" +
+//						"        RAISE NOTICE 'Creating table: %', sql;\n" +
+//						"        EXECUTE sql;\n" +
+//						"    END LOOP;\n" +
+//						"END\n" +
+//						"$$;");
+//				enableForeignKeyChecks(conn);
+//			} catch (SQLException e) {
+//				throw new RuntimeException(e);
+//			}
 		return ret;
     }
 	private static DataSource createDefaultDatasource(String datasourceUrl){

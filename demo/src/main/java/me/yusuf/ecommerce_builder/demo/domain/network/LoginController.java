@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.demo.domain.network;
 
+import jakarta.servlet.http.HttpServletRequest;
 import me.yusuf.ecommerce_builder.demo.domain.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,11 @@ public class LoginController extends ControllerBase {
     @PostMapping("/login")
     public Map<String, Object> login(@RequestParam String username,
                                      @RequestParam String password,
-                                     @RequestParam(name = "continue", defaultValue = "/user") String cont){
+                                     @RequestParam(name = "continue", defaultValue = "/user") String cont,
+                                     HttpServletRequest request){
         Map<String, Object> response = new HashMap<>();
         try {
-            userService.login(username, password);
+            userService.login(username, password,request);
             response.put("redirect", cont);
         } catch (LoginException e) {
             response.put("error", e.getMessage());

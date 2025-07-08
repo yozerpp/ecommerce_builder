@@ -5,7 +5,8 @@ import io.kubernetes.client.openapi.ApiException;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import me.yusuf.ecommerce_builder.demo.engine.plugin.PluginRegistry;
-import me.yusuf.ecommerce_builder.demo.engine.repository.RepositoryProxyFactory;
+import me.yusuf.ecommerce_builder.demo.engine.repository.EntityManagerFactory;
+import me.yusuf.ecommerce_builder.demo.engine.repository.RepositoryFactory;
 import me.yusuf.ecommerce_builder.demo.engine.repository.SchemaManager;
 import me.yusuf.ecommerce_builder.shared.components.MethodMetadataRegistry;
 import me.yusuf.ecommerce_builder.shared.types.plugin.*;
@@ -24,8 +25,10 @@ public class EngineService implements Closeable {
     @Getter
     private final Set<Integer> waitingSchemaUpdates = new HashSet<>();
 //    private final PodWatcher podWatcher;
-    private final RepositoryProxyFactory repositoryProxyFactory;
-    public EngineService(SchemaManager schemaManager, ApiClient kubernetesClient, EntityRegistry entityRegistry, MethodMetadataRegistry methodMetadataRegistry, PluginRegistry pluginRegistry, RepositoryProxyFactory repositoryProxyFactory) throws ApiException {
+    private final RepositoryFactory repositoryFactory;
+    private final EntityManagerFactory entityManagerFactory;
+
+    public EngineService(SchemaManager schemaManager, ApiClient kubernetesClient, EntityRegistry entityRegistry, MethodMetadataRegistry methodMetadataRegistry, PluginRegistry pluginRegistry, RepositoryFactory repositoryFactory, EntityManagerFactory entityManagerFactory) throws ApiException {
         this.methodMetadataRegistry = methodMetadataRegistry;
         this.schemaManager = schemaManager;
 //        this.kubernetesClient = kubernetesClient;
@@ -34,7 +37,8 @@ public class EngineService implements Closeable {
 //        if (EcommerceApplication.KUBE_DEPLOYMENT)
 //            this.podWatcher = new PodWatcher();
 //        else this.podWatcher = null;
-        this.repositoryProxyFactory = repositoryProxyFactory;
+        this.repositoryFactory = repositoryFactory;
+        this.entityManagerFactory = entityManagerFactory;
     }
     @PreDestroy
     public void close() {
@@ -53,8 +57,9 @@ public class EngineService implements Closeable {
     }
     private void addEntities(EntitySource[] entitySources, int editorId){
         var clses = entityRegistry.registerAll(Arrays.asList(entitySources));
-        schemaManager.update(Arrays.asList(clses),editorId);
-        repositoryProxyFactory.invalidateCache(editorId);
+        schemaManager.update(clses,editorId);
+        repositoryFactory.invalidateCache(editorId);
+        entityManagerFactory.invalidateCache(editorId);
     }
     private void replacePlugins(PluginDto[] plugins,int editorId){
         Arrays.stream(plugins).map(Plugin::new).forEach(p->{

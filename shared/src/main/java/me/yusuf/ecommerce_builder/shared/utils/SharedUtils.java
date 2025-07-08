@@ -11,7 +11,10 @@ import java.util.List;
 
 public interface SharedUtils {
     static Class<?>[] getPatternMatchingClasses(String pattern) throws IOException {
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        return getPatternMatchingClasses(pattern, Thread.currentThread().getContextClassLoader());
+    }
+    static Class<?>[] getPatternMatchingClasses(String pattern, ClassLoader classLoader) throws IOException {
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(classLoader);
         if (pattern.matches("^.*\\.[^*]*$")){
              var i =pattern.lastIndexOf(".");
              pattern = pattern.substring(0,i).replace('.','/') +pattern.substring(i);

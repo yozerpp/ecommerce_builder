@@ -1,11 +1,18 @@
 package me.yusuf.ecommerce_builder.demo.domain.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import me.yusuf.ecommerce_builder.demo.domain.network.filter.SessionHolder;
+import me.yusuf.ecommerce_builder.demo.security.AuthenticationManagerImpl;
+import me.yusuf.ecommerce_builder.demo.security.UserPrincipal;
 import me.yusuf.ecommerce_builder.shared.types.dto.RegistrationForm;
 import me.yusuf.ecommerce_builder.shared.types.entity.User;
 import me.yusuf.ecommerce_builder.demo.domain.repository.UserRepository;
-import me.yusuf.ecommerce_builder.demo.security.UserAuthService;
 import me.yusuf.ecommerce_builder.shared.types.annotation.MethodInfo;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,32 +20,22 @@ import javax.security.auth.login.LoginException;
 
 @Service
 public class UserService extends ServiceBase {
-    private final UserAuthService userAuthService;
     private final UserRepository userRepository;
-
+    private final AuthenticationManagerImpl authenticationManager;
     public UserService(
-                       UserRepository userRepository,
-                       UserAuthService userAuthService) {
+            UserRepository userRepository, AuthenticationManagerImpl authenticationManager) {
         this.userRepository = userRepository;
-        this.userAuthService = userAuthService;
+        this.authenticationManager = authenticationManager;
     }
 
     @MethodInfo(userFriendlyName = "Giriş Yap")
     @PreAuthorize("isAnonymous()")
     public User login(@RequestParam String username,
-                      @RequestParam String password) throws LoginException {
-        User user;
-        if (!userAuthService.userExists(username)) {
-            throw new LoginException("You have entered invalid username or password");
-        }
-        user = userAuthService.loadUserByUsername(username).getUser();
-        if (!user.isEnabled()) {
-            throw new LoginException("Your account is disabled, please contact administration to re-enable it before logging in");
-        }
-        if (!user.getPassword().equals(password)) {
-            throw new LoginException("You have entered invalid username or password");
-        }
-        return user;
+                      @RequestParam String password, HttpServletRequest request) throws LoginException {
+        var auth =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        request.getSession(true).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+        return  auth.getDetails();
     }
 
     @MethodInfo(userFriendlyName = "Kullanıcı Güncelle")
@@ -49,6 +46,10 @@ public class UserService extends ServiceBase {
     @MethodInfo(userFriendlyName = "Kayıt Ol")
     @PreAuthorize("isAnonymous()")
     public User signUp(RegistrationForm.Impl form) {
-        return userRepository.save(form.toUser());
+        var u = form.toUser();
+        var s = SessionHolder.getSession();
+        u.setActiveSession(s.getId());
+        u.setActiveSessionRef(s);
+        return userRepository.save(u);
     }
 }

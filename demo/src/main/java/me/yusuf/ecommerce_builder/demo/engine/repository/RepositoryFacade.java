@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.demo.engine.repository;
 
+import me.yusuf.ecommerce_builder.demo.engine.EntityRegistry;
 import me.yusuf.ecommerce_builder.shared.components.EditorIdContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,22 +15,22 @@ import java.util.*;
 public class RepositoryFacade implements InvocationHandler {
     private final Repository<?,?> defaultRepository;
     private final Class<? extends Repository<?,?>> iface;
-    private final RepositoryProxyFactory repositoryProxyFactory;
-    private final Class<?> entityClass;
-    public RepositoryFacade(Class<? extends Repository<?,?>> iface, Class<?> entityClass, Repository<?,?> defaultRepository, RepositoryProxyFactory repositoryProxyFactory) {
+    private final RepositoryFactory repositoryFactory;
+    private final EntityRegistry entityRegistry;
+    public RepositoryFacade(EntityRegistry entityRegistry, Class<? extends Repository<?,?>> iface, Repository<?,?> defaultRepository, RepositoryFactory repositoryFactory) {
+        this.entityRegistry = entityRegistry;
         this.defaultRepository = defaultRepository;
         this.iface = iface;
-        this.entityClass = entityClass;
-        this.repositoryProxyFactory = repositoryProxyFactory;
+        this.repositoryFactory = repositoryFactory;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","rawtypes"})
     public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
-        Repository<?,?> dynamicRepository = repositoryProxyFactory.create(EditorIdContextHolder.getEditorId(),iface,entityClass);
+        Repository<?,?> dynamicRepository = repositoryFactory.create(EditorIdContextHolder.getEditorId(),iface);
         if (method.getName().matches("^(get|find).*$") || method.isAnnotationPresent(Query.class) && !method.isAnnotationPresent(Modifying.class)) {
             var dynRes = method.invoke(dynamicRepository, args);
-            return switch (dynRes){
+            var v = switch(dynRes){
                 case Optional o -> o.isPresent()?o:method.invoke(defaultRepository, args);
                 case Collection l -> {
                     l.addAll((Collection)  method.invoke(defaultRepository, args));
@@ -38,7 +39,7 @@ public class RepositoryFacade implements InvocationHandler {
                 case Page p -> {
                     var res = new ArrayList(p.getContent());
                     res.addAll((Collection)  method.invoke(defaultRepository, args));
-                    yield  new PageImpl(res,p.getPageable(),p.getTotalElements());
+                    yield new PageImpl(res,p.getPageable(),p.getTotalElements());
                 }
                 case null -> method.invoke(defaultRepository, args);
                 default -> dynRes;
@@ -47,6 +48,4 @@ public class RepositoryFacade implements InvocationHandler {
             return method.invoke(dynamicRepository, args);
         }
     }
-
-
 }

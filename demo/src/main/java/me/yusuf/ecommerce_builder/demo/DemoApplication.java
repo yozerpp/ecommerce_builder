@@ -7,15 +7,18 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import me.yusuf.ecommerce_builder.demo.domain.network.filter.SessionHolder;
 import me.yusuf.ecommerce_builder.demo.domain.repository.CartRepository;
+import me.yusuf.ecommerce_builder.demo.domain.repository.ProductRepository;
 import me.yusuf.ecommerce_builder.demo.domain.repository.SessionRepository;
-import me.yusuf.ecommerce_builder.demo.engine.InMemoryClassLoader;
+import me.yusuf.ecommerce_builder.demo.security.AuthenticationManagerImpl;
 import me.yusuf.ecommerce_builder.shared.components.DataSourceHolder;
 import me.yusuf.ecommerce_builder.demo.domain.network.PageInterceptor;
 import me.yusuf.ecommerce_builder.demo.security.UserAuthService;
 import me.yusuf.ecommerce_builder.shared.components.EditorIdContextHolder;
-import me.yusuf.ecommerce_builder.shared.components.EntityManagerFactoryFactory;
 import me.yusuf.ecommerce_builder.shared.components.MethodMetadataRegistry;
 import me.yusuf.ecommerce_builder.shared.types.conversion.ClassMapper;
+import me.yusuf.ecommerce_builder.shared.types.entity.Cart;
+import me.yusuf.ecommerce_builder.shared.types.plugin.EntitySource;
+import me.yusuf.ecommerce_builder.shared.utils.SharedUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,8 +26,13 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.repository.Repository;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -35,21 +43,16 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+import java.util.Arrays;
 import java.util.List;
 
 @OpenAPIDefinition(info = @Info(title = "ecommerce", version = "1.0"))
 @EnableWebMvc
 @EnableMethodSecurity
 @EnableAspectJAutoProxy
-@SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce_builder.demo", "me.yusuf.ecommerce_builder.demo.domain.network", "me.yusuf.ecommerce_builder.demo.engine","me.yusuf.ecommerce_builder.shared.components.repository"})
+@SpringBootApplication(scanBasePackages = {"me.yusuf.ecommerce_builder.demo", "me.yusuf.ecommerce_builder.demo.domain.network", "me.yusuf.ecommerce_builder.demo.engine","me.yusuf.ecommerce_builder.shared.components.repository","me.yusuf.ecommerce_builder.shared.types.entity"})
 public class DemoApplication implements org.springframework.web.servlet.config.annotation.WebMvcConfigurer {
     private final DemoDatasourceConfig demoDatasourceConfig;
     public static final boolean KUBE_DEPLOYMENT = System.getenv("KUBERNETES_SERVICE_HOST")!=null;
@@ -64,8 +67,24 @@ public class DemoApplication implements org.springframework.web.servlet.config.a
     }
     @Bean
     @Scope("singleton")
+    public AuthenticationManagerImpl authenticationManager(UserAuthService userAuthService) {
+        return new AuthenticationManagerImpl(userAuthService);
+    }
+    @Bean
+    @Scope("singleton")
     public MethodMetadataRegistry methodMetadataRegistry() {
         return new MethodMetadataRegistry("me.yusuf.ecommerce_builder.demo.domain.service");
+    }
+    @Bean
+    @Scope("singleton")
+    public Class<?>[] defaultEntityClasses() throws IOException {
+        return Arrays.stream(SharedUtils.getPatternMatchingClasses("classpath*:" + EntitySource.STATIC_PACKAGE_PREFIX + ".*.class", Cart.class.getClassLoader())).filter(c->c.getDeclaringClass()==null).toArray(Class[]::new);
+    }
+    @Bean
+    @Scope("singleton")
+    @SuppressWarnings("unchecked")
+    public Class<? extends Repository<?,?>>[] repositoryInterfaces() throws IOException{
+        return (Class<? extends Repository<?, ?>>[]) SharedUtils.getPatternMatchingClasses("classpath*:" + ProductRepository.class.getPackageName().replace(".", "/") + "/*.class");
     }
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -105,11 +124,7 @@ public class DemoApplication implements org.springframework.web.servlet.config.a
     DataSourceHolder dataSourceHolder(){
         return new DataSourceHolder(defaultDatasource, demoDatasourceConfig.getUrl());
     }
-    @Bean
-    @Scope("singleton")
-    EntityManagerFactoryFactory entityManagerFactoryFactory(){
-        return new EntityManagerFactoryFactory(dataSourceHolder());
-    }
+
     @Bean
     @Scope("singleton")
     ObjectMapper objectMapper(){

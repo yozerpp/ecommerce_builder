@@ -23,8 +23,8 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
     public CodeGeneratorVisitor(Class<?>[] entityClasses) {
         this.entityClasses = entityClasses;
     }
-    public PluginDto generate(PluginDef pluginDef, Type[] argTypes, int editorId, int version) {
-        String code = visitPluginDef(pluginDef, argTypes,editorId, version);
+    public PluginDto generate(PluginDef pluginDef, Type[] argTypes, int editorId, int version, Integer entityVersion) {
+        String code = visitPluginDef(pluginDef, argTypes,editorId, version, entityVersion);
         return new PluginDto(new IPlugin.Id(
                 editorId,
                 pluginDef.getName(),
@@ -33,11 +33,11 @@ public class CodeGeneratorVisitor implements ASTModifierVisitor {
         ),new IPlugin.PluginMetadata(argTypes),
                 new PluginDto.PluginSource(null,code,null));
     }
-    public String visitPluginDef(PluginDef pd, Type[] argTypes, int editorId, int version) {
-        return "public class " + pd.getName() + "Plugin_" +editorId+ "_v" + version + " {\n" +
+    public String visitPluginDef(PluginDef pd, Type[] argTypes, int editorId, int pluginVersion, int entityVersion) {
+        return "public class " + pd.getName() + "Plugin_" +editorId+ "_v" + pluginVersion + " {\n" +
                "    public static void run(" + Arrays.stream(argTypes).map(t->{
                    var splt = t.getTypeName().split("\\.");
-                  return EntitySource.getClassName(splt[splt.length-1],version,editorId) + ' ' + StringUtils.firstLetterToLowerCase(splt[splt.length-1]);
+                  return EntitySource.getClassName(splt[splt.length-1],entityVersion,editorId) + ' ' + StringUtils.firstLetterToLowerCase(splt[splt.length-1]);
         }).collect(Collectors.joining(","))+") {\n" +
                 indent(visitBlock(pd.getBlock()),2) +
                 "    }\n"+

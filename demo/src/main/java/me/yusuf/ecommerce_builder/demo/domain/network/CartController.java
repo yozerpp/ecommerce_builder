@@ -30,8 +30,8 @@ public class CartController {
         c.setCartItems(cartItemRepository.findByCart(c));
         return c;
     }
-    @PostMapping("/{productId}/{sellerId}")
-    public ResponseEntity<AddToCartResponse> addToCart(@PathVariable Integer productId, @PathVariable Integer sellerId) {
+    @PostMapping("/item")
+    public ResponseEntity<AddToCartResponse> addToCart(@RequestParam Integer productId, @RequestParam Integer sellerId) {
         return ResponseEntity.ok(cartService.addToCart(productId, sellerId)._1());
     }
 
@@ -41,7 +41,7 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{productId}/{sellerId}")
+    @PutMapping("/item")
     public ResponseEntity<Void> changeQuantity(
         @RequestParam(required = false, defaultValue = "0") int quantity,
         @RequestParam(required = false, defaultValue = "null") Boolean increment,
@@ -52,8 +52,8 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{productId}/{sellerId}")
-    public ResponseEntity<Void> removeItem(@PathVariable int productId, @PathVariable int sellerId) {
+    @DeleteMapping("/item")
+    public ResponseEntity<Void> removeItem(@RequestParam int productId, @RequestParam int sellerId) {
         try {
             cartService.removeItem(productId, sellerId);
         } catch (NotFoundException e) {

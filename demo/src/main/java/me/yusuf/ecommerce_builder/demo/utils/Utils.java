@@ -4,33 +4,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import me.yusuf.utils.StringUtils;
 import org.springframework.lang.Nullable;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class Utils {
-    private static final Map<String, Class<?>[]> cacheOfClasses = new HashMap<>();
-    public static Class<?> extractEntityClassFromRepository(Class<?> r){
-        var ptype = Arrays.stream(r.getGenericInterfaces())
-                .filter(c->c.getTypeName().contains("Repository") && c instanceof ParameterizedType && ((ParameterizedType) c).getActualTypeArguments().length==2)
-                .findAny().map(ParameterizedType.class::cast).orElseThrow(()->new RuntimeException("Repository doesn't implement javax.persistance repository classes."));
-        return (Class<?>) ptype.getActualTypeArguments()[0];
-    }
-
-
-    public static String firstLetterToUpperCase(String in){
-        var ar = in.toCharArray();
-
-        ar[0] = Character.toUpperCase(ar[0]);
-        return String.valueOf(ar);
-    }
+public interface Utils {
     public static Map<String, Map.Entry<String,Boolean>> propertyMap(Class<?> clazz){
         return Arrays.stream(clazz.getDeclaredMethods()).filter(m->m.getName().startsWith("is") || m.getName().startsWith("get")).collect(Collectors.toMap(m->m.getName().replaceAll("^(is|get)",""), (m->Map.entry(m.getReturnType().getSimpleName(),!m.isAnnotationPresent(Nullable.class)))));
     }
@@ -117,7 +100,7 @@ public abstract class Utils {
                 if(Number.class.isAssignableFrom( claz.getComponentType()))
                     return Arrays.stream(ar).map(n-> {
                         try {
-                            return claz.getMethod("parse" + firstLetterToUpperCase(claz.getSimpleName()));
+                            return claz.getMethod("parse" + StringUtils.firstLetterToUpperCase(claz.getSimpleName()));
                         } catch (NoSuchMethodException e) {
                             throw new RuntimeException(e);
                         }
@@ -134,7 +117,7 @@ public abstract class Utils {
             }
             else{
                 if (Number.class.isAssignableFrom(claz))
-                    return claz.getMethod("parse" + firstLetterToUpperCase(claz.getSimpleName())).invoke(null, value);
+                    return claz.getMethod("parse" + StringUtils.firstLetterToUpperCase(claz.getSimpleName())).invoke(null, value);
                 else if (String.class.isAssignableFrom(claz))
                     return value;
                 else if (byte.class.isAssignableFrom(claz))

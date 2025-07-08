@@ -1,5 +1,9 @@
 package me.yusuf.ecommerce_builder.demo.engine.plugin;
 
+import jakarta.persistence.Transient;
+import me.yusuf.ecommerce_builder.demo.engine.EntityRegistry;
+import me.yusuf.ecommerce_builder.demo.engine.repository.RepositoryFactory;
+import me.yusuf.ecommerce_builder.demo.utils.EngineUtils;
 import me.yusuf.ecommerce_builder.demo.utils.exception.ContextedException;
 import me.yusuf.ecommerce_builder.shared.components.EditorIdContextHolder;
 import me.yusuf.ecommerce_builder.shared.types.plugin.IPlugin;
@@ -11,6 +15,7 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
@@ -24,15 +29,22 @@ import java.util.Arrays;
 //@ConditionalOnProperty(prefix = "deployment", name = "type", havingValue = "editor")
 public class PluginAspect {
     private final PluginRegistry pluginRegistry;
-    public PluginAspect(PluginRegistry pluginRegistry){
+    private final EntityRegistry entityRegistry;
+    private final RepositoryFactory repositoryFactory;
+    private final Class<? extends Repository<?,?>>[] repositoryInterfaces;
+    public PluginAspect(PluginRegistry pluginRegistry, EntityRegistry entityRegistry, RepositoryFactory repositoryFactory, Class<? extends Repository<?,?>>[] repositoryInterfaces) {
         this.pluginRegistry = pluginRegistry;
+        this.entityRegistry = entityRegistry;
+        this.repositoryFactory = repositoryFactory;
+        this.repositoryInterfaces = repositoryInterfaces;
     }
     @Pointcut("execution(public * me.yusuf.ecommerce_builder.demo.domain.service.*.*(..))")
     public void ServiceMethods() {}
 
     @AfterReturning(pointcut = "ServiceMethods()", returning = "result")
     public void afterReturning(JoinPoint joinPoint, Object result) {
-        var pluginAndMetadataArray = pluginRegistry.getPluginsAfterMethod(EditorIdContextHolder.getEditorId(), ((MethodSignature)joinPoint.getSignature()).getMethod());
+        int editorId = EditorIdContextHolder.getEditorId();
+        var pluginAndMetadataArray = pluginRegistry.getPluginsAfterMethod(editorId, ((MethodSignature)joinPoint.getSignature()).getMethod());
         for (var pluginAndMetadata : pluginAndMetadataArray){
             Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
             var metaData = pluginAndMetadata.metadata();
@@ -40,25 +52,69 @@ public class PluginAspect {
             var fits = findFits(metaData, method);
             var args = getArgs(result,fits, metaData.argTypes().length);
             try {
-                plugin.invoke(null,args);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                execute(plugin,args,editorId);
+            } catch (InvocationTargetException e) { //plugin throws, delete it.
+                pluginRegistry.unregisterPlugin(pluginAndMetadata.id());
+                throw new RuntimeException("Plugin " + pluginAndMetadata.id().getName() + " threw an exception, temporarily unregistering. Exception message: " + e.getCause().getMessage(), e);
             }
         }
     }
     @AfterThrowing(pointcut = "ServiceMethods()", throwing = "ex")
     public void afterThrowing(JoinPoint joinPoint, ContextedException ex) {
-        var pluginAndMetadataArray = pluginRegistry.getPluginsAfterMethod(EditorIdContextHolder.getEditorId(),((MethodSignature)joinPoint.getSignature()).getMethod());
+        int editorId = EditorIdContextHolder.getEditorId();
+        var pluginAndMetadataArray = pluginRegistry.getPluginsAfterMethod(editorId,((MethodSignature)joinPoint.getSignature()).getMethod());
         for(var pluginAndMetadata: pluginAndMetadataArray) {
             var metaData = pluginAndMetadata.metadata();
             var plugin = pluginAndMetadata.handle();
             var fits = findFits(metaData, plugin);
             var args = getArgs( ex.context,fits,metaData.argTypes().length);
             try {
-                plugin.invoke(null, args);
-            } catch (InvocationTargetException | IllegalAccessException e) {
+                execute(plugin,args,editorId);
+            } catch (InvocationTargetException e) { //plugin throws, delete it.
+                pluginRegistry.unregisterPlugin(pluginAndMetadata.id());
+                throw new RuntimeException("Plugin " + pluginAndMetadata.id().getName() + " threw an exception, temporarily unregistering. Exception message: " + e.getCause().getMessage(), e);
+            }
+        }
+    }
+    public void execute(Method pluginMethod, Object[] args, int editorId) throws InvocationTargetException {
+        for (int i =0; i<args.length; i++) args[i] = toDynamicEntity(args[i], editorId);
+        try {
+            pluginMethod.invoke(null,args);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        for (var arg: args) {
+            var baseEntityClass = EngineUtils.getBaseEntityClass(EngineUtils.stripProxyClass(arg.getClass()));
+            var repoInt = EngineUtils.getRepositoryForEntityClass(baseEntityClass, Arrays.asList(repositoryInterfaces))
+                    .orElseThrow(()->new RuntimeException("No repository found for entity class: " + baseEntityClass.getName()));
+            var repo =  repositoryFactory.create(editorId,repoInt);
+            try {
+                repoInt.getDeclaredMethod("save", baseEntityClass)//repo interface has the default types in signature
+                        .invoke(repo, arg);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+    private Object toDynamicEntity(Object defaultEntity, int editorId){
+        Class<?> entityClass = EngineUtils.stripProxyClass(defaultEntity.getClass());
+        if (EngineUtils.isDynamicEntityClass(entityClass)) return defaultEntity;
+        Class<?> dynamicEntityClass = entityRegistry.get(editorId,entityClass);
+        try {
+            Object dynamic = dynamicEntityClass.getConstructor().newInstance();
+            Arrays.stream(entityClass.getDeclaredFields()).filter(f->!f.isAnnotationPresent(Transient.class))
+                    .forEach(f-> {
+                        try {
+                            ReflectionUtils.findSetter(f, entityClass).invoke(dynamic,
+                                    ReflectionUtils.findGetter(f,entityClass).invoke(defaultEntity)
+                            );
+                        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            return dynamic;
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
     }
     private static Object[] getArgs(Object arg, Boolean[] fits, int len){

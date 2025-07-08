@@ -1,5 +1,6 @@
 package me.yusuf.ecommerce_builder.demo.engine;
 
+import me.yusuf.ecommerce_builder.demo.DemoApplication;
 import me.yusuf.ecommerce_builder.demo.engine.plugin.PluginRegistry;
 import me.yusuf.ecommerce_builder.shared.components.repository.EntitySourceRepository;
 import me.yusuf.ecommerce_builder.shared.components.repository.PluginRepository;
@@ -26,8 +27,11 @@ public class EngineStartupListener implements ApplicationListener<ApplicationSta
     //TODO: Should have loaded these lazily
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
+        if (System.getProperty("test.env")!=null) return;
+        entitySourceRepository.deleteOldVersions();
         var entitySources = entitySourceRepository.findAllBy();
         entityRegistry.registerAll(entitySources);
+        pluginRepository.deleteOldVersions();
         var plugins = pluginRepository.findAllBy(PluginDto.class);
         pluginRegistry.registerAllPlugins(plugins.stream().map(Plugin::new).toList());
     }

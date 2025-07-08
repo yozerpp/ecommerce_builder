@@ -48,6 +48,7 @@ public interface IPlugin extends Serializable {
             result = 27*result + hookedMethod.hashCode();
             return 3*result + version;
         }
+
     }
     @Embeddable
     @Getter

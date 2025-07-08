@@ -1,6 +1,5 @@
 package me.yusuf.ecommerce_builder.demo.domain.service;
 
-import jakarta.persistence.EntityManager;
 import me.yusuf.ecommerce_builder.shared.types.dto.AddToCartResponse;
 import me.yusuf.ecommerce_builder.shared.types.entity.*;
 import me.yusuf.ecommerce_builder.demo.domain.repository.CartItemRepository;
@@ -8,14 +7,12 @@ import me.yusuf.ecommerce_builder.demo.domain.repository.CartRepository;
 import me.yusuf.ecommerce_builder.demo.domain.repository.SessionRepository;
 import me.yusuf.ecommerce_builder.demo.utils.exception.ContextedException;
 import me.yusuf.ecommerce_builder.shared.types.annotation.MethodInfo;
-import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple2;
 import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple3;
 import me.yusuf.ecommerce_builder.shared.types.exception.ExceptionCause;
 import me.yusuf.ecommerce_builder.shared.types.exception.NotFoundException;
 import me.yusuf.ecommerce_builder.shared.types.tuple.Tuple4;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,11 +29,11 @@ public class CartService extends ServiceBase {
 
     @MethodInfo(userFriendlyName = "Sepete Ekle")
     public Tuple4<AddToCartResponse, Cart, ProductOffer, Product> addToCart(Integer productId, Integer sellerId) {
-        var session = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getActiveSessionRef();
-        var cart = session.getCart();
+        var cart = getCart();
         var newItem = new CartItem();
         var ps = new ProductOffer();
         ps.setId(new ProductOffer.ProductOfferId(productId, sellerId));
+        newItem.setId(new CartItem.CartItemId(ps.getId(), cart.getId()));
         newItem.setProductOffer(ps);
         newItem.setCart(cart);
         return new Tuple4<>(
@@ -92,14 +89,6 @@ public class CartService extends ServiceBase {
                 "Cart item not found."));
         cartItemRepository.delete(item);
         return context;
-    }
-    @MethodInfo(userFriendlyName = "Sepet Getir")
-    public static Cart getCart(){
-        var session = getSession();
-        var cart = session.getCart();
-        if (cart == null) throw new IllegalStateException("User has no cart");
-        else if (cart.isOrdered()) throw new IllegalStateException("Cart is already ordered");
-        return cart;
     }
 
 }

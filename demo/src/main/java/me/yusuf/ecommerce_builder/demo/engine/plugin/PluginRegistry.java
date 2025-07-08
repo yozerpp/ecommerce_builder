@@ -30,7 +30,7 @@ public class PluginRegistry {
             var cls = classLoader.addClass(plugin.classFile());
             var method = cls.getDeclaredMethod("run", Arrays.stream(plugin.getMetadata().argTypes()).map(t->{
                 try{
-                    return Class.forName(EntitySource.getClassName(t.getTypeName().replaceAll("(\\w+\\.)+",""),plugin.getId().getVersion(),plugin.getId().getEditorId()));
+                    return classLoader.latestForVersionlessName(EntitySource.getClassName(t.getTypeName().replaceAll("(\\w+\\.)+",""),plugin.getId().getVersion(),plugin.getId().getEditorId()).replaceAll("_v\\d+$",""));
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }

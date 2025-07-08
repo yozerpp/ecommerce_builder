@@ -1,6 +1,8 @@
 package me.yusuf.ecommerce_builder.demo.security;
 
+import lombok.Getter;
 import me.yusuf.ecommerce_builder.shared.types.entity.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,19 +10,41 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Collection;
 
-public class UserPrincipal implements UserDetails, CredentialsContainer {
+public class UserPrincipal implements UserDetails, CredentialsContainer, Authentication {
+  @Getter
   private final User user;
   public UserPrincipal(User user) {
     this.user = user;
   }
-  /** Expose the underlying JPA entity */
-  public User getUser() {
+
+    @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return user.getAuthorities();
+  }
+
+  @Override
+  public Object getCredentials() {
+    return user.getPassword();
+  }
+
+  @Override
+  public User getDetails() {
     return user;
   }
 
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return user.getAuthorities();
+  public Object getPrincipal() {
+    return user.getUsername();
+  }
+
+  @Override
+  public boolean isAuthenticated() {
+    return authenticated;
+  }
+  private boolean authenticated = true;
+  @Override
+  public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+      authenticated = isAuthenticated;
   }
 
   @Override
@@ -60,5 +84,10 @@ public class UserPrincipal implements UserDetails, CredentialsContainer {
   @Override
   public void eraseCredentials() {
     // Optionally null out user.password here
+  }
+
+  @Override
+  public String getName() {
+    return "";
   }
 }
